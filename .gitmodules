@@ -1,0 +1,6 @@
+[submodule "service/third_party/googleapis"]
+	path = service/third_party/googleapis
+	url = https://github.com/googleapis/googleapis
+[submodule "service/third_party/grpc-gateway"]
+	path = service/third_party/grpc-gateway
+	url = https://github.com/grpc-ecosystem/grpc-gateway

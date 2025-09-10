@@ -1,6 +1,5 @@
 version: v2
 modules:
-  - path: .       
-deps:
-  - buf.build/googleapis/googleapis
-  
+  - path: .                         # твои .proto
+  - path: third_party/googleapis    # локальные зависимости
+  - path: third_party/grpc-gateway
