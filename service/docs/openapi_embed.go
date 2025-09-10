@@ -3,5 +3,5 @@ package openapifs
 
 import "embed"
 
-//go:embed openapi.yaml openapi/*
+//go:embed openapi/*
 var FS embed.FS

@@ -5,7 +5,7 @@ package template.v1;
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-import "api/errors/v1/error_reason.proto";
+import "errors/v1/error_reason.proto";
 
 option go_package = "service/api/template;template";
 option java_multiple_files = true;

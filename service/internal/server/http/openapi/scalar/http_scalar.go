@@ -1,19 +1,18 @@
 package scalar
 
 import (
-	"io/fs"
 	stdhttp "net/http"
 
-	openapifs "service/docs" // embed c openapi.yaml
+	openapifs "service/docs" // embed with openapi.yaml
 
 	kratoshttp "github.com/go-kratos/kratos/v2/transport/http"
 )
 
-// Поднимает:
-//   - /scalar/openapi.yaml — спецификация OpenAPI (yaml)
-//   - /docs               — HTML со Scalar API Reference
+// Raises:
+//   - /scalar/openapi.yaml — specification OpenAPI (yaml)
+//   - /docs               — HTML with Scalar API Reference
 func AttachScalarDocs(s *kratoshttp.Server) {
-	// Спека под отдельным путём (не конфликтует со Swagger UI)
+	// Specification under a separate path (does not conflict with Swagger UI)
 	s.HandleFunc("/scalar/openapi.yaml", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		data, err := openapifs.FS.ReadFile("openapi.yaml")
 		if err != nil {
@@ -25,14 +24,12 @@ func AttachScalarDocs(s *kratoshttp.Server) {
 		_, _ = w.Write(data)
 	})
 
-	// (необязательно) отдать /scalar/openapi/* если у тебя есть вложенные ресурсы
-	if sub, err := fs.Sub(openapifs.FS, "openapi"); err == nil {
-		s.Handle("/scalar/openapi/",
-			stdhttp.StripPrefix("/scalar/openapi/",
-				stdhttp.FileServer(stdhttp.FS(sub))))
-	}
+	// (optional) serve /scalar/openapi/* if you have nested resources
+	s.Handle("/scalar/openapi/",
+		stdhttp.StripPrefix("/scalar/openapi/",
+			stdhttp.FileServer(stdhttp.FS(openapifs.FS))))
 
-	// Страница Scalar
+	// Scalar page
 	s.HandleFunc("/docs", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = w.Write([]byte(`<!doctype html>

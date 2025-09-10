@@ -1,5 +1,13 @@
+# buf.yaml
 version: v2
+
 modules:
-  - path: .
-  - path: third_party/googleapis
-  - path: third_party/grpc-gateway
+  - path: api          # твои .proto
+  - path: third_party  # vendor: google/*, openapi/*, validate/*
+
+deps: []               # лишних deps не нужно
+
+lint:
+  use: [DEFAULT]
+breaking:
+  use: [FILE]

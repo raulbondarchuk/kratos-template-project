@@ -1,7 +1,7 @@
 package server_grpc
 
 import (
-	api_template "service/api/template"
+	api_template "service/bin/proto/endpoints/template"
 	"service/internal/conf"
 	template_service "service/internal/feature/template/service"
 

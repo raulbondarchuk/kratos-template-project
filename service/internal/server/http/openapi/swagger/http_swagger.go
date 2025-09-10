@@ -1,18 +1,17 @@
 package swagger
 
 import (
-	"io/fs"
 	stdhttp "net/http"
 
-	openapifs "service/docs"
+	openapifs "service/docs" // embed with openapi.yaml
 
 	kratoshttp "github.com/go-kratos/kratos/v2/transport/http"
 )
 
 func AttachEmbeddedSwaggerUI(s *kratoshttp.Server) {
-	// 2.1 Exact handler for /swagger/openapi.yaml
+	// Exact handler for /swagger/openapi.yaml
 	s.HandleFunc("/swagger/openapi.yaml", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-		data, err := openapifs.FS.ReadFile("openapi.yaml")
+		data, err := openapifs.FS.ReadFile("openapi/openapi.yaml")
 		if err != nil {
 			httpNotFound(w)
 			return
@@ -22,14 +21,12 @@ func AttachEmbeddedSwaggerUI(s *kratoshttp.Server) {
 		_, _ = w.Write(data)
 	})
 
-	// 2.2 All files from docs/openapi/* are available at /swagger/openapi/*
-	if sub, err := fs.Sub(openapifs.FS, "openapi"); err == nil {
-		s.Handle("/swagger/openapi/",
-			stdhttp.StripPrefix("/swagger/openapi/",
-				stdhttp.FileServer(stdhttp.FS(sub))))
-	}
+	// All files from docs/openapi/* are available at /swagger/openapi/*
+	s.Handle("/swagger/openapi/",
+		stdhttp.StripPrefix("/swagger/openapi/",
+			stdhttp.FileServer(stdhttp.FS(openapifs.FS))))
 
-	// 2.3 Simple UI page
+	// Simple UI page
 	s.HandleFunc("/swagger-ui", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = w.Write([]byte(`<!doctype html>

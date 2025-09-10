@@ -3,7 +3,7 @@ package template_service
 import (
 	"context"
 	errors "service/api/errors/v1"
-	template "service/api/template"
+	template "service/bin/proto/endpoints/template"
 	template_biz "service/internal/feature/template/biz"
 	"service/pkg/converter"
 	"service/pkg/generic"
