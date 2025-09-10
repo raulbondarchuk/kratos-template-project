@@ -1,0 +1,276 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/errors/v1/error_reason.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Templates"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/templates": {
+      "get": {
+        "summary": "* Lista todas las plantillas.\r\n\r\n**Descripción**  \r\nDevuelve el catálogo completo de plantillas definidas.\r\n\r\n**Parámetros**  \r\n_(sin parámetros)_\r\n\r\n**Respuestas**  \r\n- `200 OK`: `templates` + `meta.code = OK`  \r\n- `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n**Ejemplos**  \r\n`GET /templates`",
+        "operationId": "Templates_ListTemplates",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListTemplatesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Templates"
+        ]
+      },
+      "delete": {
+        "summary": "* Elimina una plantilla por ID.\r\n\r\n**Descripción**  \r\nBorra la plantilla indicada por `id`.\r\n\r\n**Parámetros (query)**  \r\n- `id` (**obligatorio**): ID interno\r\n\r\n**Respuestas**  \r\n- `200 OK`: `meta.code = OK`  \r\n- `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n**Ejemplos**  \r\n`DELETE /templates?id=123`",
+        "operationId": "Templates_DeleteTemplateById",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteTemplateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID interno",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Templates"
+        ]
+      },
+      "post": {
+        "summary": "* Crea o actualiza una plantilla (upsert).\r\n\r\n**Descripción**  \r\nSi `id` es `0` o no se envía → crea; si `id` \u003e 0 → actualiza.\r\n\r\n**Parámetros (body JSON)**  \r\n- `id` (opcional, 0=create)  \r\n- `name` (**obligatorio**) \r\n\r\n**Respuestas**  \r\n- `200 OK`: `template` resultante + `meta.code = OK`  \r\n- `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n**Ejemplos**  \r\n`POST /templates`  \r\nBody: `{ \"name\":\"Template 1\" }`",
+        "operationId": "Templates_UpsertTemplate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpsertTemplateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "* Cuerpo para crear/actualizar una plantilla.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpsertTemplateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Templates"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "templatev1Type": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "title": "Type1/Type2"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v1DeleteTemplateResponse": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/v1StandardResponse",
+          "title": "Estado de la operación"
+        }
+      },
+      "description": "* Respuesta de eliminación."
+    },
+    "v1ListTemplatesResponse": {
+      "type": "object",
+      "properties": {
+        "templates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Template"
+          },
+          "title": "Colección de plantillas"
+        },
+        "meta": {
+          "$ref": "#/definitions/v1StandardResponse",
+          "title": "Estado de la operación"
+        }
+      },
+      "description": "* Respuesta con la lista de plantillas."
+    },
+    "v1ResponseCode": {
+      "type": "string",
+      "enum": [
+        "RESPONSE_CODE_UNSPECIFIED",
+        "OK",
+        "CREATED",
+        "ACCEPTED",
+        "BAD_REQUEST",
+        "UNAUTHORIZED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CONFLICT",
+        "INTERNAL_ERROR",
+        "NOT_IMPLEMENTED",
+        "SERVICE_UNAVAILABLE"
+      ],
+      "default": "RESPONSE_CODE_UNSPECIFIED",
+      "description": "- OK: --- Success ---\n\n200 OK\n - CREATED: 201 Created\n - ACCEPTED: 202 Accepted\n - BAD_REQUEST: --- Client errors ---\n\n400 Invalid Argument\n - UNAUTHORIZED: 401 Unauthorized\n - FORBIDDEN: 403 Forbidden\n - NOT_FOUND: 404 Not Found\n - CONFLICT: 409 Conflict\n - INTERNAL_ERROR: --- Server errors ---\n\n500 Internal Server Error\n - NOT_IMPLEMENTED: 501 Not Implemented\n - SERVICE_UNAVAILABLE: 503 Service Unavailable",
+      "title": "Common response codes (success + errors)"
+    },
+    "v1StandardResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/v1ResponseCode",
+          "title": "code (success or error)"
+        },
+        "message": {
+          "type": "string",
+          "title": "description"
+        }
+      },
+      "title": "General response format (can be extended)"
+    },
+    "v1Template": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "type": {
+          "$ref": "#/definitions/templatev1Type"
+        },
+        "name": {
+          "type": "string",
+          "title": "ej. Template 1 / Template 2"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "* Plantilla de alerta/aviso."
+    },
+    "v1UpsertTemplateRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "0 → crear"
+        },
+        "name": {
+          "type": "string",
+          "title": "ej. Template 1 / Template 2"
+        }
+      },
+      "description": "* Cuerpo para crear/actualizar una plantilla.",
+      "required": [
+        "name"
+      ]
+    },
+    "v1UpsertTemplateResponse": {
+      "type": "object",
+      "properties": {
+        "template": {
+          "$ref": "#/definitions/v1Template",
+          "title": "Plantilla creada/actualizada"
+        },
+        "meta": {
+          "$ref": "#/definitions/v1StandardResponse",
+          "title": "Estado de la operación"
+        }
+      },
+      "description": "* Resultado del upsert."
+    }
+  }
+}

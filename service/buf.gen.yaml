@@ -1,0 +1,32 @@
+version: v1
+plugins:
+  # Go messages — next to .proto
+  - plugin: buf.build/protocolbuffers/go
+    out: .
+    opt: paths=source_relative
+
+  # gRPC stubs — next to .proto
+  - plugin: buf.build/grpc/go
+    out: .
+    opt: paths=source_relative
+
+  # Kratos HTTP (*_http.pb.go) — local plugin
+  - name: go-http
+    out: .
+    opt:
+      - paths=source_relative
+
+  # OpenAPI v2 (swagger.json)
+  - plugin: buf.build/grpc-ecosystem/openapiv2
+    out: docs/openapi
+    opt:
+      - allow_merge=true
+      - merge_file_name=service
+
+  # OpenAPI v3 (yaml) — local gnostic, one time for all
+  - name: openapi
+    out: docs
+    strategy: all
+    opt:
+      - fq_schema_naming=true
+      - default_response=false

@@ -1,0 +1,137 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Templates API
+    description: '* API para gestión de plantillas (alertas/avisos).'
+    version: 0.0.1
+paths:
+    /templates:
+        get:
+            tags:
+                - Templates
+            description: "* Lista todas las plantillas.\r\n\r\n **Descripción**  \r\n Devuelve el catálogo completo de plantillas definidas.\r\n\r\n **Parámetros**  \r\n _(sin parámetros)_\r\n\r\n **Respuestas**  \r\n - `200 OK`: `templates` + `meta.code = OK`  \r\n - `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n **Ejemplos**  \r\n `GET /templates`"
+            operationId: Templates_ListTemplates
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/template.v1.ListTemplatesResponse'
+        post:
+            tags:
+                - Templates
+            description: "* Crea o actualiza una plantilla (upsert).\r\n\r\n **Descripción**  \r\n Si `id` es `0` o no se envía → crea; si `id` > 0 → actualiza.\r\n\r\n **Parámetros (body JSON)**  \r\n - `id` (opcional, 0=create)  \r\n - `name` (**obligatorio**) \r\n\r\n **Respuestas**  \r\n - `200 OK`: `template` resultante + `meta.code = OK`  \r\n - `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n **Ejemplos**  \r\n `POST /templates`  \r\n Body: `{ \"name\":\"Template 1\" }`"
+            operationId: Templates_UpsertTemplate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/template.v1.UpsertTemplateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/template.v1.UpsertTemplateResponse'
+        delete:
+            tags:
+                - Templates
+            description: "* Elimina una plantilla por ID.\r\n\r\n **Descripción**  \r\n Borra la plantilla indicada por `id`.\r\n\r\n **Parámetros (query)**  \r\n - `id` (**obligatorio**): ID interno\r\n\r\n **Respuestas**  \r\n - `200 OK`: `meta.code = OK`  \r\n - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n **Ejemplos**  \r\n `DELETE /templates?id=123`"
+            operationId: Templates_DeleteTemplateById
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/template.v1.DeleteTemplateResponse'
+components:
+    schemas:
+        errors.v1.StandardResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                message:
+                    type: string
+            description: General response format (can be extended)
+        template.v1.DeleteTemplateResponse:
+            type: object
+            properties:
+                meta:
+                    $ref: '#/components/schemas/errors.v1.StandardResponse'
+            description: '* Respuesta de eliminación.'
+        template.v1.ListTemplatesResponse:
+            type: object
+            properties:
+                templates:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/template.v1.Template'
+                meta:
+                    $ref: '#/components/schemas/errors.v1.StandardResponse'
+            description: '* Respuesta con la lista de plantillas.'
+        template.v1.Template:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                type:
+                    $ref: '#/components/schemas/template.v1.Type'
+                name:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+            description: '* Plantilla de alerta/aviso.'
+        template.v1.Type:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        template.v1.UpsertTemplateRequest:
+            required:
+                - name
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+            description: '* Cuerpo para crear/actualizar una plantilla.'
+        template.v1.UpsertTemplateResponse:
+            type: object
+            properties:
+                template:
+                    $ref: '#/components/schemas/template.v1.Template'
+                meta:
+                    $ref: '#/components/schemas/errors.v1.StandardResponse'
+            description: '* Resultado del upsert.'
+tags:
+    - name: Templates

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package errors.v1;
+
+option go_package = "service/api/errors/v1;v1";
+
+// Common response codes (success + errors)
+enum ResponseCode {
+  RESPONSE_CODE_UNSPECIFIED = 0;
+
+  // --- Success ---
+  OK = 200;                       // 200 OK
+  CREATED = 201;                  // 201 Created
+  ACCEPTED = 202;                 // 202 Accepted
+
+  // --- Client errors ---
+  BAD_REQUEST = 400;              // 400 Invalid Argument
+  UNAUTHORIZED = 401;             // 401 Unauthorized
+  FORBIDDEN = 403;                // 403 Forbidden
+  NOT_FOUND = 404;                // 404 Not Found
+  CONFLICT = 409;                 // 409 Conflict
+
+  // --- Server errors ---
+  INTERNAL_ERROR = 500;           // 500 Internal Server Error
+  NOT_IMPLEMENTED = 501;          // 501 Not Implemented
+  SERVICE_UNAVAILABLE = 503;      // 503 Service Unavailable
+}
+ 
+// General response format (can be extended)
+message StandardResponse {
+  ResponseCode code = 1;   // code (success or error)
+  string message = 2;      // description
+}
