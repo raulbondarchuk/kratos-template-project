@@ -1,5 +1,5 @@
 version: v2
 modules:
-  - path: .                         # твои .proto
-  - path: third_party/googleapis    # локальные зависимости
+  - path: .
+  - path: third_party/googleapis
   - path: third_party/grpc-gateway

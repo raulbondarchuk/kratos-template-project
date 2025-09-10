@@ -8,7 +8,7 @@ param(
   [string]$ConfigPath = "./configs/config.yaml",
   [string]$ReleaseScript = "./scripts/ps/git-release.ps1",
 
-  # idioma: "es" por defecto, "en" para ingles
+  # idioma: "es" por defecto, "en" para inglés
   [string]$Lang = "es"
 )
 
@@ -20,118 +20,132 @@ if ($Lang -eq "en") {
 Usage: make <target> [VAR=VALUE]
 
 Targets:
-  init         Install/upgrade toolchain and run go mod tidy:
-               - buf, protoc-gen-go, protoc-gen-go-grpc, protoc-gen-go-http (Kratos),
-                 protoc-gen-openapi (gnostic), grpc-gateway, wire, kratos CLI
-  gen          Generate code:
-               - buf generate (using $BufGen)
-               - wire (in $CmdDir, produces wire_gen.go)
+  init         Install/upgrade toolchain, then vendor deps (offline):
+               - Installs: buf, protoc-gen-go, protoc-gen-go-grpc, protoc-gen-go-http,
+                 protoc-gen-openapiv2, protoc-gen-openapi (gnostic).
+               - Calls: make third_party
+
+  third_party  Vendor minimal proto deps via sparse clone (offline-friendly):
+               - third_party/googleapis: google/api, google/rpc, google/type
+               - third_party/grpc-gateway: protoc-gen-openapiv2/options
+               (Add paths via sparse-checkout if you import more .proto)
+
+  gen          Generate code with local plugins (no BSR calls):
+               - buf generate (uses $BufGen)
+
+  wire         Generate DI with Google Wire:
+               - runs Wire in $CmdDir (produces wire_gen.go)
+
   build        Build binary -> $Bin
-  run          go run ./$CmdDir -conf ./configs
-  krun         kratos run (hot reload mode)
-  tidy         go mod tidy
+  run          kratos run (hot reload)
+  gorun        go run ./$CmdDir -conf ./configs
   clean        Remove bin/ and all wire_gen.go
 
 Commit & Auto Version Bump:
   Driven by ${ReleaseScript}:
-    - Reads base version ONLY from $ConfigPath (app.version like v1, v2). You never pass versions.
-    - Tags are vX.N (1,2,3...). The next patch number is computed from **origin** (git ls-remote),
-      so all developers share the same counter.
-    - Tag message equals the commit message (Title + Desc).
+    - Reads the base major ONLY from $ConfigPath (app.version like v1, v2). You never pass versions.
+    - Tags are vX.N; next N is computed from origin (shared counter across devs).
+    - Tag message equals commit message (Title + Desc).
     - Branch policy:
-        * Forbidden from 'main' and 'master'.
+        * Forbidden on 'main' and 'master'.
         * Forbidden in detached HEAD.
         * If no upstream, first push sets it (-u origin HEAD:<branch>).
-    - Push flow:
-        1) push current branch,
-        2) push the tag with collision retry (auto-picks next vX.N if name is taken).
-    - If there are no changes, exits cleanly.
+    - Push flow: push branch, then push tag (auto-retries with next vX.N on collision).
+    - If no changes, exits cleanly.
 
-Usage (full syntax only):
+Usage:
   make commit t="Your title" d="Your description"
   (compat: TITLE/DESC still accepted if t/d are not provided)
-
-Also available:
-  make release t="..." d="..."   (alias to commit)
+  make release t="..." d="..."   # alias to commit
 
 Examples:
-  make commit t="prueba commit" d="Esto es una prueba commit"
-  make commit t="feat: ingest LTA" d="support `\$MSG:11"     # escape $ with backtick in PowerShell
+  make commit t="feat: ingest LTA" d="parse \$MSG:11"
+  make build APP_NAME=myapp
 
 Config:
   APP_NAME = $AppName
   CMD_DIR  = $CmdDir
   BIN      = $Bin
   BUF_GEN  = $BufGen
-
-  Commit config:
   CONFIG_PATH    = $ConfigPath
   RELEASE_SCRIPT = $ReleaseScript
 
 Tips:
-  - If proto imports fail: buf dep update
-  - OpenAPI outputs are configured in $BufGen (e.g., docs/…)
-  - Override app name:  make build APP_NAME=myapp
-  - Extra go flags:     make build GOFLAGS=-trimpath
+  - Offline setup: ensure buf.yaml lists local modules:
+        version: v2
+        modules:
+          - path: .
+          - path: third_party/googleapis
+          - path: third_party/grpc-gateway
+  - Local plugins only: buf.gen.yaml should use 'local:' plugins.
+  - PATH: make sure $(go env GOPATH)\bin is in PATH for this session.
+  - Old Git? Run 'git -C third_party/... sparse-checkout init --cone' before 'set'.
 "@
 } else {
   $text = @"
 Uso: make <target> [VAR=VALOR]
 
 Targets:
-  init         Instala/actualiza toolchain y ejecuta go mod tidy:
-               - buf, protoc-gen-go, protoc-gen-go-grpc, protoc-gen-go-http (Kratos),
-                 protoc-gen-openapi (gnostic), grpc-gateway, wire, kratos CLI
-  gen          Generacion de codigo:
-               - buf generate (con $BufGen)
-               - wire (en $CmdDir, produce wire_gen.go)
+  init         Instala/actualiza toolchain y luego hace vendor (offline):
+               - Instala: buf, protoc-gen-go, protoc-gen-go-grpc, protoc-gen-go-http,
+                 protoc-gen-openapiv2, protoc-gen-openapi (gnostic).
+               - Llama: make third_party
+
+  third_party  Vendor mínimo de dependencias proto con sparse clone (offline):
+               - third_party/googleapis: google/api, google/rpc, google/type
+               - third_party/grpc-gateway: protoc-gen-openapiv2/options
+               (Añade rutas en sparse-checkout si importas más .proto)
+
+  gen          Generación con plugins locales (sin llamadas a BSR):
+               - buf generate (usa $BufGen)
+
+  wire         Genera DI con Google Wire:
+               - ejecuta Wire en $CmdDir (crea wire_gen.go)
+
   build        Compila binario -> $Bin
-  run          go run ./$CmdDir -conf ./configs
-  krun         kratos run (hot reload)
-  tidy         go mod tidy
-  clean        Borra bin/ y todos los wire_gen.go
+  run          kratos run (hot reload)
+  gorun        go run ./$CmdDir -conf ./configs
+  clean        Elimina bin/ y todos los wire_gen.go
 
 Commit & Auto Version Bump:
   Orquestado por ${ReleaseScript}:
-    - Lee la version base SOLO desde $ConfigPath (app.version tipo v1, v2). Nunca pasas version.
-    - Etiquetas vX.N (1,2,3...). El siguiente numero se calcula mirando **origin** (git ls-remote),
-      para que todos usen el mismo contador.
-    - El mensaje del tag es el mismo que el mensaje del commit (Title + Desc).
-    - Politica de ramas:
+    - Lee la versión base SOLO desde $ConfigPath (app.version tipo v1, v2). No pasas versiones.
+    - Etiquetas vX.N; el siguiente N se calcula mirando origin (contador compartido).
+    - El mensaje del tag = mensaje del commit (Title + Desc).
+    - Política de ramas:
         * Prohibido en 'main' y 'master'.
         * Prohibido en detached HEAD.
         * Si no hay upstream, el primer push lo crea (-u origin HEAD:<rama>).
-    - Flujo de push:
-        1) push de la rama actual,
-        2) push del tag con reintento si hay colision (elige automaticamente el siguiente vX.N).
+    - Flujo: push de la rama y luego push del tag (reintenta con siguiente vX.N si hay colisión).
     - Si no hay cambios, sale sin error.
 
-Uso (solo modo completo):
-  make commit t="Tu titulo" d="Tu descripcion"
+Uso:
+  make commit t="Tu título" d="Tu descripción"
   (compat: TITLE/DESC siguen funcionando si no pasas t/d)
-
-Alias:
-  make release t="..." d="..."   (alias de commit)
+  make release t="..." d="..."   # alias de commit
 
 Ejemplos:
-  make commit t="prueba commit" d="Esto es una prueba commit"
-  make commit t="feat: ingest LTA" d="support `\$MSG:11"     # escapa $ con acento grave en PowerShell
+  make commit t="feat: ingest LTA" d="parsear \$MSG:11"
+  make build APP_NAME=myapp
 
 Config:
   APP_NAME = $AppName
   CMD_DIR  = $CmdDir
   BIN      = $Bin
   BUF_GEN  = $BufGen
-
-  Config de commit:
   CONFIG_PATH    = $ConfigPath
   RELEASE_SCRIPT = $ReleaseScript
 
 Tips:
-  - Si fallan imports proto: buf dep update
-  - Salidas OpenAPI se configuran en $BufGen (p. ej., docs/…)
-  - Cambiar nombre app:  make build APP_NAME=myapp
-  - Flags extra go:     make build GOFLAGS=-trimpath
+  - Modo offline: asegúrate de que buf.yaml tenga módulos locales:
+        version: v2
+        modules:
+          - path: .
+          - path: third_party/googleapis
+          - path: third_party/grpc-gateway
+  - Solo plugins locales: buf.gen.yaml debe usar 'local:'.
+  - PATH: añade $(go env GOPATH)\bin al PATH de la sesión.
+  - Git antiguo: ejecuta 'git -C third_party/... sparse-checkout init --cone' antes de 'set'.
 "@
 }
 

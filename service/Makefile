@@ -41,34 +41,37 @@ init:
 	go install github.com/google/wire/cmd/wire@latest
 	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
 
+	$(MAKE) proto
+
 # ---------------------------------
 # Proto - local dependencies of proto
 # ---------------------------------
 
-.PHONY: proto
-proto:
-	@echo ">> vendoring proto deps into third_party"
+.PHONY: third_party
+third_party:
+	@echo ">> sparse clone googleapis (only needed dirs)"
 	if (!(Test-Path third_party)) { New-Item -ItemType Directory -Path third_party | Out-Null }
-	if (!(Test-Path third_party/googleapis/.git)) { git clone https://github.com/googleapis/googleapis third_party/googleapis }
-	if (!(Test-Path third_party/grpc-gateway/.git)) { git clone https://github.com/grpc-ecosystem/grpc-gateway third_party/grpc-gateway }
-	git submodule update --init --recursive
+	if (!(Test-Path third_party/googleapis/.git)) { git clone --depth 1 --filter=blob:none --sparse https://github.com/googleapis/googleapis third_party/googleapis }
+	git -C third_party/googleapis sparse-checkout set google/api google/rpc google/type
+
+	@echo ">> sparse clone grpc-gateway (only openapiv2 options)"
+	if (!(Test-Path third_party/grpc-gateway/.git)) { git clone --depth 1 --filter=blob:none --sparse https://github.com/grpc-ecosystem/grpc-gateway third_party/grpc-gateway }
+	git -C third_party/grpc-gateway sparse-checkout set protoc-gen-openapiv2/options
 
 # ---------------------------------
-# Go mod tidy
-# ---------------------------------
-.PHONY: tidy
-tidy:
-	@echo ">> go mod tidy"
-	go mod tidy
-
-# ---------------------------------
-# Generate (proto + wire)
+# Generate (proto)
 # ---------------------------------
 .PHONY: gen
 gen:
-	@echo ">> buf generate"
-	buf dep update
+	@echo ">> buf generate"	
 	buf generate --template $(BUF_GEN)
+
+# ---------------------------------
+# Generate (wire)
+# ---------------------------------
+
+.PHONY: wire
+wire:
 	@echo ">> wire generate"
 	Set-Location '$(CMD_DIR)'; wire
 
@@ -84,14 +87,17 @@ build:
 # ---------------------------------
 # Run (go run, kratos run)
 # ---------------------------------
-.PHONY: run krun
+.PHONY: run gorun
+
 run:
+	@echo ">> running with kratos run"
+	kratos run
+
+gorun:
 	@echo ">> running with go run"
 	go run ./$(CMD_DIR) -conf ./configs
 
-krun:
-	@echo ">> running with kratos run"
-	kratos run
+
 
 # ---------------------------------
 # Clean
