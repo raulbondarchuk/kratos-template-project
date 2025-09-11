@@ -41,4 +41,3 @@ bin/
 ull
 buf.lock
 .env
-*.pb.go
