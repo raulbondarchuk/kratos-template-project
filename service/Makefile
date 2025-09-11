@@ -27,6 +27,14 @@ help:
 	@$(HELP_PS) -AppName "$(APP_NAME)" -CmdDir "$(CMD_DIR)" -Bin "$(BIN)" -BufGen "$(BUF_GEN)" -ConfigPath "$(CONFIG_PATH)" -ReleaseScript "$(RELEASE_SCRIPT)" -Lang "$(LANG)"
 
 # ---------------------------------
+# All targets
+# ---------------------------------
+
+.PHONY: all
+all: init gen wire run
+	@echo ">> all targets"
+
+# ---------------------------------
 # Tools setup
 # ---------------------------------
 .PHONY: init
