@@ -44,13 +44,7 @@ init:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 # Wire
 	go install github.com/google/wire/cmd/wire@latest
-
-# ---------------------------------
-# Go mod tidy
-# ---------------------------------
-.PHONY: tidy
-tidy:
-	@echo ">> go mod tidy"
+# Tidy for others dependencies
 	go mod tidy
 
 # ---------------------------------
@@ -66,7 +60,6 @@ deps:
 gen: deps
 	@echo ">> buf generate (local)"
 	buf generate --template $(BUF_GEN)
-
 
 # ---------------------------------
 # Wire
@@ -85,18 +78,16 @@ wire:
 build:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/build-linux.ps1 -AppName '$(APP_NAME_TO_BUILD)' -CmdDir '$(CMD_DIR)' -BinDir '$(BIN_DIR)'
 
-
 # ---------------------------------
-# Run (go run, kratos run)
+# Run (kratos run, go run)
 # ---------------------------------
-.PHONY: run krun
+.PHONY: run gorun
 run:
-	@echo ">> running with go run"
-	go run ./$(CMD_DIR) -conf ./configs
-
-krun:
 	@echo ">> running with kratos run"
-	kratos run
+		kratos run
+gorun:
+	@echo ">> running with go run"
+		go run ./$(CMD_DIR) -conf ./configs
 
 # ---------------------------------
 # Clean
@@ -106,6 +97,9 @@ clean:
 	@echo ">> clean"
 	if (Test-Path '$(BIN_DIR)') { Remove-Item -Recurse -Force '$(BIN_DIR)' }
 	Get-ChildItem -Recurse -Filter 'wire_gen.go' | Remove-Item -Force -ErrorAction SilentlyContinue
+	Get-ChildItem -Recurse -Filter '*.pb.go' | Remove-Item -Force -ErrorAction SilentlyContinue
+	Get-ChildItem -Recurse -Filter 'openapi.yaml' | Remove-Item -Force -ErrorAction SilentlyContinue
+	Get-ChildItem -Recurse -Filter 'service.swagger.json' | Remove-Item -Force -ErrorAction SilentlyContinue
 
 # ---------------------------------
 # Commit with auto version bump
