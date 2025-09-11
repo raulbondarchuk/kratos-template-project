@@ -58,7 +58,7 @@ paths:
                                 $ref: '#/components/schemas/template.v1.DeleteTemplateResponse'
 components:
     schemas:
-        errors.v1.StandardResponse:
+        errors.common.StandardResponse:
             type: object
             properties:
                 code:
@@ -71,7 +71,7 @@ components:
             type: object
             properties:
                 meta:
-                    $ref: '#/components/schemas/errors.v1.StandardResponse'
+                    $ref: '#/components/schemas/errors.common.StandardResponse'
             description: '* Respuesta de eliminación.'
         template.v1.ListTemplatesResponse:
             type: object
@@ -81,7 +81,7 @@ components:
                     items:
                         $ref: '#/components/schemas/template.v1.Template'
                 meta:
-                    $ref: '#/components/schemas/errors.v1.StandardResponse'
+                    $ref: '#/components/schemas/errors.common.StandardResponse'
             description: '* Respuesta con la lista de plantillas.'
         template.v1.Template:
             type: object
@@ -131,7 +131,7 @@ components:
                 template:
                     $ref: '#/components/schemas/template.v1.Template'
                 meta:
-                    $ref: '#/components/schemas/errors.v1.StandardResponse'
+                    $ref: '#/components/schemas/errors.common.StandardResponse'
             description: '* Resultado del upsert.'
 tags:
     - name: Templates

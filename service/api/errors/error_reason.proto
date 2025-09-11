@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package errors.v1;
+package errors.common;
 
-option go_package = "service/api/errors/v1;v1";
+option go_package = "service/api/errors;errors";
 
 // Common response codes (success + errors)
 enum ResponseCode {

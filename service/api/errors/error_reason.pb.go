@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.9
 // 	protoc        (unknown)
-// source: api/errors/v1/error_reason.proto
+// source: api/errors/error_reason.proto
 
-package v1
+package errors
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -85,11 +85,11 @@ func (x ResponseCode) String() string {
 }
 
 func (ResponseCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_errors_v1_error_reason_proto_enumTypes[0].Descriptor()
+	return file_api_errors_error_reason_proto_enumTypes[0].Descriptor()
 }
 
 func (ResponseCode) Type() protoreflect.EnumType {
-	return &file_api_errors_v1_error_reason_proto_enumTypes[0]
+	return &file_api_errors_error_reason_proto_enumTypes[0]
 }
 
 func (x ResponseCode) Number() protoreflect.EnumNumber {
@@ -98,21 +98,21 @@ func (x ResponseCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ResponseCode.Descriptor instead.
 func (ResponseCode) EnumDescriptor() ([]byte, []int) {
-	return file_api_errors_v1_error_reason_proto_rawDescGZIP(), []int{0}
+	return file_api_errors_error_reason_proto_rawDescGZIP(), []int{0}
 }
 
 // General response format (can be extended)
 type StandardResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          ResponseCode           `protobuf:"varint,1,opt,name=code,proto3,enum=errors.v1.ResponseCode" json:"code,omitempty"` // code (success or error)
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`                        // description
+	Code          ResponseCode           `protobuf:"varint,1,opt,name=code,proto3,enum=errors.common.ResponseCode" json:"code,omitempty"` // code (success or error)
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`                            // description
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StandardResponse) Reset() {
 	*x = StandardResponse{}
-	mi := &file_api_errors_v1_error_reason_proto_msgTypes[0]
+	mi := &file_api_errors_error_reason_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -124,7 +124,7 @@ func (x *StandardResponse) String() string {
 func (*StandardResponse) ProtoMessage() {}
 
 func (x *StandardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_errors_v1_error_reason_proto_msgTypes[0]
+	mi := &file_api_errors_error_reason_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -137,7 +137,7 @@ func (x *StandardResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StandardResponse.ProtoReflect.Descriptor instead.
 func (*StandardResponse) Descriptor() ([]byte, []int) {
-	return file_api_errors_v1_error_reason_proto_rawDescGZIP(), []int{0}
+	return file_api_errors_error_reason_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *StandardResponse) GetCode() ResponseCode {
@@ -154,13 +154,13 @@ func (x *StandardResponse) GetMessage() string {
 	return ""
 }
 
-var File_api_errors_v1_error_reason_proto protoreflect.FileDescriptor
+var File_api_errors_error_reason_proto protoreflect.FileDescriptor
 
-const file_api_errors_v1_error_reason_proto_rawDesc = "" +
+const file_api_errors_error_reason_proto_rawDesc = "" +
 	"\n" +
-	" api/errors/v1/error_reason.proto\x12\terrors.v1\"Y\n" +
-	"\x10StandardResponse\x12+\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x17.errors.v1.ResponseCodeR\x04code\x12\x18\n" +
+	"\x1dapi/errors/error_reason.proto\x12\rerrors.common\"]\n" +
+	"\x10StandardResponse\x12/\n" +
+	"\x04code\x18\x01 \x01(\x0e2\x1b.errors.common.ResponseCodeR\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage*\xec\x01\n" +
 	"\fResponseCode\x12\x1d\n" +
 	"\x19RESPONSE_CODE_UNSPECIFIED\x10\x00\x12\a\n" +
@@ -174,28 +174,28 @@ const file_api_errors_v1_error_reason_proto_rawDesc = "" +
 	"\bCONFLICT\x10\x99\x03\x12\x13\n" +
 	"\x0eINTERNAL_ERROR\x10\xf4\x03\x12\x14\n" +
 	"\x0fNOT_IMPLEMENTED\x10\xf5\x03\x12\x18\n" +
-	"\x13SERVICE_UNAVAILABLE\x10\xf7\x03B\x1aZ\x18service/api/errors/v1;v1b\x06proto3"
+	"\x13SERVICE_UNAVAILABLE\x10\xf7\x03B\x1bZ\x19service/api/errors;errorsb\x06proto3"
 
 var (
-	file_api_errors_v1_error_reason_proto_rawDescOnce sync.Once
-	file_api_errors_v1_error_reason_proto_rawDescData []byte
+	file_api_errors_error_reason_proto_rawDescOnce sync.Once
+	file_api_errors_error_reason_proto_rawDescData []byte
 )
 
-func file_api_errors_v1_error_reason_proto_rawDescGZIP() []byte {
-	file_api_errors_v1_error_reason_proto_rawDescOnce.Do(func() {
-		file_api_errors_v1_error_reason_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_errors_v1_error_reason_proto_rawDesc), len(file_api_errors_v1_error_reason_proto_rawDesc)))
+func file_api_errors_error_reason_proto_rawDescGZIP() []byte {
+	file_api_errors_error_reason_proto_rawDescOnce.Do(func() {
+		file_api_errors_error_reason_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_errors_error_reason_proto_rawDesc), len(file_api_errors_error_reason_proto_rawDesc)))
 	})
-	return file_api_errors_v1_error_reason_proto_rawDescData
+	return file_api_errors_error_reason_proto_rawDescData
 }
 
-var file_api_errors_v1_error_reason_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_errors_v1_error_reason_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_api_errors_v1_error_reason_proto_goTypes = []any{
-	(ResponseCode)(0),        // 0: errors.v1.ResponseCode
-	(*StandardResponse)(nil), // 1: errors.v1.StandardResponse
+var file_api_errors_error_reason_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_api_errors_error_reason_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_api_errors_error_reason_proto_goTypes = []any{
+	(ResponseCode)(0),        // 0: errors.common.ResponseCode
+	(*StandardResponse)(nil), // 1: errors.common.StandardResponse
 }
-var file_api_errors_v1_error_reason_proto_depIdxs = []int32{
-	0, // 0: errors.v1.StandardResponse.code:type_name -> errors.v1.ResponseCode
+var file_api_errors_error_reason_proto_depIdxs = []int32{
+	0, // 0: errors.common.StandardResponse.code:type_name -> errors.common.ResponseCode
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -203,27 +203,27 @@ var file_api_errors_v1_error_reason_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_api_errors_v1_error_reason_proto_init() }
-func file_api_errors_v1_error_reason_proto_init() {
-	if File_api_errors_v1_error_reason_proto != nil {
+func init() { file_api_errors_error_reason_proto_init() }
+func file_api_errors_error_reason_proto_init() {
+	if File_api_errors_error_reason_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_errors_v1_error_reason_proto_rawDesc), len(file_api_errors_v1_error_reason_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_errors_error_reason_proto_rawDesc), len(file_api_errors_error_reason_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_api_errors_v1_error_reason_proto_goTypes,
-		DependencyIndexes: file_api_errors_v1_error_reason_proto_depIdxs,
-		EnumInfos:         file_api_errors_v1_error_reason_proto_enumTypes,
-		MessageInfos:      file_api_errors_v1_error_reason_proto_msgTypes,
+		GoTypes:           file_api_errors_error_reason_proto_goTypes,
+		DependencyIndexes: file_api_errors_error_reason_proto_depIdxs,
+		EnumInfos:         file_api_errors_error_reason_proto_enumTypes,
+		MessageInfos:      file_api_errors_error_reason_proto_msgTypes,
 	}.Build()
-	File_api_errors_v1_error_reason_proto = out.File
-	file_api_errors_v1_error_reason_proto_goTypes = nil
-	file_api_errors_v1_error_reason_proto_depIdxs = nil
+	File_api_errors_error_reason_proto = out.File
+	file_api_errors_error_reason_proto_goTypes = nil
+	file_api_errors_error_reason_proto_depIdxs = nil
 }

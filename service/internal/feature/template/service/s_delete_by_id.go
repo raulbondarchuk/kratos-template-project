@@ -2,7 +2,7 @@ package template_service
 
 import (
 	"context"
-	errors "service/api/errors/v1"
+	"service/api/errors"
 	template "service/api/template"
 )
 

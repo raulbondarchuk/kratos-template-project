@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/errors/v1/error_reason.proto",
+    "title": "api/errors/error_reason.proto",
     "version": "version not set"
   },
   "tags": [
@@ -104,6 +104,40 @@
     }
   },
   "definitions": {
+    "commonResponseCode": {
+      "type": "string",
+      "enum": [
+        "RESPONSE_CODE_UNSPECIFIED",
+        "OK",
+        "CREATED",
+        "ACCEPTED",
+        "BAD_REQUEST",
+        "UNAUTHORIZED",
+        "FORBIDDEN",
+        "NOT_FOUND",
+        "CONFLICT",
+        "INTERNAL_ERROR",
+        "NOT_IMPLEMENTED",
+        "SERVICE_UNAVAILABLE"
+      ],
+      "default": "RESPONSE_CODE_UNSPECIFIED",
+      "description": "- OK: --- Success ---\n\n200 OK\n - CREATED: 201 Created\n - ACCEPTED: 202 Accepted\n - BAD_REQUEST: --- Client errors ---\n\n400 Invalid Argument\n - UNAUTHORIZED: 401 Unauthorized\n - FORBIDDEN: 403 Forbidden\n - NOT_FOUND: 404 Not Found\n - CONFLICT: 409 Conflict\n - INTERNAL_ERROR: --- Server errors ---\n\n500 Internal Server Error\n - NOT_IMPLEMENTED: 501 Not Implemented\n - SERVICE_UNAVAILABLE: 503 Service Unavailable",
+      "title": "Common response codes (success + errors)"
+    },
+    "commonStandardResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/commonResponseCode",
+          "title": "code (success or error)"
+        },
+        "message": {
+          "type": "string",
+          "title": "description"
+        }
+      },
+      "title": "General response format (can be extended)"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -157,7 +191,7 @@
       "type": "object",
       "properties": {
         "meta": {
-          "$ref": "#/definitions/v1StandardResponse",
+          "$ref": "#/definitions/commonStandardResponse",
           "title": "Estado de la operación"
         }
       },
@@ -175,45 +209,11 @@
           "title": "Colección de plantillas"
         },
         "meta": {
-          "$ref": "#/definitions/v1StandardResponse",
+          "$ref": "#/definitions/commonStandardResponse",
           "title": "Estado de la operación"
         }
       },
       "description": "* Respuesta con la lista de plantillas."
-    },
-    "v1ResponseCode": {
-      "type": "string",
-      "enum": [
-        "RESPONSE_CODE_UNSPECIFIED",
-        "OK",
-        "CREATED",
-        "ACCEPTED",
-        "BAD_REQUEST",
-        "UNAUTHORIZED",
-        "FORBIDDEN",
-        "NOT_FOUND",
-        "CONFLICT",
-        "INTERNAL_ERROR",
-        "NOT_IMPLEMENTED",
-        "SERVICE_UNAVAILABLE"
-      ],
-      "default": "RESPONSE_CODE_UNSPECIFIED",
-      "description": "- OK: --- Success ---\n\n200 OK\n - CREATED: 201 Created\n - ACCEPTED: 202 Accepted\n - BAD_REQUEST: --- Client errors ---\n\n400 Invalid Argument\n - UNAUTHORIZED: 401 Unauthorized\n - FORBIDDEN: 403 Forbidden\n - NOT_FOUND: 404 Not Found\n - CONFLICT: 409 Conflict\n - INTERNAL_ERROR: --- Server errors ---\n\n500 Internal Server Error\n - NOT_IMPLEMENTED: 501 Not Implemented\n - SERVICE_UNAVAILABLE: 503 Service Unavailable",
-      "title": "Common response codes (success + errors)"
-    },
-    "v1StandardResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "$ref": "#/definitions/v1ResponseCode",
-          "title": "code (success or error)"
-        },
-        "message": {
-          "type": "string",
-          "title": "description"
-        }
-      },
-      "title": "General response format (can be extended)"
     },
     "v1Template": {
       "type": "object",
@@ -266,7 +266,7 @@
           "title": "Plantilla creada/actualizada"
         },
         "meta": {
-          "$ref": "#/definitions/v1StandardResponse",
+          "$ref": "#/definitions/commonStandardResponse",
           "title": "Estado de la operación"
         }
       },

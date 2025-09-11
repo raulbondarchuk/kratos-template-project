@@ -5,7 +5,7 @@ package template.v1;
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-import "api/errors/v1/error_reason.proto";
+import "api/errors/error_reason.proto";
 
 option go_package = "service/api/template;template";
 option java_multiple_files = true;
@@ -92,7 +92,7 @@ message ListTemplatesRequest {}
 /** Respuesta con la lista de plantillas. */
 message ListTemplatesResponse {
   repeated Template templates = 1;          // Colección de plantillas
-  errors.v1.StandardResponse meta = 2;      // Estado de la operación
+  errors.common.StandardResponse meta = 2;      // Estado de la operación
 }
 
 // ======================================================
@@ -108,7 +108,7 @@ message UpsertTemplateRequest {
 /** Resultado del upsert. */
 message UpsertTemplateResponse {
   Template template = 1;                     // Plantilla creada/actualizada
-  errors.v1.StandardResponse meta = 2;       // Estado de la operación
+  errors.common.StandardResponse meta = 2;       // Estado de la operación
 }
 
 // ======================================================
@@ -122,7 +122,7 @@ message DeleteTemplateRequest {
 
 /** Respuesta de eliminación. */
 message DeleteTemplateResponse {
-  errors.v1.StandardResponse meta = 1;       // Estado de la operación
+  errors.common.StandardResponse meta = 1;       // Estado de la operación
 }
 
 // ======================================================
