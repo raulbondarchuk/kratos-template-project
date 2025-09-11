@@ -11,7 +11,7 @@ APP_NAME_TO_BUILD := kratos-template
 CMD_DIR  := cmd/$(APP_NAME)
 BIN_DIR  := bin
 BIN      := $(BIN_DIR)/$(APP_NAME).exe
-BUF_GEN  := buf.gen.yaml
+BUF_GEN        ?= buf.gen.yaml           # our current template (with remote-plugins)
 
 RELEASE_SCRIPT ?= ./scripts/ps/git-release.ps1
 CONFIG_PATH    ?= ./configs/config.yaml
@@ -32,16 +32,15 @@ help:
 .PHONY: init
 init:
 	@echo ">> installing tools"
-	go install github.com/bufbuild/buf/cmd/buf@latest
+# Go / gRPC
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
-	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
-	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+# Kratos HTTP
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http@latest
+# OpenAPI v2 (swagger.json)
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
-	go install github.com/google/wire/cmd/wire@latest
-	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
-	go mod tidy
+# OpenAPI v3 (yaml), gnostic
+	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 
 # ---------------------------------
 # Go mod tidy
@@ -52,13 +51,26 @@ tidy:
 	go mod tidy
 
 # ---------------------------------
-# Generate (proto + wire)
+# Generate (proto)
 # ---------------------------------
-.PHONY: gen
-gen:
-	@echo ">> buf generate"
-	buf dep update
+
+.PHONY: deps gen
+
+deps:
+	@echo ">> check buf.lock freshness"
+	@if (!(Test-Path .\buf.lock) -or ((Get-Item .\buf.yaml).LastWriteTime -gt (Get-Item .\buf.lock).LastWriteTime)) { Write-Host ">> buf dep update"; buf dep update } else { Write-Host ">> skip buf dep update (lock is fresh)" }
+
+gen: deps
+	@echo ">> buf generate (local)"
 	buf generate --template $(BUF_GEN)
+
+
+# ---------------------------------
+# Wire
+# ---------------------------------
+
+.PHONY: wire
+wire:
 	@echo ">> wire generate"
 	Set-Location '$(CMD_DIR)'; wire
 
