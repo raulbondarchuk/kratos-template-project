@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package api.prueba.v1;
+
+import "api/prueba/v1/errors.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "service/api/prueba;prueba";
+option java_multiple_files = true;
+option java_outer_classname = "PruebaProtoV1";
+option java_package = "dev.kratos.api.prueba.prueba";
+
+// ======================================================
+// PruebaService
+// ======================================================
+
+/** API para gestion de pruebas. */
+service PruebaService {
+  /** Lista o busca pruebas.
+   *
+   * Descripcion
+   * Devuelve lista de pruebas. Si hay filtros, se aplican.
+   *
+   * Parametros (query)
+   * - 'id' (opcional)
+   * - 'name' (opcional)
+   *
+   * Respuestas
+   * - 200 OK: 'items' + 'meta.code = RESPONSE_CODE_OK'
+   * - 200 con error logico: 'meta.code != RESPONSE_CODE_OK' y 'meta.message'
+   *
+   * Ejemplos
+   * GET /pruebas
+   * GET /pruebas?id=1
+   */
+  rpc FindPruebas(FindPruebasRequest) returns (FindPruebasResponse) {
+    option (google.api.http) = {get: "/pruebas"};
+  }
+
+  /** Crea o actualiza (upsert) prueba.
+   *
+   * Descripcion
+   * Si 'id' es 0 o no se envia -> crea; si 'id' > 0 -> actualiza.
+   *
+   * Parametros (body JSON)
+   * - 'id' (opcional, 0=create)
+   * - 'name' (obligatorio)
+   *
+   * Respuestas
+   * - 200 OK: 'item' resultante + 'meta.code = RESPONSE_CODE_OK'
+   * - 200 con error logico: validacion o duplicidad
+   *
+   * Ejemplos
+   * POST /pruebas
+   * Body: { "name":"Prueba 1" }
+   */
+  rpc UpsertPrueba(UpsertPruebaRequest) returns (UpsertPruebaResponse) {
+    option (google.api.http) = {
+      post: "/pruebas"
+      body: "*"
+    };
+  }
+
+  /** Elimina prueba por ID.
+   *
+   * Parametros (query)
+   * - 'id' (obligatorio): ID interno
+   *
+   * Respuestas
+   * - 200 OK: 'meta.code = RESPONSE_CODE_OK'
+   * - 200 con error logico: 'meta.code != RESPONSE_CODE_OK'
+   *
+   * Ejemplos
+   * DELETE /pruebas?id=123
+   */
+  rpc DeletePruebaById(DeletePruebaByIdRequest) returns (DeletePruebaByIdResponse) {
+    option (google.api.http) = {delete: "/pruebas"};
+  }
+}
+
+// ======================================================
+// FindPruebas (GET /pruebas)
+// ======================================================
+
+/** Filtros de busqueda. Si vacio -> listado completo. */
+message FindPruebasRequest {
+  uint32 id = 1 [(google.api.field_behavior) = OPTIONAL]; // filtrar por ID
+  string name = 2 [(google.api.field_behavior) = OPTIONAL]; // filtrar por nombre
+}
+
+/** Respuesta con lista. */
+message FindPruebasResponse {
+  repeated Prueba items = 1; // coleccion de resultados
+  MetaResponse meta = 2; // estado de la operacion
+}
+
+// ======================================================
+// UpsertPrueba (POST /pruebas)
+// ======================================================
+
+/** Cuerpo para crear o actualizar. */
+message UpsertPruebaRequest {
+  uint32 id = 1 [(google.api.field_behavior) = OPTIONAL]; // 0 -> crear
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+/** Resultado del upsert. */
+message UpsertPruebaResponse {
+  Prueba item = 1; // entidad creada o actualizada
+  MetaResponse meta = 2;
+}
+
+// ======================================================
+// DeletePruebaById (DELETE /pruebas?id=123)
+// ======================================================
+
+/** Peticion para eliminar por ID. */
+message DeletePruebaByIdRequest {
+  uint32 id = 1 [(google.api.field_behavior) = REQUIRED]; // ID interno
+}
+
+/** Respuesta de eliminacion. */
+message DeletePruebaByIdResponse {
+  MetaResponse meta = 1;
+}
+
+// ======================================================
+// Common models
+// ======================================================
+
+/** Modelo prueba. Ajusta campos al dominio. */
+message Prueba {
+  uint32 id = 1;
+  string name = 2; // ejemplo: "Prueba 1"
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}

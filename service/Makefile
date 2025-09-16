@@ -74,3 +74,22 @@ clean clear cls:
 # Usage: make commit t="..." d="..."
 commit:
 	@if (-not '$(TITLE_EFF)' -or -not '$(DESC_EFF)') { Write-Host 'Uso: make commit t="..." d="..."'; exit 2 } ; if (-not (Test-Path '$(RELEASE_SCRIPT)')) { Write-Error "Script not found: $(RELEASE_SCRIPT)"; exit 1 } ; & '$(RELEASE_SCRIPT)' -Title '$(TITLE_EFF)' -Desc '$(DESC_EFF)' -ConfigPath '$(CONFIG_PATH)'
+
+
+# ==============================================================================
+# Workflow =====================================================================
+# ==============================================================================
+
+PATH_SCRIPTS_WORKFLOW_ENDPOINT := ./scripts/ps/workflow/endpoint.ps1
+
+# Generate a new endpoint skeleton
+.PHONY: endpoint
+
+# Create a new endpoint (only .proto scaffolding)
+# Example:
+#   make endpoint name="prueba"
+#   make endpoint name="alerts" v=2
+#   make endpoint name="prueba" force=1
+endpoint:
+	@if (-not '$(name)') { Write-Host 'Usage: make endpoint name="<name>" [v=<version>] [force=1]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File $(PATH_SCRIPTS_WORKFLOW_ENDPOINT) -Name "$(name)" $(if $(strip $(v)),-Version $(v),) $(if $(strip $(force)),-Force,)
