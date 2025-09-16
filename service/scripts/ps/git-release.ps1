@@ -167,11 +167,11 @@ Show-Info ('Creating local tag {0}' -f $version)
 if ($LASTEXITCODE -ne 0) { throw 'git tag failed.' }
 Show-OK ('Tag created: {0}' -f $version)
 
-Show-Info ('Pushing current branch ({0})' -f $branch)
+Show-Step ('Pushing current branch ({0})' -f $branch)
 Push-CurrentBranch -Branch $branch
 Show-OK 'Branch pushed'
 
-Show-Info 'Pushing tag (with collision retry if needed)'
+Show-Step 'Pushing tag (with collision retry if needed)'
 $finalTag = Push-TagWithRetry -Base $base -CurrentTag $version -Title $Title -Desc $Desc
 Show-OK ('Tag pushed: {0}' -f $finalTag)
 
