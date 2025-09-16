@@ -27,7 +27,14 @@ type ResponseCode int32
 const (
 	ResponseCode_RESPONSE_CODE_UNSPECIFIED           ResponseCode = 0
 	ResponseCode_RESPONSE_CODE_OK                    ResponseCode = 200 // success
+	ResponseCode_RESPONSE_CODE_BAD_REQUEST           ResponseCode = 400 // bad request
+	ResponseCode_RESPONSE_CODE_UNAUTHORIZED          ResponseCode = 401 // unauthorized
+	ResponseCode_RESPONSE_CODE_FORBIDDEN             ResponseCode = 403 // forbidden
+	ResponseCode_RESPONSE_CODE_NOT_FOUND             ResponseCode = 404 // not found
+	ResponseCode_RESPONSE_CODE_METHOD_NOT_ALLOWED    ResponseCode = 405 // method not allowed
 	ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR ResponseCode = 500 // server error
+	ResponseCode_RESPONSE_CODE_NOT_IMPLEMENTED       ResponseCode = 501 // not implemented
+	ResponseCode_RESPONSE_CODE_SERVICE_UNAVAILABLE   ResponseCode = 503 // service unavailable
 )
 
 // Enum value maps for ResponseCode.
@@ -35,12 +42,26 @@ var (
 	ResponseCode_name = map[int32]string{
 		0:   "RESPONSE_CODE_UNSPECIFIED",
 		200: "RESPONSE_CODE_OK",
+		400: "RESPONSE_CODE_BAD_REQUEST",
+		401: "RESPONSE_CODE_UNAUTHORIZED",
+		403: "RESPONSE_CODE_FORBIDDEN",
+		404: "RESPONSE_CODE_NOT_FOUND",
+		405: "RESPONSE_CODE_METHOD_NOT_ALLOWED",
 		500: "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
+		501: "RESPONSE_CODE_NOT_IMPLEMENTED",
+		503: "RESPONSE_CODE_SERVICE_UNAVAILABLE",
 	}
 	ResponseCode_value = map[string]int32{
 		"RESPONSE_CODE_UNSPECIFIED":           0,
 		"RESPONSE_CODE_OK":                    200,
+		"RESPONSE_CODE_BAD_REQUEST":           400,
+		"RESPONSE_CODE_UNAUTHORIZED":          401,
+		"RESPONSE_CODE_FORBIDDEN":             403,
+		"RESPONSE_CODE_NOT_FOUND":             404,
+		"RESPONSE_CODE_METHOD_NOT_ALLOWED":    405,
 		"RESPONSE_CODE_INTERNAL_SERVER_ERROR": 500,
+		"RESPONSE_CODE_NOT_IMPLEMENTED":       501,
+		"RESPONSE_CODE_SERVICE_UNAVAILABLE":   503,
 	}
 )
 
@@ -74,7 +95,7 @@ func (ResponseCode) EnumDescriptor() ([]byte, []int) {
 // Your meta-object: only code and message.
 type MetaResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          ResponseCode           `protobuf:"varint,1,opt,name=code,proto3,enum=api.template.v1.ResponseCode" json:"code,omitempty"` // RESPONSE_CODE_OK or RESPONSE_CODE_INTERNAL_SERVER_ERROR
+	Code          ResponseCode           `protobuf:"varint,1,opt,name=code,proto3,enum=api.template.v1.ResponseCode" json:"code,omitempty"` // RESPONSE_CODE_OK or other codes
 	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`                              // "ok" or error description
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -131,11 +152,18 @@ const file_api_template_v1_errors_proto_rawDesc = "" +
 	"\x1capi/template/v1/errors.proto\x12\x0fapi.template.v1\"[\n" +
 	"\fMetaResponse\x121\n" +
 	"\x04code\x18\x01 \x01(\x0e2\x1d.api.template.v1.ResponseCodeR\x04code\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage*n\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*\xde\x02\n" +
 	"\fResponseCode\x12\x1d\n" +
 	"\x19RESPONSE_CODE_UNSPECIFIED\x10\x00\x12\x15\n" +
-	"\x10RESPONSE_CODE_OK\x10\xc8\x01\x12(\n" +
-	"#RESPONSE_CODE_INTERNAL_SERVER_ERROR\x10\xf4\x03B\x1fZ\x1dservice/api/template;templateb\x06proto3"
+	"\x10RESPONSE_CODE_OK\x10\xc8\x01\x12\x1e\n" +
+	"\x19RESPONSE_CODE_BAD_REQUEST\x10\x90\x03\x12\x1f\n" +
+	"\x1aRESPONSE_CODE_UNAUTHORIZED\x10\x91\x03\x12\x1c\n" +
+	"\x17RESPONSE_CODE_FORBIDDEN\x10\x93\x03\x12\x1c\n" +
+	"\x17RESPONSE_CODE_NOT_FOUND\x10\x94\x03\x12%\n" +
+	" RESPONSE_CODE_METHOD_NOT_ALLOWED\x10\x95\x03\x12(\n" +
+	"#RESPONSE_CODE_INTERNAL_SERVER_ERROR\x10\xf4\x03\x12\"\n" +
+	"\x1dRESPONSE_CODE_NOT_IMPLEMENTED\x10\xf5\x03\x12&\n" +
+	"!RESPONSE_CODE_SERVICE_UNAVAILABLE\x10\xf7\x03B\x1fZ\x1dservice/api/template;templateb\x06proto3"
 
 var (
 	file_api_template_v1_errors_proto_rawDescOnce sync.Once

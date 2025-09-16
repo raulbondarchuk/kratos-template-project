@@ -186,7 +186,7 @@
       "properties": {
         "code": {
           "$ref": "#/definitions/v1ResponseCode",
-          "title": "RESPONSE_CODE_OK or RESPONSE_CODE_INTERNAL_SERVER_ERROR"
+          "title": "RESPONSE_CODE_OK or other codes"
         },
         "message": {
           "type": "string",
@@ -200,10 +200,17 @@
       "enum": [
         "RESPONSE_CODE_UNSPECIFIED",
         "RESPONSE_CODE_OK",
-        "RESPONSE_CODE_INTERNAL_SERVER_ERROR"
+        "RESPONSE_CODE_BAD_REQUEST",
+        "RESPONSE_CODE_UNAUTHORIZED",
+        "RESPONSE_CODE_FORBIDDEN",
+        "RESPONSE_CODE_NOT_FOUND",
+        "RESPONSE_CODE_METHOD_NOT_ALLOWED",
+        "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
+        "RESPONSE_CODE_NOT_IMPLEMENTED",
+        "RESPONSE_CODE_SERVICE_UNAVAILABLE"
       ],
       "default": "RESPONSE_CODE_UNSPECIFIED",
-      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error"
+      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_BAD_REQUEST: bad request\n - RESPONSE_CODE_UNAUTHORIZED: unauthorized\n - RESPONSE_CODE_FORBIDDEN: forbidden\n - RESPONSE_CODE_NOT_FOUND: not found\n - RESPONSE_CODE_METHOD_NOT_ALLOWED: method not allowed\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error\n - RESPONSE_CODE_NOT_IMPLEMENTED: not implemented\n - RESPONSE_CODE_SERVICE_UNAVAILABLE: service unavailable"
     },
     "v1Template": {
       "type": "object",
