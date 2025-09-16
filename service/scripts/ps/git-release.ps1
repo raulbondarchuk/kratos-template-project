@@ -151,8 +151,8 @@ Show-Info ('Next version candidate: {0}' -f $version)
 Show-Info 'Checking working tree'
 $changes = & git status --porcelain
 if (-not $changes) {
-  Show-Info 'No changes to commit — nothing to do'
-  Show-OK  'No changes to commit — nothing to do'
+  Show-Info 'No changes to commit - nothing to do'
+  Show-OK  'No changes to commit - nothing to do'
   exit 0
 }
 
