@@ -30,22 +30,19 @@ help:
 # All targets
 # ---------------------------------
 
-.PHONY: all
+.PHONY: all init deps gen wire run gorun clean commit release 
 all: init gen wire run
 	@echo ">> all targets"
 
 # ---------------------------------
 # Tools setup
 # ---------------------------------
-.PHONY: init
 init: 
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/init.ps1 -AppName "$(APP_NAME)"
 
 # ---------------------------------
 # Generate (proto)
 # ---------------------------------
-
-.PHONY: deps gen
 
 deps:
 	@echo ">> check buf.lock freshness"
@@ -58,35 +55,26 @@ gen: deps
 # ---------------------------------
 # Wire
 # ---------------------------------
-
-.PHONY: wire
 wire:
 	@echo ">> wire generate"
 	Set-Location '$(CMD_DIR)'; wire
-
 # ---------------------------------
 # Build
 # ---------------------------------
-
-.PHONY: build
 build:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/build-linux.ps1 -AppName '$(APP_NAME_TO_BUILD)' -CmdDir '$(CMD_DIR)' -BinDir '$(BIN_DIR)'
-
 # ---------------------------------
 # Run (kratos run, go run)
 # ---------------------------------
-.PHONY: run gorun
 run:
 	@echo ">> running with kratos run"
 		kratos run
 gorun:
 	@echo ">> running with go run"
 		go run ./$(CMD_DIR) -conf ./configs
-
 # ---------------------------------
 # Clean
 # ---------------------------------
-.PHONY: clean
 clean:
 	@echo ">> clean"
 	if (Test-Path '$(BIN_DIR)') { Remove-Item -Recurse -Force '$(BIN_DIR)' }
@@ -103,12 +91,10 @@ clean:
 TITLE_EFF = $(if $(strip $(t)),$(t),$(TITLE))
 DESC_EFF  = $(if $(strip $(d)),$(d),$(DESC))
 
-.PHONY: commit
 # uso: make commit t="..." d="..."
 commit:
 	@if (-not '$(TITLE_EFF)' -or -not '$(DESC_EFF)') { Write-Host 'Uso: make commit t="..." d="..."'; exit 2 } ; if (-not (Test-Path '$(RELEASE_SCRIPT)')) { Write-Error "Script not found: $(RELEASE_SCRIPT)"; exit 1 } ; & '$(RELEASE_SCRIPT)' -Title '$(TITLE_EFF)' -Desc '$(DESC_EFF)' -ConfigPath '$(CONFIG_PATH)'
 # alias
-.PHONY: release
 release:
 	@$(MAKE) commit t="$(t)" d="$(d)"
 %:
