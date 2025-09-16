@@ -6,6 +6,7 @@ import (
 	server_http "service/internal/server/http"
 )
 
+// AllRegistrers Es la estructura que contiene los registros de los servidores HTTP y GRPC
 type AllRegistrers struct {
 	HTTP []server_http.HTTPRegister
 	GRPC []server_grpc.GRPCRegister
