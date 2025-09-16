@@ -26,32 +26,27 @@ HELP_PS := powershell -NoProfile -ExecutionPolicy Bypass -File "./scripts/ps/hel
 help:
 	@$(HELP_PS) -AppName "$(APP_NAME)" -CmdDir "$(CMD_DIR)" -Bin "$(BIN)" -BufGen "$(BUF_GEN)" -ConfigPath "$(CONFIG_PATH)" -ReleaseScript "$(RELEASE_SCRIPT)" -Lang "$(LANG)"
 
+
+# PHONY targets
+.PHONY: all init deps gen wire run gorun clean commit release 
 # ---------------------------------
 # All targets
 # ---------------------------------
-
-.PHONY: all init deps gen wire run gorun clean commit release 
 all: init gen wire run
-	@echo ">> all targets"
-
 # ---------------------------------
 # Tools setup
 # ---------------------------------
 init: 
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/init.ps1 -AppName "$(APP_NAME)"
-
 # ---------------------------------
 # Generate (proto)
 # ---------------------------------
-
 deps:
-	@echo ">> check buf.lock freshness"
-	@if (!(Test-Path .\buf.lock) -or ((Get-Item .\buf.yaml).LastWriteTime -gt (Get-Item .\buf.lock).LastWriteTime)) { Write-Host ">> buf dep update"; buf dep update } else { Write-Host ">> skip buf dep update (lock is fresh)" }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/deps.ps1
 
 gen: deps
 	@echo ">> buf generate (local)"
 	buf generate --template $(BUF_GEN)
-
 # ---------------------------------
 # Wire
 # ---------------------------------
@@ -82,7 +77,6 @@ clean:
 	Get-ChildItem -Recurse -Filter '*.pb.go' | Remove-Item -Force -ErrorAction SilentlyContinue
 	Get-ChildItem -Recurse -Filter 'openapi.yaml' | Remove-Item -Force -ErrorAction SilentlyContinue
 	Get-ChildItem -Recurse -Filter 'service.swagger.json' | Remove-Item -Force -ErrorAction SilentlyContinue
-
 # ---------------------------------
 # Commit with auto version bump
 # ---------------------------------
