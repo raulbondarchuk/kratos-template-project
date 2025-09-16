@@ -10,11 +10,17 @@ APP_NAME := service
 APP_NAME_TO_BUILD := kratos-template
 CMD_DIR  := cmd/$(APP_NAME)
 BIN_DIR  := bin
-BIN      := $(BIN_DIR)/$(APP_NAME).exe
-BUF_GEN        ?= buf.gen.yaml           # our current template (with remote-plugins)
+
+BUF_GEN ?= buf.gen.yaml
+BUF_YAML ?= buf.yaml
+BUF_LOCK ?= buf.lock
 
 RELEASE_SCRIPT ?= ./scripts/ps/git-release.ps1
 CONFIG_PATH    ?= ./configs/config.yaml
+
+# compatibility: if t/d are not set, use TITLE/DESC (if set)
+TITLE_EFF = $(if $(strip $(t)),$(t),$(TITLE))
+DESC_EFF  = $(if $(strip $(d)),$(d),$(DESC))
 
 # ---------------------------------
 # Help - print all commands and their descriptions
@@ -24,106 +30,47 @@ HELP_PS := powershell -NoProfile -ExecutionPolicy Bypass -File "./scripts/ps/hel
 
 .PHONY: help
 help:
-	@$(HELP_PS) -AppName "$(APP_NAME)" -CmdDir "$(CMD_DIR)" -Bin "$(BIN)" -BufGen "$(BUF_GEN)" -ConfigPath "$(CONFIG_PATH)" -ReleaseScript "$(RELEASE_SCRIPT)" -Lang "$(LANG)"
+	@$(HELP_PS) -AppName "$(APP_NAME)" -CmdDir "$(CMD_DIR)" -Bin "$(BIN_DIR)" -BufGen "$(BUF_GEN)" -ConfigPath "$(CONFIG_PATH)" -ReleaseScript "$(RELEASE_SCRIPT)"
 
-# ---------------------------------
+# PHONY targets
+.PHONY: all init deps gen wire run gorun clean commit release 
+
 # All targets
-# ---------------------------------
-
-.PHONY: all
 all: init gen wire run
-	@echo ">> all targets"
 
-# ---------------------------------
 # Tools setup
-# ---------------------------------
-.PHONY: init
-init:
-	@echo ">> installing tools"
-# Go / gRPC
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-# Kratos HTTP
-	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
-# OpenAPI v2 (swagger.json)
-	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
-	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
-# OpenAPI v3 (yaml), gnostic
-	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
-# Wire
-	go install github.com/google/wire/cmd/wire@latest
-# Tidy for others dependencies
-	go mod tidy
+init: 
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/init.ps1 -AppName "$(APP_NAME)"
 
-# ---------------------------------
-# Generate (proto)
-# ---------------------------------
-
-.PHONY: deps gen
-
+# Generate dependencies (buf.lock)
 deps:
-	@echo ">> check buf.lock freshness"
-	@if (!(Test-Path .\buf.lock) -or ((Get-Item .\buf.yaml).LastWriteTime -gt (Get-Item .\buf.lock).LastWriteTime)) { Write-Host ">> buf dep update"; buf dep update } else { Write-Host ">> skip buf dep update (lock is fresh)" }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/deps.ps1 -BufYaml "$(BUF_YAML)" -BufLock "$(BUF_LOCK)"
 
+# Generate protobuf code
 gen: deps
-	@echo ">> buf generate (local)"
-	buf generate --template $(BUF_GEN)
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/gen.ps1 -BufGen "$(BUF_GEN)"
 
-# ---------------------------------
-# Wire
-# ---------------------------------
-
-.PHONY: wire
+# Wire (wire_gen.go)
 wire:
-	@echo ">> wire generate"
-	Set-Location '$(CMD_DIR)'; wire
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/wire.ps1 -CmdDir "$(CMD_DIR)"
 
-# ---------------------------------
 # Build
-# ---------------------------------
-
-.PHONY: build
 build:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/build-linux.ps1 -AppName '$(APP_NAME_TO_BUILD)' -CmdDir '$(CMD_DIR)' -BinDir '$(BIN_DIR)'
 
-# ---------------------------------
-# Run (kratos run, go run)
-# ---------------------------------
-.PHONY: run gorun
+# Kratos run
 run:
-	@echo ">> running with kratos run"
-		kratos run
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/run.ps1 -Mode kratos
+
+# Go run
 gorun:
-	@echo ">> running with go run"
-		go run ./$(CMD_DIR) -conf ./configs
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/run.ps1 -Mode go -CmdDir "$(CMD_DIR)" -ConfigPath "$(CONFIG_PATH)"
 
-# ---------------------------------
 # Clean
-# ---------------------------------
-.PHONY: clean
-clean:
-	@echo ">> clean"
-	if (Test-Path '$(BIN_DIR)') { Remove-Item -Recurse -Force '$(BIN_DIR)' }
-	Get-ChildItem -Recurse -Filter 'wire_gen.go' | Remove-Item -Force -ErrorAction SilentlyContinue
-	Get-ChildItem -Recurse -Filter '*.pb.go' | Remove-Item -Force -ErrorAction SilentlyContinue
-	Get-ChildItem -Recurse -Filter 'openapi.yaml' | Remove-Item -Force -ErrorAction SilentlyContinue
-	Get-ChildItem -Recurse -Filter 'service.swagger.json' | Remove-Item -Force -ErrorAction SilentlyContinue
+clean clear cls:
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/clean.ps1 -BinDir "$(BIN_DIR)"
 
-# ---------------------------------
 # Commit with auto version bump
-# ---------------------------------
-
-# compatibility: if t/d are not set, use TITLE/DESC (if set)
-TITLE_EFF = $(if $(strip $(t)),$(t),$(TITLE))
-DESC_EFF  = $(if $(strip $(d)),$(d),$(DESC))
-
-.PHONY: commit
-# uso: make commit t="..." d="..."
+# Usage: make commit t="..." d="..."
 commit:
 	@if (-not '$(TITLE_EFF)' -or -not '$(DESC_EFF)') { Write-Host 'Uso: make commit t="..." d="..."'; exit 2 } ; if (-not (Test-Path '$(RELEASE_SCRIPT)')) { Write-Error "Script not found: $(RELEASE_SCRIPT)"; exit 1 } ; & '$(RELEASE_SCRIPT)' -Title '$(TITLE_EFF)' -Desc '$(DESC_EFF)' -ConfigPath '$(CONFIG_PATH)'
-# alias
-.PHONY: release
-release:
-	@$(MAKE) commit t="$(t)" d="$(d)"
-%:
-	@:

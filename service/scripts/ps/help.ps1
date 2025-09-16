@@ -1,118 +1,74 @@
+[CmdletBinding()]
 param(
-  [string]$AppName = "service",
-  [string]$CmdDir  = "cmd/service",
-  [string]$Bin     = "bin/service.exe",
-  [string]$BufGen  = "buf.gen.yaml",
-
-  # coherentes con tu Makefile
-  [string]$ConfigPath   = "./configs/config.yaml",
-  [string]$ReleaseScript = "./scripts/ps/git-release.ps1",
-
-  # idioma: "es" por defecto, "en" para inglés
-  [string]$Lang = "es"
+  [string]$AppName       = "service",
+  [string]$CmdDir        = "cmd/service",
+  [string]$Bin           = "bin/service.exe",
+  [string]$BufGen        = "buf.gen.yaml",
+  [string]$ConfigPath    = "./configs/config.yaml",
+  [string]$ReleaseScript = "./scripts/ps/git-release.ps1"
 )
 
-$Lang = ($Lang.Trim().ToLower())
-if ($Lang -ne "en") { $Lang = "es" }
+$text = @"
+=== $AppName - ayuda rapida de [make <cmd>] ===
 
-if ($Lang -eq "en") {
-  $text = @"
-Usage: make <target> [VAR=VALUE]
+Flujo recomendado
+  1.0)   make all     - (init -> gen (deps + gen) -> wire -> run)
+  1.1)   make init    - instalar herramientas
+  1.2)   make deps    - refrescar buf.lock si hace falta, se puede omitir y utilizar make gen
+  1.3)   make gen     - generar codigo protobuf (plantilla: $BufGen) (deps + gen)
+  1.4)   make wire    - generar inyeccion (wire) en $CmdDir
+  2.0)   make build   - compilar binario ($Bin)
+  3.0)   make run     - ejecutar con kratos (o 'make gorun')
 
-Targets:
-  help         Show this help (multi-language via LANG=en|es)
-  init         Install/upgrade codegen tools and run 'go mod tidy':
-               - protoc-gen-go, protoc-gen-go-grpc
-               - protoc-gen-go-http (Kratos v2)
-               - protoc-gen-grpc-gateway, protoc-gen-openapiv2
-               - protoc-gen-openapi (gnostic), wire
-  deps         Update buf.lock only when needed (when buf.yaml is newer or lock is missing)
-  gen          buf generate (LOCAL plugins; template: $BufGen)
-  wire         Run 'wire' in $CmdDir (produces wire_gen.go)
-  build        Build Linux binary via ./scripts/ps/build-linux.ps1 -> $Bin
-  run          Hot reload with 'kratos run'
-  gorun        Run app with 'go run ./$CmdDir -conf ./configs'
-  clean        Remove bin/, wire_gen.go, *.pb.go, openapi.yaml, service.swagger.json
+Comandos
+  make help     - esta ayuda
+  make init     - instalar/actualizar generadores + go mod tidy
+  make deps     - actualizar buf.lock si buf.yaml cambio
+  make gen      - buf generate
+  make wire     - ejecutar wire en $CmdDir
+  make build    - compilar -> $Bin
+  make run      - kratos run (hot reload)
+  make gorun    - go run ./$CmdDir -conf ./configs
+  make clean    - limpiar bin/, wire_gen.go, *.pb.go, swagger/openapi
 
-Commit & Auto Version Bump:
-  Driven by ${ReleaseScript}:
-    - Reads base version ONLY from $ConfigPath (app.version like v1, v2).
-    - Tags use vX.N (shared counter from 'origin').
-    - Tag message equals commit message (Title + Desc).
-    - Branch policy: forbidden on 'main'/'master' and detached HEAD.
-    - First push sets upstream if missing; retries tag on collision.
+Commit + version automatica
+  make commit t="Titulo" d="Descripcion"
+  (usa $ReleaseScript; etiqueta desde app.version en $ConfigPath)
 
-Usage:
-  make commit t="Your title" d="Your description"
-  # alias:
-  make release t="..." d="..."
-
-Config:
-  APP_NAME = $AppName
-  CMD_DIR  = $CmdDir
-  BIN      = $Bin
-  BUF_GEN  = $BufGen
-  CONFIG_PATH    = $ConfigPath
-  RELEASE_SCRIPT = $ReleaseScript
-
-Notes & Tips:
-  - Local BUF plugins (no cloud quotas). Ensure GOBIN/GOPATH\bin is in PATH:
-      go, go-grpc, go-http, openapiv2, openapi
-  - 'deps' avoids hitting the network on every build (updates lock only when needed).
-  - 'run' requires 'kratos' CLI installed separately.
-  - If you see undefined 'BindForm' in generated code:
-      go get github.com/go-kratos/kratos/v2@<ver>
-      go install github.com/go-kratos/kratos/v2/cmd/protoc-gen-go-http@<ver>
+Config (Makefile)
+  CMD_DIR=$CmdDir
+  BIN=$Bin
+  BUF_GEN=$BufGen
+  CONFIG_PATH=$ConfigPath
+  
 "@
-} else {
-  $text = @"
-Uso: make <target> [VAR=VALOR]
 
-Targets:
-  help         Muestra esta ayuda (multi-idioma con LANG=en|es)
-  init         Instala/actualiza herramientas de generación y ejecuta 'go mod tidy':
-               - protoc-gen-go, protoc-gen-go-grpc
-               - protoc-gen-go-http (Kratos v2)
-               - protoc-gen-grpc-gateway, protoc-gen-openapiv2
-               - protoc-gen-openapi (gnostic), wire
-  deps         Actualiza buf.lock solo cuando hace falta (si buf.yaml es más reciente o falta el lock)
-  gen          buf generate (plugins LOCALES; plantilla: $BufGen)
-  wire         Ejecuta 'wire' en $CmdDir (genera wire_gen.go)
-  build        Compila binario Linux con ./scripts/ps/build-linux.ps1 -> $Bin
-  run          Recarga en caliente con 'kratos run'
-  gorun        Ejecuta con 'go run ./$CmdDir -conf ./configs'
-  clean        Borra bin/, wire_gen.go, *.pb.go, openapi.yaml, service.swagger.json
+function Print-WithYellowMake {
+  param([string]$Line)
+  $rx = [regex]'make\s+\w+'
+  $matches = $rx.Matches($Line)
+  if ($matches.Count -eq 0) { Write-Host $Line; return }
 
-Commit & Auto Version Bump:
-  Orquestado por ${ReleaseScript}:
-    - Lee la versión base SOLO de $ConfigPath (app.version tipo v1, v2).
-    - Tags vX.N (contador compartido desde 'origin').
-    - Mensaje del tag = mensaje del commit (Title + Desc).
-    - Política de ramas: prohibido en 'main'/'master' y en detached HEAD.
-    - Primer push crea upstream si falta; reintenta tag si hay colisión.
-
-Uso:
-  make commit t="Tu título" d="Tu descripción"
-  # alias:
-  make release t="..." d="..."
-
-Config:
-  APP_NAME = $AppName
-  CMD_DIR  = $CmdDir
-  BIN      = $Bin
-  BUF_GEN  = $BufGen
-  CONFIG_PATH    = $ConfigPath
-  RELEASE_SCRIPT = $ReleaseScript
-
-Notas y Tips:
-  - BUF con plugins locales (sin cuotas en la nube). Asegura GOBIN/GOPATH\bin en PATH:
-      go, go-grpc, go-http, openapiv2, openapi
-  - 'deps' evita tocar la red en cada build (actualiza el lock solo cuando hace falta).
-  - 'run' requiere tener el CLI 'kratos' instalado aparte.
-  - Si ves 'undefined BindForm' en el código generado:
-      go get github.com/go-kratos/kratos/v2@<ver>
-      go install github.com/go-kratos/kratos/v2/cmd/protoc-gen-go-http@<ver>
-"@
+  $pos = 0
+  foreach ($m in $matches) {
+    if ($m.Index -gt $pos) {
+      Write-Host -NoNewline ($Line.Substring($pos, $m.Index - $pos))
+    }
+    Write-Host -NoNewline $m.Value -ForegroundColor Yellow
+    $pos = $m.Index + $m.Length
+  }
+  if ($pos -lt $Line.Length) {
+    Write-Host ($Line.Substring($pos))
+  } else {
+    Write-Host ""
+  }
 }
 
-Write-Host $text
+# salida con color suave para encabezados
+foreach ($line in $text -split "`r?`n") {
+  if ($line -match '^(===|Flujo recomendado|Comandos|Commit \+ version automatica|Config)') {
+    Write-Host $line -ForegroundColor Cyan
+  } else {
+    Print-WithYellowMake $line
+  }
+}
