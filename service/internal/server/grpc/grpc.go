@@ -1,7 +1,6 @@
 package server_grpc
 
 import (
-	api_template "service/api/template"
 	"service/internal/conf"
 	template_service "service/internal/feature/template/service"
 
@@ -34,7 +33,14 @@ func NewGRPCServer(
 	}
 	srv := grpc.NewServer(opts...)
 
-	api_template.RegisterTemplatesServer(srv, template)
+	// =================================================
+	// === Register services ===========================
+	// =================================================
+
+	LoadRoutes(srv, template)
+
+	// =================================================
+	// =================================================
 
 	return srv
 }
