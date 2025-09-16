@@ -123,7 +123,7 @@ function Push-TagWithRetry {
 
 # ------------------ Flow ------------------
 
-Show-Info 'Release: commit & tag'
+Show-Step 'Git: Commit & Tag Release'
 
 Show-Info 'Validating branch policy'
 $branch = Test-BranchPolicy
