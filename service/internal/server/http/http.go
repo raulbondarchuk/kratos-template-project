@@ -1,8 +1,8 @@
+// internal/server/http/http.go
 package server_http
 
 import (
 	"service/internal/conf"
-	template_service "service/internal/feature/template/service"
 	"service/internal/middleware/requestlog"
 	"service/internal/server/http/openapi/scalar"
 	"service/internal/server/http/openapi/swagger"
@@ -13,16 +13,14 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
-// NewHTTPServer new an HTTP server. FABRIC
-func NewHTTPServer(c *conf.Server,
-	// API modules
-	template *template_service.TemplatesService,
-
-	logger log.Logger) *http.Server {
+func NewHTTPServer(
+	c *conf.Server,
+	registrers []HTTPRegister,
+	logger log.Logger,
+) *http.Server {
 	var opts = []http.ServerOption{
-		http.Middleware(
-			recovery.Recovery(),
-		),
+		http.Middleware(recovery.Recovery()),
+		http.Filter(requestlog.RequestLogFilter()),
 	}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
@@ -34,25 +32,16 @@ func NewHTTPServer(c *conf.Server,
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 
-	// RequestLogFilter
-	opts = append(opts, http.Filter(requestlog.RequestLogFilter()))
-
 	srv := http.NewServer(opts...)
 
-	// =================================================
-	// === Register services ===========================
-	// =================================================
+	// Automatic registration of all modules
+	for _, r := range registrers {
+		r(srv)
+	}
 
-	LoadRoutes(srv, template)
-
-	// =================================================
-	// =================================================
-
-	// OPEN API
-	swagger.AttachEmbeddedSwaggerUI(srv) // http://localhost:<PORT>/swagger-ui
-	scalar.AttachScalarDocs(srv)         // http://localhost:<PORT>/docs
-
-	// system functions
+	// Документация и системные эндпоинты
+	swagger.AttachEmbeddedSwaggerUI(srv)
+	scalar.AttachScalarDocs(srv)
 	sys.LoadSystemEndpoints(srv)
 
 	return srv
