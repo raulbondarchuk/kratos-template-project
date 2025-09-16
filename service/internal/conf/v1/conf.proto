@@ -5,38 +5,43 @@ import "google/protobuf/duration.proto";
 
 option go_package = "service/internal/conf/v1;conf";
 
+// Bootstrap Es la configuración principal de la aplicación
 message Bootstrap {
   Server server = 1;
   Data data = 2;
   App app = 3;
 }
 
-// Information about the app here
-
+// App Es la configuración de la aplicación
 message App {
   string mode = 1;
   string name = 2;
   string version = 3;
 }
 
+// Server Es la configuración del servidor
 message Server {
+  // HTTP Es la configuración del servidor HTTP
   message HTTP {
     string network = 1;
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
+  // GRPC Es la configuración del servidor GRPC
   message GRPC {
     string network = 1;
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
+
+  // Aqui se define el servidor HTTP y GRPC
   HTTP http = 1;
   GRPC grpc = 2;
 }
 
-// BDD and Redis&MQTT here
-
+// Data Es la configuración de la base de datos y Redis&MQTT
 message Data {
+  // Database Es la configuración de la base de datos
   message Database {
     string driver = 1;
     string source = 2;
@@ -44,18 +49,22 @@ message Data {
     bool migrations = 4;
     bool seed = 5;
   }
+  // Redis Es la configuración del servidor Redis
   // message Redis {
   //   string network = 1;
   //   string addr = 2;
   //   google.protobuf.Duration read_timeout = 3;
   //   google.protobuf.Duration write_timeout = 4;
   // }
+  // MQTT Es la configuración del servidor MQTT
   message MQTT {
     string source = 1;
     string client_id = 2;
     google.protobuf.Duration max_reconnect_interval = 3;
     repeated string topics = 4;
   }
+
+  // Aqui se define la base de datos y Redis&MQTT
   Database database = 1;
   // Redis redis = 2;
   MQTT mqtt = 3;
