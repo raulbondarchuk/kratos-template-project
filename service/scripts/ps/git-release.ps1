@@ -123,7 +123,7 @@ function Push-TagWithRetry {
 
 # ------------------ Flow ------------------
 
-Show-Step 'Release: commit & tag'
+Show-Info 'Release: commit & tag'
 
 Show-Info 'Validating branch policy'
 $branch = Test-BranchPolicy
@@ -146,7 +146,7 @@ while (-not (Test-UniqueTag -Candidate $version)) {
   $guard++
   if ($guard -gt 100) { throw ('Too many existing tags for base {0}' -f $base) }
 }
-Show-Info ('Next version candidate: {0}' -f $version)
+Show-OK ('Next version candidate: {0}' -f $version)
 
 Show-Info 'Checking working tree'
 $changes = & git status --porcelain
