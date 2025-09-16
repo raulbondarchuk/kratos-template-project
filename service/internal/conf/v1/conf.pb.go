@@ -22,6 +22,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Bootstrap Es la configuración principal de la aplicación
 type Bootstrap struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Server        *Server                `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
@@ -82,6 +83,7 @@ func (x *Bootstrap) GetApp() *App {
 	return nil
 }
 
+// App Es la configuración de la aplicación
 type App struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Mode          string                 `protobuf:"bytes,1,opt,name=mode,proto3" json:"mode,omitempty"`
@@ -142,10 +144,12 @@ func (x *App) GetVersion() string {
 	return ""
 }
 
+// Server Es la configuración del servidor
 type Server struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Http          *Server_HTTP           `protobuf:"bytes,1,opt,name=http,proto3" json:"http,omitempty"`
-	Grpc          *Server_GRPC           `protobuf:"bytes,2,opt,name=grpc,proto3" json:"grpc,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Aqui se define el servidor HTTP y GRPC
+	Http          *Server_HTTP `protobuf:"bytes,1,opt,name=http,proto3" json:"http,omitempty"`
+	Grpc          *Server_GRPC `protobuf:"bytes,2,opt,name=grpc,proto3" json:"grpc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -194,9 +198,11 @@ func (x *Server) GetGrpc() *Server_GRPC {
 	return nil
 }
 
+// Data Es la configuración de la base de datos y Redis&MQTT
 type Data struct {
-	state    protoimpl.MessageState `protogen:"open.v1"`
-	Database *Data_Database         `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Aqui se define la base de datos y Redis&MQTT
+	Database *Data_Database `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
 	// Redis redis = 2;
 	Mqtt          *Data_MQTT `protobuf:"bytes,3,opt,name=mqtt,proto3" json:"mqtt,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -247,6 +253,7 @@ func (x *Data) GetMqtt() *Data_MQTT {
 	return nil
 }
 
+// HTTP Es la configuración del servidor HTTP
 type Server_HTTP struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Network       string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
@@ -307,6 +314,7 @@ func (x *Server_HTTP) GetTimeout() *durationpb.Duration {
 	return nil
 }
 
+// GRPC Es la configuración del servidor GRPC
 type Server_GRPC struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Network       string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
@@ -367,6 +375,7 @@ func (x *Server_GRPC) GetTimeout() *durationpb.Duration {
 	return nil
 }
 
+// Database Es la configuración de la base de datos
 type Data_Database struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Driver        string                 `protobuf:"bytes,1,opt,name=driver,proto3" json:"driver,omitempty"`
@@ -443,12 +452,14 @@ func (x *Data_Database) GetSeed() bool {
 	return false
 }
 
+// Redis Es la configuración del servidor Redis
 // message Redis {
 //   string network = 1;
 //   string addr = 2;
 //   google.protobuf.Duration read_timeout = 3;
 //   google.protobuf.Duration write_timeout = 4;
 // }
+// MQTT Es la configuración del servidor MQTT
 type Data_MQTT struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	Source               string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
