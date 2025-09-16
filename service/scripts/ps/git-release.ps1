@@ -152,7 +152,7 @@ Show-Info 'Checking working tree'
 $changes = & git status --porcelain
 if (-not $changes) {
   Show-Info 'No changes to commit — nothing to do'
-  Show-OK  'Git: Release skipped'
+  Show-OK  'No changes to commit — nothing to do'
   exit 0
 }
 
