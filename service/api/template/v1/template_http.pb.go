@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.9.0
 // - protoc             (unknown)
-// source: api/template/template.proto
+// source: api/template/v1/template.proto
 
 package template
 
@@ -19,9 +19,9 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationTemplatesDeleteTemplateById = "/template.v1.Templates/DeleteTemplateById"
-const OperationTemplatesListTemplates = "/template.v1.Templates/ListTemplates"
-const OperationTemplatesUpsertTemplate = "/template.v1.Templates/UpsertTemplate"
+const OperationTemplatesDeleteTemplateById = "/api.template.v1.Templates/DeleteTemplateById"
+const OperationTemplatesListTemplates = "/api.template.v1.Templates/ListTemplates"
+const OperationTemplatesUpsertTemplate = "/api.template.v1.Templates/UpsertTemplate"
 
 type TemplatesHTTPServer interface {
 	// DeleteTemplateById* Elimina una plantilla por ID.

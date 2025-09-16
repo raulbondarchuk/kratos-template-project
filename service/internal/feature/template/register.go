@@ -2,7 +2,7 @@
 package template
 
 import (
-	api_template "service/api/template"
+	api_template "service/api/template/v1"
 	template_service "service/internal/feature/template/service"
 	server_grpc "service/internal/server/grpc"
 	server_http "service/internal/server/http"

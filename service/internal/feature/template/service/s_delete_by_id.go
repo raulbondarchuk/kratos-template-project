@@ -3,7 +3,7 @@ package template_service
 import (
 	"context"
 	"service/api/errors"
-	template "service/api/template"
+	template "service/api/template/v1"
 )
 
 // DeleteTemplateById delete template by id and return response with meta

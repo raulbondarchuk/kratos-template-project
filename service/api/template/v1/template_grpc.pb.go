@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: api/template/template.proto
+// source: api/template/v1/template.proto
 
 package template
 
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Templates_ListTemplates_FullMethodName      = "/template.v1.Templates/ListTemplates"
-	Templates_UpsertTemplate_FullMethodName     = "/template.v1.Templates/UpsertTemplate"
-	Templates_DeleteTemplateById_FullMethodName = "/template.v1.Templates/DeleteTemplateById"
+	Templates_ListTemplates_FullMethodName      = "/api.template.v1.Templates/ListTemplates"
+	Templates_UpsertTemplate_FullMethodName     = "/api.template.v1.Templates/UpsertTemplate"
+	Templates_DeleteTemplateById_FullMethodName = "/api.template.v1.Templates/DeleteTemplateById"
 )
 
 // TemplatesClient is the client API for Templates service.
@@ -268,7 +268,7 @@ func _Templates_DeleteTemplateById_Handler(srv interface{}, ctx context.Context,
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Templates_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "template.v1.Templates",
+	ServiceName: "api.template.v1.Templates",
 	HandlerType: (*TemplatesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -285,5 +285,5 @@ var Templates_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/template/template.proto",
+	Metadata: "api/template/v1/template.proto",
 }

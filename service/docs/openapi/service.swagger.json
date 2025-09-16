@@ -18,7 +18,7 @@
   "paths": {
     "/templates": {
       "get": {
-        "summary": "* Lista todas las plantillas.\r\n\r\n**Descripción**  \r\nDevuelve el catálogo completo de plantillas definidas.\r\n\r\n**Parámetros**  \r\n_(sin parámetros)_\r\n\r\n**Respuestas**  \r\n- `200 OK`: `templates` + `meta.code = OK`  \r\n- `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n**Ejemplos**  \r\n`GET /templates`",
+        "summary": "* Lista todas las plantillas.\r\n\r\n**Descripción**\r\nDevuelve el catálogo completo de plantillas definidas.\r\n\r\n**Parámetros**\r\n_(sin parámetros)_\r\n\r\n**Respuestas**\r\n- `200 OK`: `templates` + `meta.code = OK`\r\n- `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n**Ejemplos**\r\n`GET /templates`",
         "operationId": "Templates_ListTemplates",
         "responses": {
           "200": {
@@ -39,7 +39,7 @@
         ]
       },
       "delete": {
-        "summary": "* Elimina una plantilla por ID.\r\n\r\n**Descripción**  \r\nBorra la plantilla indicada por `id`.\r\n\r\n**Parámetros (query)**  \r\n- `id` (**obligatorio**): ID interno\r\n\r\n**Respuestas**  \r\n- `200 OK`: `meta.code = OK`  \r\n- `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n**Ejemplos**  \r\n`DELETE /templates?id=123`",
+        "summary": "* Elimina una plantilla por ID.\r\n\r\n**Descripción**\r\nBorra la plantilla indicada por `id`.\r\n\r\n**Parámetros (query)**\r\n- `id` (**obligatorio**): ID interno\r\n\r\n**Respuestas**\r\n- `200 OK`: `meta.code = OK`\r\n- `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n**Ejemplos**\r\n`DELETE /templates?id=123`",
         "operationId": "Templates_DeleteTemplateById",
         "responses": {
           "200": {
@@ -70,7 +70,7 @@
         ]
       },
       "post": {
-        "summary": "* Crea o actualiza una plantilla (upsert).\r\n\r\n**Descripción**  \r\nSi `id` es `0` o no se envía → crea; si `id` \u003e 0 → actualiza.\r\n\r\n**Parámetros (body JSON)**  \r\n- `id` (opcional, 0=create)  \r\n- `name` (**obligatorio**) \r\n\r\n**Respuestas**  \r\n- `200 OK`: `template` resultante + `meta.code = OK`  \r\n- `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n**Ejemplos**  \r\n`POST /templates`  \r\nBody: `{ \"name\":\"Template 1\" }`",
+        "summary": "* Crea o actualiza una plantilla (upsert).\r\n\r\n**Descripción**\r\nSi `id` es `0` o no se envía → crea; si `id` \u003e 0 → actualiza.\r\n\r\n**Parámetros (body JSON)**\r\n- `id` (opcional, 0=create)\r\n- `name` (**obligatorio**)\r\n\r\n**Respuestas**\r\n- `200 OK`: `template` resultante + `meta.code = OK`\r\n- `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n**Ejemplos**\r\n`POST /templates`\r\nBody: `{ \"name\":\"Template 1\" }`",
         "operationId": "Templates_UpsertTemplate",
         "responses": {
           "200": {

@@ -1,7 +1,7 @@
 package template
 
 import (
-	api_template "service/api/template"
+	api_template "service/api/template/v1"
 	template_biz "service/internal/feature/template/biz"
 	template_repo "service/internal/feature/template/repo"
 	template_service "service/internal/feature/template/service"
