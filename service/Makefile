@@ -85,8 +85,3 @@ DESC_EFF  = $(if $(strip $(d)),$(d),$(DESC))
 # uso: make commit t="..." d="..."
 commit:
 	@if (-not '$(TITLE_EFF)' -or -not '$(DESC_EFF)') { Write-Host 'Uso: make commit t="..." d="..."'; exit 2 } ; if (-not (Test-Path '$(RELEASE_SCRIPT)')) { Write-Error "Script not found: $(RELEASE_SCRIPT)"; exit 1 } ; & '$(RELEASE_SCRIPT)' -Title '$(TITLE_EFF)' -Desc '$(DESC_EFF)' -ConfigPath '$(CONFIG_PATH)'
-# alias
-release:
-	@$(MAKE) commit t="$(t)" d="$(d)"
-%:
-	@:
