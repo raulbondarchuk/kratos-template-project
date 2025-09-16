@@ -123,18 +123,18 @@ function Push-TagWithRetry {
 
 # ------------------ Flow ------------------
 
-Show-Step 'Release: commit & tag'
+Show-Info 'Release: commit & tag'
 
-Show-Step 'Validating branch policy'
+Show-Info 'Validating branch policy'
 $branch = Test-BranchPolicy
 Show-Info ('Current branch: {0}' -f $branch)
 
-Show-Step 'Reading base version from YAML'
+Show-Info 'Reading base version from YAML'
 $base = Get-AppVersionFromYaml -Path $ConfigPath
 Test-BaseVersion $base
 Show-Info ('Base version (app.version): {0}' -f $base)
 
-Show-Step 'Calculating next patch from remote tags'
+Show-Info 'Calculating next patch from remote tags'
 $next    = Get-NextPatchVersion -Base $base
 $version = ('{0}.{1}' -f $base, $next)
 
@@ -148,7 +148,7 @@ while (-not (Test-UniqueTag -Candidate $version)) {
 }
 Show-Info ('Next version candidate: {0}' -f $version)
 
-Show-Step 'Checking working tree'
+Show-Info 'Checking working tree'
 $changes = & git status --porcelain
 if (-not $changes) {
   Show-Info 'No changes to commit — nothing to do'
@@ -156,22 +156,22 @@ if (-not $changes) {
   exit 0
 }
 
-Show-Step 'Committing changes'
+Show-Info 'Committing changes'
 & git add -A
 & git commit -m $Title -m $Desc
 if ($LASTEXITCODE -ne 0) { throw 'git commit failed.' }
 Show-OK 'Commit created'
 
-Show-Step ('Creating local tag {0}' -f $version)
+Show-Info ('Creating local tag {0}' -f $version)
 & git tag -a $version -m $Title -m $Desc
 if ($LASTEXITCODE -ne 0) { throw 'git tag failed.' }
 Show-OK ('Tag created: {0}' -f $version)
 
-Show-Step ('Pushing current branch ({0})' -f $branch)
+Show-Info ('Pushing current branch ({0})' -f $branch)
 Push-CurrentBranch -Branch $branch
 Show-OK 'Branch pushed'
 
-Show-Step 'Pushing tag (with collision retry if needed)'
+Show-Info 'Pushing tag (with collision retry if needed)'
 $finalTag = Push-TagWithRetry -Base $base -CurrentTag $version -Title $Title -Desc $Desc
 Show-OK ('Tag pushed: {0}' -f $finalTag)
 
