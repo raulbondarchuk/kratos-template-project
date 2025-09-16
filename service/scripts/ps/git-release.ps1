@@ -146,13 +146,13 @@ while (-not (Test-UniqueTag -Candidate $version)) {
   $guard++
   if ($guard -gt 100) { throw ('Too many existing tags for base {0}' -f $base) }
 }
-Show-OK ('Next version candidate: {0}' -f $version)
+Show-Info ('Next version candidate: {0}' -f $version)
 
 Show-Info 'Checking working tree'
 $changes = & git status --porcelain
 if (-not $changes) {
   Show-Info 'No changes to commit — nothing to do'
-  Show-OK  'Release skipped'
+  Show-OK  'Git: Release skipped'
   exit 0
 }
 
