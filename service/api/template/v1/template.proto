@@ -1,58 +1,57 @@
 syntax = "proto3";
 
-package template.v1;
+package api.template.v1;
 
+import "api/template/v1/errors.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-import "api/errors/error_reason.proto";
 
 option go_package = "service/api/template;template";
 option java_multiple_files = true;
-option java_package = "dev.kratos.api.template.template";
 option java_outer_classname = "TemplateProtoV1";
+option java_package = "dev.kratos.api.template.template";
 
 // ======================================================
 // TemplateService
 // ======================================================
 
 /** API para gestión de plantillas (alertas/avisos). */
-service Templates {
-
+service TemplatesService {
   /** Lista todas las plantillas.
    *
-   * **Descripción**  
+   * **Descripción**
    * Devuelve el catálogo completo de plantillas definidas.
    *
-   * **Parámetros**  
+   * **Parámetros**
    * _(sin parámetros)_
    *
-   * **Respuestas**  
-   * - `200 OK`: `templates` + `meta.code = OK`  
+   * **Respuestas**
+   * - `200 OK`: `templates` + `meta.code = OK`
    * - `200` con error lógico: `meta.code != OK` y `meta.message`
    *
-   * **Ejemplos**  
+   * **Ejemplos**
    * `GET /templates`
    */
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
-    option (google.api.http) = { get: "/templates" };
+    option (google.api.http) = {get: "/templates"};
   }
 
   /** Crea o actualiza una plantilla (upsert).
    *
-   * **Descripción**  
+   * **Descripción**
    * Si `id` es `0` o no se envía → crea; si `id` > 0 → actualiza.
    *
-   * **Parámetros (body JSON)**  
-   * - `id` (opcional, 0=create)  
-   * - `name` (**obligatorio**) 
+   * **Parámetros (body JSON)**
+   * - `id` (opcional, 0=create)
+   * - `name` (**obligatorio**)
    *
-   * **Respuestas**  
-   * - `200 OK`: `template` resultante + `meta.code = OK`  
+   * **Respuestas**
+   * - `200 OK`: `template` resultante + `meta.code = OK`
    * - `200` con error lógico: validación, duplicidad de `name`, etc.
    *
-   * **Ejemplos**  
-   * `POST /templates`  
+   * **Ejemplos**
+   * `POST /templates`
    * Body: `{ "name":"Template 1" }`
    */
   rpc UpsertTemplate(UpsertTemplateRequest) returns (UpsertTemplateResponse) {
@@ -64,21 +63,21 @@ service Templates {
 
   /** Elimina una plantilla por ID.
    *
-   * **Descripción**  
+   * **Descripción**
    * Borra la plantilla indicada por `id`.
    *
-   * **Parámetros (query)**  
+   * **Parámetros (query)**
    * - `id` (**obligatorio**): ID interno
    *
-   * **Respuestas**  
-   * - `200 OK`: `meta.code = OK`  
+   * **Respuestas**
+   * - `200 OK`: `meta.code = OK`
    * - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)
    *
-   * **Ejemplos**  
+   * **Ejemplos**
    * `DELETE /templates?id=123`
    */
-  rpc DeleteTemplateById(DeleteTemplateRequest) returns (DeleteTemplateResponse) {
-    option (google.api.http) = { delete: "/templates" };
+  rpc DeleteTemplateById(DeleteTemplateByIdRequest) returns (DeleteTemplateByIdResponse) {
+    option (google.api.http) = {delete: "/templates"};
   }
 }
 
@@ -91,8 +90,8 @@ message ListTemplatesRequest {}
 
 /** Respuesta con la lista de plantillas. */
 message ListTemplatesResponse {
-  repeated Template templates = 1;          // Colección de plantillas
-  errors.common.StandardResponse meta = 2;      // Estado de la operación
+  repeated Template templates = 1; // Colección de plantillas
+  MetaResponse meta = 2; // Estado de la operación
 }
 
 // ======================================================
@@ -101,14 +100,14 @@ message ListTemplatesResponse {
 
 /** Cuerpo para crear/actualizar una plantilla. */
 message UpsertTemplateRequest {
-  uint32 id = 1 [(google.api.field_behavior) = OPTIONAL];     // 0 → crear
-  string name = 2 [(google.api.field_behavior) = REQUIRED];   // ej. Template 1 / Template 2
+  uint32 id = 1 [(google.api.field_behavior) = OPTIONAL]; // 0 → crear
+  string name = 2 [(google.api.field_behavior) = REQUIRED]; // ej. Template 1 / Template 2
 }
 
 /** Resultado del upsert. */
 message UpsertTemplateResponse {
-  Template template = 1;                     // Plantilla creada/actualizada
-  errors.common.StandardResponse meta = 2;       // Estado de la operación
+  Template template = 1; // Plantilla creada/actualizada
+  MetaResponse meta = 2; // Estado de la operación
 }
 
 // ======================================================
@@ -116,13 +115,13 @@ message UpsertTemplateResponse {
 // ======================================================
 
 /** Petición para eliminar por ID. */
-message DeleteTemplateRequest {
-  uint32 id = 1 [(google.api.field_behavior) = REQUIRED];     // ID interno
+message DeleteTemplateByIdRequest {
+  uint32 id = 1 [(google.api.field_behavior) = REQUIRED]; // ID interno
 }
 
 /** Respuesta de eliminación. */
-message DeleteTemplateResponse {
-  errors.common.StandardResponse meta = 1;       // Estado de la operación
+message DeleteTemplateByIdResponse {
+  MetaResponse meta = 1; // Estado de la operación
 }
 
 // ======================================================
@@ -133,15 +132,14 @@ message DeleteTemplateResponse {
 message Template {
   uint32 id = 1;
   Type type = 2;
-  string name = 3;                              // ej. Template 1 / Template 2
+  string name = 3; // ej. Template 1 / Template 2
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
 }
 
-
 message Type {
   uint32 id = 1;
-  string name = 2;                              // Type1/Type2
+  string name = 2; // Type1/Type2
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
 }

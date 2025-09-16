@@ -1,12 +1,12 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/errors/error_reason.proto",
+    "title": "api/template/v1/errors.proto",
     "version": "version not set"
   },
   "tags": [
     {
-      "name": "Templates"
+      "name": "TemplatesService"
     }
   ],
   "consumes": [
@@ -18,8 +18,8 @@
   "paths": {
     "/templates": {
       "get": {
-        "summary": "* Lista todas las plantillas.\r\n\r\n**Descripción**  \r\nDevuelve el catálogo completo de plantillas definidas.\r\n\r\n**Parámetros**  \r\n_(sin parámetros)_\r\n\r\n**Respuestas**  \r\n- `200 OK`: `templates` + `meta.code = OK`  \r\n- `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n**Ejemplos**  \r\n`GET /templates`",
-        "operationId": "Templates_ListTemplates",
+        "summary": "* Lista todas las plantillas.\r\n\r\n**Descripción**\r\nDevuelve el catálogo completo de plantillas definidas.\r\n\r\n**Parámetros**\r\n_(sin parámetros)_\r\n\r\n**Respuestas**\r\n- `200 OK`: `templates` + `meta.code = OK`\r\n- `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n**Ejemplos**\r\n`GET /templates`",
+        "operationId": "TemplatesService_ListTemplates",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -35,17 +35,17 @@
           }
         },
         "tags": [
-          "Templates"
+          "TemplatesService"
         ]
       },
       "delete": {
-        "summary": "* Elimina una plantilla por ID.\r\n\r\n**Descripción**  \r\nBorra la plantilla indicada por `id`.\r\n\r\n**Parámetros (query)**  \r\n- `id` (**obligatorio**): ID interno\r\n\r\n**Respuestas**  \r\n- `200 OK`: `meta.code = OK`  \r\n- `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n**Ejemplos**  \r\n`DELETE /templates?id=123`",
-        "operationId": "Templates_DeleteTemplateById",
+        "summary": "* Elimina una plantilla por ID.\r\n\r\n**Descripción**\r\nBorra la plantilla indicada por `id`.\r\n\r\n**Parámetros (query)**\r\n- `id` (**obligatorio**): ID interno\r\n\r\n**Respuestas**\r\n- `200 OK`: `meta.code = OK`\r\n- `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n**Ejemplos**\r\n`DELETE /templates?id=123`",
+        "operationId": "TemplatesService_DeleteTemplateById",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1DeleteTemplateResponse"
+              "$ref": "#/definitions/v1DeleteTemplateByIdResponse"
             }
           },
           "default": {
@@ -66,12 +66,12 @@
           }
         ],
         "tags": [
-          "Templates"
+          "TemplatesService"
         ]
       },
       "post": {
-        "summary": "* Crea o actualiza una plantilla (upsert).\r\n\r\n**Descripción**  \r\nSi `id` es `0` o no se envía → crea; si `id` \u003e 0 → actualiza.\r\n\r\n**Parámetros (body JSON)**  \r\n- `id` (opcional, 0=create)  \r\n- `name` (**obligatorio**) \r\n\r\n**Respuestas**  \r\n- `200 OK`: `template` resultante + `meta.code = OK`  \r\n- `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n**Ejemplos**  \r\n`POST /templates`  \r\nBody: `{ \"name\":\"Template 1\" }`",
-        "operationId": "Templates_UpsertTemplate",
+        "summary": "* Crea o actualiza una plantilla (upsert).\r\n\r\n**Descripción**\r\nSi `id` es `0` o no se envía → crea; si `id` \u003e 0 → actualiza.\r\n\r\n**Parámetros (body JSON)**\r\n- `id` (opcional, 0=create)\r\n- `name` (**obligatorio**)\r\n\r\n**Respuestas**\r\n- `200 OK`: `template` resultante + `meta.code = OK`\r\n- `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n**Ejemplos**\r\n`POST /templates`\r\nBody: `{ \"name\":\"Template 1\" }`",
+        "operationId": "TemplatesService_UpsertTemplate",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -98,46 +98,12 @@
           }
         ],
         "tags": [
-          "Templates"
+          "TemplatesService"
         ]
       }
     }
   },
   "definitions": {
-    "commonResponseCode": {
-      "type": "string",
-      "enum": [
-        "RESPONSE_CODE_UNSPECIFIED",
-        "OK",
-        "CREATED",
-        "ACCEPTED",
-        "BAD_REQUEST",
-        "UNAUTHORIZED",
-        "FORBIDDEN",
-        "NOT_FOUND",
-        "CONFLICT",
-        "INTERNAL_ERROR",
-        "NOT_IMPLEMENTED",
-        "SERVICE_UNAVAILABLE"
-      ],
-      "default": "RESPONSE_CODE_UNSPECIFIED",
-      "description": "- OK: --- Success ---\n\n200 OK\n - CREATED: 201 Created\n - ACCEPTED: 202 Accepted\n - BAD_REQUEST: --- Client errors ---\n\n400 Invalid Argument\n - UNAUTHORIZED: 401 Unauthorized\n - FORBIDDEN: 403 Forbidden\n - NOT_FOUND: 404 Not Found\n - CONFLICT: 409 Conflict\n - INTERNAL_ERROR: --- Server errors ---\n\n500 Internal Server Error\n - NOT_IMPLEMENTED: 501 Not Implemented\n - SERVICE_UNAVAILABLE: 503 Service Unavailable",
-      "title": "Common response codes (success + errors)"
-    },
-    "commonStandardResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "$ref": "#/definitions/commonResponseCode",
-          "title": "code (success or error)"
-        },
-        "message": {
-          "type": "string",
-          "title": "description"
-        }
-      },
-      "title": "General response format (can be extended)"
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -187,11 +153,11 @@
         }
       }
     },
-    "v1DeleteTemplateResponse": {
+    "v1DeleteTemplateByIdResponse": {
       "type": "object",
       "properties": {
         "meta": {
-          "$ref": "#/definitions/commonStandardResponse",
+          "$ref": "#/definitions/v1MetaResponse",
           "title": "Estado de la operación"
         }
       },
@@ -209,11 +175,42 @@
           "title": "Colección de plantillas"
         },
         "meta": {
-          "$ref": "#/definitions/commonStandardResponse",
+          "$ref": "#/definitions/v1MetaResponse",
           "title": "Estado de la operación"
         }
       },
       "description": "* Respuesta con la lista de plantillas."
+    },
+    "v1MetaResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/v1ResponseCode",
+          "title": "RESPONSE_CODE_OK or other codes"
+        },
+        "message": {
+          "type": "string",
+          "title": "\"ok\" or error description"
+        }
+      },
+      "description": "Your meta-object: only code and message."
+    },
+    "v1ResponseCode": {
+      "type": "string",
+      "enum": [
+        "RESPONSE_CODE_UNSPECIFIED",
+        "RESPONSE_CODE_OK",
+        "RESPONSE_CODE_BAD_REQUEST",
+        "RESPONSE_CODE_UNAUTHORIZED",
+        "RESPONSE_CODE_FORBIDDEN",
+        "RESPONSE_CODE_NOT_FOUND",
+        "RESPONSE_CODE_METHOD_NOT_ALLOWED",
+        "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
+        "RESPONSE_CODE_NOT_IMPLEMENTED",
+        "RESPONSE_CODE_SERVICE_UNAVAILABLE"
+      ],
+      "default": "RESPONSE_CODE_UNSPECIFIED",
+      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_BAD_REQUEST: bad request\n - RESPONSE_CODE_UNAUTHORIZED: unauthorized\n - RESPONSE_CODE_FORBIDDEN: forbidden\n - RESPONSE_CODE_NOT_FOUND: not found\n - RESPONSE_CODE_METHOD_NOT_ALLOWED: method not allowed\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error\n - RESPONSE_CODE_NOT_IMPLEMENTED: not implemented\n - RESPONSE_CODE_SERVICE_UNAVAILABLE: service unavailable"
     },
     "v1Template": {
       "type": "object",
@@ -266,7 +263,7 @@
           "title": "Plantilla creada/actualizada"
         },
         "meta": {
-          "$ref": "#/definitions/commonStandardResponse",
+          "$ref": "#/definitions/v1MetaResponse",
           "title": "Estado de la operación"
         }
       },

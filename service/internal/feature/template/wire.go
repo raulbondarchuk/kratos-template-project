@@ -1,7 +1,7 @@
 package template
 
 import (
-	api_template "service/api/template"
+	api_template "service/api/template/v1"
 	template_biz "service/internal/feature/template/biz"
 	template_repo "service/internal/feature/template/repo"
 	template_service "service/internal/feature/template/service"
@@ -16,8 +16,8 @@ var ProviderSet = wire.NewSet(
 	template_service.NewTemplateService,
 
 	// bind service to interfaces that buf/protoc generates
-	wire.Bind(new(api_template.TemplatesHTTPServer), new(*template_service.TemplatesService)),
-	wire.Bind(new(api_template.TemplatesServer), new(*template_service.TemplatesService)),
+	wire.Bind(new(api_template.TemplatesServiceHTTPServer), new(*template_service.TemplatesService)),
+	wire.Bind(new(api_template.TemplatesServiceServer), new(*template_service.TemplatesService)),
 
 	// registrers (from registrars.go file)
 	NewTemplatesHTTPRegistrer,
