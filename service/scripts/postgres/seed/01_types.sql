@@ -1,0 +1,5 @@
+INSERT INTO `types` (`id`, `name`, `created_at`, `updated_at`)
+VALUES
+  (1, 'Type 1', NOW(), NOW()),
+  (2, 'Type 2', NOW(), NOW())
+ON DUPLICATE KEY UPDATE `name`=VALUES(`name`);

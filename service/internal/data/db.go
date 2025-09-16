@@ -1,73 +1,106 @@
 package data
 
 import (
+	"context"
 	"service/internal/conf/v1"
+	"service/internal/data/adapters" // common registry
+	_ "service/internal/data/adapters/mysql"
+	_ "service/internal/data/adapters/postgres"
+	"service/pkg/utils"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 )
 
-// Data represents the data layer with database connection
-type Data struct {
-	DB *gorm.DB
-}
+type Data struct{ DB *gorm.DB }
 
-// NewData creates a new Data instance with database connection
 func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 	h := log.NewHelper(logger)
 
-	// Load configuration without schema for initial connection
-	loadDatabaseConfig(config, h, false)
+	// 1) Select adapter by DB_DRIVER / ENV (LoadConfig sets it)
+	drv := utils.EnvFirst("DB_DRIVER")
 
-	// Connect to base database for schema setup
-	baseDB, err := connectDatabase(config.Database.Source, logger)
+	adapter, ok := adapters.Get(drv)
+	if !ok {
+		// Try to guess: mysql by default
+		if a, ok2 := adapters.Get("mysql"); ok2 {
+			adapter = a
+		} else {
+			return nil, nil, ErrUnknownDriver(drv)
+		}
+	}
+
+	// 2) DSN without schema → connection to the base DB → ensure
+	source, logDSN := adapter.LoadConfig(config, false)
+	h.Infof("DSN (base): %s", logDSN)
+
+	baseDB, err := adapter.Connect(source, logger)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Ensure schema
 	if config.Database.EnsureSchema {
-		if err := ensureSchema(baseDB); err != nil {
+		if err := adapter.EnsureSchema(baseDB); err != nil {
 			return nil, nil, err
 		}
+	} else {
+		h.Infof("SKIPPED: Ensure schema is disabled")
 	}
 
-	// Update configuration with schema for main connection
-	loadDatabaseConfig(config, h, true)
+	// 3) DSN with schema → main connection
+	source, logDSN = adapter.LoadConfig(config, true)
+	h.Infof("DSN (target): %s", logDSN)
 
-	// Connect to specific schema
-	db, err := connectDatabase(config.Database.Source, logger)
+	db, err := adapter.Connect(source, logger)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Verify connection
-	if err := verifyConnection(db, config.Database.Driver, h); err != nil {
+	// 4) Check connection (common)
+	if err := verifyConnection(db, adapter.Name(), h); err != nil {
 		return nil, nil, err
 	}
 
-	// Create data instance
-	d := &Data{DB: db}
-
-	// Run migrations
+	// 5) Migrations/seeds
 	if config.Database.Migrations {
-		if err := runMigrations(db, logger); err != nil {
+		if err := adapter.RunMigrations(db, logger); err != nil {
 			return nil, nil, err
 		}
+	} else {
+		h.Infof("SKIPPED: Migrations is disabled")
 	}
 
-	// Run seeds if needed
 	if config.Database.Seed {
-		if err := runSeeds(db, logger); err != nil {
+		if err := adapter.RunSeeds(db, logger); err != nil {
 			return nil, nil, err
 		}
+	} else {
+		h.Infof("SKIPPED: Seed is disabled")
 	}
 
-	// Setup cleanup
 	sqlDB, _ := db.DB()
-	cleanup := func() {
-		_ = sqlDB.Close()
-	}
+	cleanup := func() { _ = sqlDB.Close() }
 
-	return d, cleanup, nil
+	return &Data{DB: db}, cleanup, nil
+}
+
+type driverError string
+
+func (e driverError) Error() string   { return "unknown database driver: " + string(e) }
+func ErrUnknownDriver(d string) error { return driverError(d) }
+
+// Common check connection
+func verifyConnection(db *gorm.DB, driver string, h *log.Helper) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	if err := sqlDB.PingContext(ctx); err != nil {
+		return err
+	}
+	h.Infof("Connected to database: %s", driver)
+	return nil
 }

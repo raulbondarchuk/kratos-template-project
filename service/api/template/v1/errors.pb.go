@@ -96,7 +96,7 @@ func (ResponseCode) EnumDescriptor() ([]byte, []int) {
 type MetaResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          ResponseCode           `protobuf:"varint,1,opt,name=code,proto3,enum=api.template.v1.ResponseCode" json:"code,omitempty"` // RESPONSE_CODE_OK or other codes
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`                              // "ok" or error description
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`                              // message description (e.g. "ok", "ip blocked", "data base error", "user not found" etc.)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
