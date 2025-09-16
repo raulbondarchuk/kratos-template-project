@@ -446,10 +446,11 @@ func (x *Data_Database) GetSeed() bool {
 // MQTT Es la configuración del servidor MQTT
 type Data_MQTT struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
-	Source               string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
-	ClientId             string                 `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	MaxReconnectInterval *durationpb.Duration   `protobuf:"bytes,3,opt,name=max_reconnect_interval,json=maxReconnectInterval,proto3" json:"max_reconnect_interval,omitempty"`
-	Topics               []string               `protobuf:"bytes,4,rep,name=topics,proto3" json:"topics,omitempty"`
+	Active               bool                   `protobuf:"varint,1,opt,name=active,proto3" json:"active,omitempty"`
+	Source               string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	ClientId             string                 `protobuf:"bytes,3,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	MaxReconnectInterval *durationpb.Duration   `protobuf:"bytes,4,opt,name=max_reconnect_interval,json=maxReconnectInterval,proto3" json:"max_reconnect_interval,omitempty"`
+	Topics               []string               `protobuf:"bytes,5,rep,name=topics,proto3" json:"topics,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -482,6 +483,13 @@ func (x *Data_MQTT) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Data_MQTT.ProtoReflect.Descriptor instead.
 func (*Data_MQTT) Descriptor() ([]byte, []int) {
 	return file_internal_conf_v1_conf_proto_rawDescGZIP(), []int{3, 1}
+}
+
+func (x *Data_MQTT) GetActive() bool {
+	if x != nil {
+		return x.Active
+	}
+	return false
 }
 
 func (x *Data_MQTT) GetSource() string {
@@ -535,7 +543,7 @@ const file_internal_conf_v1_conf_proto_rawDesc = "" +
 	"\x04GRPC\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +
-	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x80\x03\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x98\x03\n" +
 	"\x04Data\x12;\n" +
 	"\bdatabase\x18\x01 \x01(\v2\x1f.internal.conf.v1.Data.DatabaseR\bdatabase\x12/\n" +
 	"\x04mqtt\x18\x03 \x01(\v2\x1b.internal.conf.v1.Data.MQTTR\x04mqtt\x1ac\n" +
@@ -544,12 +552,13 @@ const file_internal_conf_v1_conf_proto_rawDesc = "" +
 	"\n" +
 	"migrations\x18\x02 \x01(\bR\n" +
 	"migrations\x12\x12\n" +
-	"\x04seed\x18\x03 \x01(\bR\x04seed\x1a\xa4\x01\n" +
+	"\x04seed\x18\x03 \x01(\bR\x04seed\x1a\xbc\x01\n" +
 	"\x04MQTT\x12\x16\n" +
-	"\x06source\x18\x01 \x01(\tR\x06source\x12\x1b\n" +
-	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12O\n" +
-	"\x16max_reconnect_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x14maxReconnectInterval\x12\x16\n" +
-	"\x06topics\x18\x04 \x03(\tR\x06topicsB\x1fZ\x1dservice/internal/conf/v1;confb\x06proto3"
+	"\x06active\x18\x01 \x01(\bR\x06active\x12\x16\n" +
+	"\x06source\x18\x02 \x01(\tR\x06source\x12\x1b\n" +
+	"\tclient_id\x18\x03 \x01(\tR\bclientId\x12O\n" +
+	"\x16max_reconnect_interval\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\x14maxReconnectInterval\x12\x16\n" +
+	"\x06topics\x18\x05 \x03(\tR\x06topicsB\x1fZ\x1dservice/internal/conf/v1;confb\x06proto3"
 
 var (
 	file_internal_conf_v1_conf_proto_rawDescOnce sync.Once

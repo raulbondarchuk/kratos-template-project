@@ -1,29 +1,33 @@
 package mqtt
 
 import (
-	"log"
 	"sync"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/uuid"
 )
 
 var mqtonce sync.Once
 
-func InitMosquitero(server, username, password string, clientid *string, topics []string, handler mqtt.MessageHandler, maxReconnectInterval time.Duration) *Mosquitero {
+func InitMosquitero(server, username, password string, clientid *string, topics []string, handler mqtt.MessageHandler, maxReconnectInterval time.Duration, logger log.Logger) *Mosquitero {
+	h := log.NewHelper(logger)
+
 	if clientid == nil {
 		id := uuid.New().String()[:6]
 		clientid = &id
-		log.Printf("✅ [MQTT] Random Client ID: %s", *clientid)
+		h.Infof("✅ [MQTT] Random Client ID: %s", *clientid)
 	} else {
 		*clientid += "_" + uuid.New().String()[:6]
-		log.Printf("✅ [MQTT] Client ID: %s", *clientid)
+		h.Infof("✅ [MQTT] Client ID: %s", *clientid)
 	}
-	return internalInitMosquitero(server, username, password, *clientid, topics, handler, maxReconnectInterval)
+	return internalInitMosquitero(server, username, password, *clientid, topics, handler, maxReconnectInterval, logger)
 }
 
-func internalInitMosquitero(server, username, password, clientid string, topics []string, handler mqtt.MessageHandler, maxReconnectInterval time.Duration) *Mosquitero {
+func internalInitMosquitero(server, username, password, clientid string, topics []string, handler mqtt.MessageHandler, maxReconnectInterval time.Duration, logger log.Logger) *Mosquitero {
+	h := log.NewHelper(logger)
+
 	mqtonce.Do(func() {
 		opts := mqtt.NewClientOptions().
 			AddBroker(server).
@@ -34,7 +38,7 @@ func internalInitMosquitero(server, username, password, clientid string, topics 
 			SetMaxReconnectInterval(maxReconnectInterval)
 
 		opts.OnConnect = func(c mqtt.Client) {
-			log.Println("✅ [MQTT] Connected to broker")
+			h.Infof("✅ [MQTT] Connected to broker")
 			if mqtinstance != nil && len(mqtinstance.subscribedTopics) > 0 && mqtinstance.handler != nil {
 				mqtinstance.Subscribe(mqtinstance.subscribedTopics, mqtinstance.handler)
 			} else {
@@ -42,12 +46,12 @@ func internalInitMosquitero(server, username, password, clientid string, topics 
 			}
 		}
 		opts.OnConnectionLost = func(c mqtt.Client, err error) {
-			log.Printf("[MQTT] Connection lost: %v", err)
+			h.Infof("[MQTT] Connection lost: %v", err)
 		}
 
 		client := mqtt.NewClient(opts)
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
-			log.Fatal("[MQTT] Connection error: " + token.Error().Error())
+			h.Fatal("[MQTT] Connection error: " + token.Error().Error())
 		}
 
 		mqtinstance = &Mosquitero{client: client}

@@ -56,10 +56,11 @@ message Data {
   // }
   // MQTT Es la configuración del servidor MQTT
   message MQTT {
-    string source = 1;
-    string client_id = 2;
-    google.protobuf.Duration max_reconnect_interval = 3;
-    repeated string topics = 4;
+    bool active = 1;
+    string source = 2;
+    string client_id = 3;
+    google.protobuf.Duration max_reconnect_interval = 4;
+    repeated string topics = 5;
   }
 
   // Aqui se define la base de datos y Redis&MQTT

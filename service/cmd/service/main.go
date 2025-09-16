@@ -47,8 +47,10 @@ func newLogger(mode string) klog.Logger {
 }
 
 func newApp(logger klog.Logger, app *conf.App, gs *grpc.Server, hs *http.Server, broker *broker.Broker, data *conf.Data) *kratos.App {
+
 	// Start MQTT broker
 	go broker.StartMQTT(data)
+
 	md := map[string]string{"env": envOr("APP_ENV", "dev"), "go": runtime.Version()}
 
 	return kratos.New(

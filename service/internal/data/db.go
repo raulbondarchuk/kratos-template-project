@@ -45,7 +45,7 @@ func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 			return nil, nil, err
 		}
 	} else {
-		h.Infof("SKIPPED: Ensure schema is disabled")
+		h.Infof("[DATABASE] [SKIPPED] Ensure schema is disabled")
 	}
 
 	// 3) DSN with schema → main connection
@@ -68,7 +68,7 @@ func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 			return nil, nil, err
 		}
 	} else {
-		h.Infof("SKIPPED: Migrations is disabled")
+		h.Infof("[DATABASE] [SKIPPED] Migrations is disabled")
 	}
 
 	if config.Database.Seed {
@@ -76,7 +76,7 @@ func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 			return nil, nil, err
 		}
 	} else {
-		h.Infof("SKIPPED: Seed is disabled")
+		h.Infof("[DATABASE] [SKIPPED] Seed is disabled")
 	}
 
 	sqlDB, _ := db.DB()
