@@ -19,12 +19,13 @@ data:
 #   addr: 127.0.0.1:6379
 #   read_timeout: 0.2s
 #   write_timeout: 0.2s
-  mqtt:
-    source: "tcp://10.70.20.40:1883"
-    client_id: "client_kratos_template"
-    max_reconnect_interval: "60s"
-    topics:
-      - "receiver/ltm/#"
-      - "receiver/lta/#"
-      - "receiver/ltc/#"
-      - "receiver/scr/#"
+  # mqtt:
+  #   active: false # true or false (true = if you can connect to the broker, false = inactive (no connection))
+  #   source: "tcp://10.70.20.40:1883"
+  #   client_id: "client_kratos_template"
+  #   max_reconnect_interval: "60s"
+  #   topics:
+  #     - "receiver/ltm/#"
+  #     - "receiver/lta/#"
+  #     - "receiver/ltc/#"
+  #     - "receiver/scr/#"

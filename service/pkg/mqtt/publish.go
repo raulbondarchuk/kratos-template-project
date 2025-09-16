@@ -2,7 +2,6 @@ package mqtt
 
 import (
 	"encoding/json"
-	"log"
 )
 
 func (m *Mosquitero) Send(topic, payload string) {
@@ -17,7 +16,7 @@ func (m *Mosquitero) send(topic string, qos byte, payload string) {
 	token := m.client.Publish(topic, qos, false, payload)
 	token.Wait()
 	if err := token.Error(); err != nil {
-		log.Printf("[MQTT] Error publishing to %s: %s", topic, err)
+		mqttLogger.Infof("[MQTT] Error publishing to %s: %s", topic, err)
 	}
 }
 
