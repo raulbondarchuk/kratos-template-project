@@ -4,7 +4,6 @@ import (
 	"service/internal/conf/v1"
 	template_biz "service/internal/feature/template/biz"
 
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/go-kratos/kratos/v2/log"
 
 	mymqtt "service/pkg/mqtt"
@@ -34,11 +33,4 @@ func (b *Broker) StartMQTT(data *conf.Data) {
 
 	b.log.Info("Starting MQTT broker...")
 	mymqtt.StartMQTT(server, username, password, &clientid, topics, b.processMessage, maxReconnectInterval.AsDuration())
-}
-
-func (b *Broker) processMessage(client mqtt.Client, message mqtt.Message) {
-
-	if err := b.uc.ReceiveTemplate(message.Topic(), string(message.Payload())); err != nil {
-		b.log.Errorf("Failed to process message on topic %s: %v", message.Topic(), err)
-	}
 }
