@@ -65,11 +65,10 @@ build:
 # Run (kratos run, go run)
 # ---------------------------------
 run:
-	@echo ">> running with kratos run"
-		kratos run
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/run.ps1 -Mode kratos
+
 gorun:
-	@echo ">> running with go run"
-		go run ./$(CMD_DIR) -conf ./configs
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/run.ps1 -Mode go -CmdDir "$(CMD_DIR)" -ConfigPath "$(CONFIG_PATH)"
 # ---------------------------------
 # Clean
 # ---------------------------------
