@@ -73,12 +73,7 @@ gorun:
 # Clean
 # ---------------------------------
 clean:
-	@echo ">> clean"
-	if (Test-Path '$(BIN_DIR)') { Remove-Item -Recurse -Force '$(BIN_DIR)' }
-	Get-ChildItem -Recurse -Filter 'wire_gen.go' | Remove-Item -Force -ErrorAction SilentlyContinue
-	Get-ChildItem -Recurse -Filter '*.pb.go' | Remove-Item -Force -ErrorAction SilentlyContinue
-	Get-ChildItem -Recurse -Filter 'openapi.yaml' | Remove-Item -Force -ErrorAction SilentlyContinue
-	Get-ChildItem -Recurse -Filter 'service.swagger.json' | Remove-Item -Force -ErrorAction SilentlyContinue
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/clean.ps1 -BinDir "$(BIN_DIR)"
 # ---------------------------------
 # Commit with auto version bump
 # ---------------------------------
