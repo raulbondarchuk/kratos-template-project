@@ -41,13 +41,12 @@ init:
 # ---------------------------------
 # Generate (proto)
 # ---------------------------------
-BUF_GEN ?= buf.gen.yaml # our current template (with remote-plugins)
+BUF_GEN ?= buf.gen.yaml
 BUF_YAML ?= buf.yaml
 BUF_LOCK ?= buf.lock
 
 deps:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/deps.ps1 -BufYaml "$(BUF_YAML)" -BufLock "$(BUF_LOCK)"
-
 
 gen: deps
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/gen.ps1 -BufGen "$(BUF_GEN)"
@@ -56,8 +55,7 @@ gen: deps
 # Wire
 # ---------------------------------
 wire:
-	@echo ">> wire generate"
-	Set-Location '$(CMD_DIR)'; wire
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/wire.ps1 -CmdDir "$(CMD_DIR)"
 # ---------------------------------
 # Build
 # ---------------------------------
