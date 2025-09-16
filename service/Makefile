@@ -11,7 +11,7 @@ APP_NAME_TO_BUILD := kratos-template
 CMD_DIR  := cmd/$(APP_NAME)
 BIN_DIR  := bin
 BIN      := $(BIN_DIR)/$(APP_NAME).exe
-BUF_GEN        ?= buf.gen.yaml           # our current template (with remote-plugins)
+
 
 RELEASE_SCRIPT ?= ./scripts/ps/git-release.ps1
 CONFIG_PATH    ?= ./configs/config.yaml
@@ -41,12 +41,17 @@ init:
 # ---------------------------------
 # Generate (proto)
 # ---------------------------------
+BUF_GEN ?= buf.gen.yaml # our current template (with remote-plugins)
+BUF_YAML ?= buf.yaml
+BUF_LOCK ?= buf.lock
+
 deps:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/deps.ps1
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/deps.ps1 -BufYaml "$(BUF_YAML)" -BufLock "$(BUF_LOCK)"
+
 
 gen: deps
-	@echo ">> buf generate (local)"
-	buf generate --template $(BUF_GEN)
+	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/gen.ps1 -BufGen "$(BUF_GEN)"
+
 # ---------------------------------
 # Wire
 # ---------------------------------
