@@ -378,11 +378,9 @@ func (x *Server_GRPC) GetTimeout() *durationpb.Duration {
 // Database Es la configuración de la base de datos
 type Data_Database struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Driver        string                 `protobuf:"bytes,1,opt,name=driver,proto3" json:"driver,omitempty"`
-	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
-	EnsureSchema  bool                   `protobuf:"varint,3,opt,name=ensure_schema,json=ensureSchema,proto3" json:"ensure_schema,omitempty"`
-	Migrations    bool                   `protobuf:"varint,4,opt,name=migrations,proto3" json:"migrations,omitempty"`
-	Seed          bool                   `protobuf:"varint,5,opt,name=seed,proto3" json:"seed,omitempty"`
+	EnsureSchema  bool                   `protobuf:"varint,1,opt,name=ensure_schema,json=ensureSchema,proto3" json:"ensure_schema,omitempty"`
+	Migrations    bool                   `protobuf:"varint,2,opt,name=migrations,proto3" json:"migrations,omitempty"`
+	Seed          bool                   `protobuf:"varint,3,opt,name=seed,proto3" json:"seed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -415,20 +413,6 @@ func (x *Data_Database) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Data_Database.ProtoReflect.Descriptor instead.
 func (*Data_Database) Descriptor() ([]byte, []int) {
 	return file_internal_conf_v1_conf_proto_rawDescGZIP(), []int{3, 0}
-}
-
-func (x *Data_Database) GetDriver() string {
-	if x != nil {
-		return x.Driver
-	}
-	return ""
-}
-
-func (x *Data_Database) GetSource() string {
-	if x != nil {
-		return x.Source
-	}
-	return ""
 }
 
 func (x *Data_Database) GetEnsureSchema() bool {
@@ -551,18 +535,16 @@ const file_internal_conf_v1_conf_proto_rawDesc = "" +
 	"\x04GRPC\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +
-	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\xb1\x03\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x80\x03\n" +
 	"\x04Data\x12;\n" +
 	"\bdatabase\x18\x01 \x01(\v2\x1f.internal.conf.v1.Data.DatabaseR\bdatabase\x12/\n" +
-	"\x04mqtt\x18\x03 \x01(\v2\x1b.internal.conf.v1.Data.MQTTR\x04mqtt\x1a\x93\x01\n" +
-	"\bDatabase\x12\x16\n" +
-	"\x06driver\x18\x01 \x01(\tR\x06driver\x12\x16\n" +
-	"\x06source\x18\x02 \x01(\tR\x06source\x12#\n" +
-	"\rensure_schema\x18\x03 \x01(\bR\fensureSchema\x12\x1e\n" +
+	"\x04mqtt\x18\x03 \x01(\v2\x1b.internal.conf.v1.Data.MQTTR\x04mqtt\x1ac\n" +
+	"\bDatabase\x12#\n" +
+	"\rensure_schema\x18\x01 \x01(\bR\fensureSchema\x12\x1e\n" +
 	"\n" +
-	"migrations\x18\x04 \x01(\bR\n" +
+	"migrations\x18\x02 \x01(\bR\n" +
 	"migrations\x12\x12\n" +
-	"\x04seed\x18\x05 \x01(\bR\x04seed\x1a\xa4\x01\n" +
+	"\x04seed\x18\x03 \x01(\bR\x04seed\x1a\xa4\x01\n" +
 	"\x04MQTT\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12O\n" +

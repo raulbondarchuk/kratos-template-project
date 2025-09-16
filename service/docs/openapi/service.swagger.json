@@ -190,7 +190,7 @@
         },
         "message": {
           "type": "string",
-          "title": "\"ok\" or error description"
+          "title": "message description (e.g. \"ok\", \"ip blocked\", \"data base error\", \"user not found\" etc.)"
         }
       },
       "description": "Your meta-object: only code and message."

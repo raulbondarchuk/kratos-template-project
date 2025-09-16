@@ -12,11 +12,9 @@ server:
     timeout: 1s
 data:
   database:
-    driver: mysql
-    source: root:root@tcp(127.0.0.1:3307)/test?parseTime=True&loc=Local
-    ensure_schema: true
-    migrations: true
-    seed: true
+    ensure_schema: false
+    migrations: false
+    seed: false
 # redis:
 #   addr: 127.0.0.1:6379
 #   read_timeout: 0.2s
