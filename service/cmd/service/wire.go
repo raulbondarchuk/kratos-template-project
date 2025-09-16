@@ -5,7 +5,7 @@ package main
 
 import (
 	"service/internal/broker"
-	"service/internal/conf"
+	"service/internal/conf/v1"
 	"service/internal/data"
 	"service/internal/feature/template"
 	"service/internal/server"

@@ -10,7 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"service/internal/broker"
-	"service/internal/conf"
+	"service/internal/conf/v1"
 	"service/internal/data"
 	"service/internal/feature/template"
 	"service/internal/feature/template/biz"

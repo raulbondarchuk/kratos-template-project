@@ -3,7 +3,7 @@ package data
 import (
 	"context"
 	"fmt"
-	"service/internal/conf"
+	"service/internal/conf/v1"
 	"service/pkg/utils"
 	"service/scripts/mysql/ensure"
 	"service/scripts/mysql/migrations"

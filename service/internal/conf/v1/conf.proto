@@ -1,16 +1,15 @@
 syntax = "proto3";
-package kratos.api;
-
-option go_package = "service/internal/conf;conf";
+package internal.conf.v1;
 
 import "google/protobuf/duration.proto";
+
+option go_package = "service/internal/conf/v1;conf";
 
 message Bootstrap {
   Server server = 1;
   Data data = 2;
   App app = 3;
 }
-
 
 // Information about the app here
 
@@ -44,7 +43,6 @@ message Data {
     bool ensure_schema = 3;
     bool migrations = 4;
     bool seed = 5;
-
   }
   // message Redis {
   //   string network = 1;

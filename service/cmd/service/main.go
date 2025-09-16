@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"service/internal/broker"
-	"service/internal/conf"
+	"service/internal/conf/v1"
 	mylog "service/pkg/logger"
 
 	klog "github.com/go-kratos/kratos/v2/log"

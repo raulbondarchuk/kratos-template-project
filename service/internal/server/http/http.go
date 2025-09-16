@@ -2,7 +2,7 @@
 package server_http
 
 import (
-	"service/internal/conf"
+	"service/internal/conf/v1"
 	"service/internal/middleware/requestlog"
 	"service/internal/server/http/openapi/scalar"
 	"service/internal/server/http/openapi/swagger"
