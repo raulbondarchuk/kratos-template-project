@@ -7,15 +7,13 @@
 package template
 
 import (
-	reflect "reflect"
-	errors "service/api/errors"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -64,9 +62,9 @@ func (*ListTemplatesRequest) Descriptor() ([]byte, []int) {
 
 // * Respuesta con la lista de plantillas.
 type ListTemplatesResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Templates     []*Template              `protobuf:"bytes,1,rep,name=templates,proto3" json:"templates,omitempty"` // Colección de plantillas
-	Meta          *errors.StandardResponse `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`           // Estado de la operación
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Templates     []*Template            `protobuf:"bytes,1,rep,name=templates,proto3" json:"templates,omitempty"` // Colección de plantillas
+	Meta          *MetaResponse          `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`           // Estado de la operación
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -108,7 +106,7 @@ func (x *ListTemplatesResponse) GetTemplates() []*Template {
 	return nil
 }
 
-func (x *ListTemplatesResponse) GetMeta() *errors.StandardResponse {
+func (x *ListTemplatesResponse) GetMeta() *MetaResponse {
 	if x != nil {
 		return x.Meta
 	}
@@ -170,9 +168,9 @@ func (x *UpsertTemplateRequest) GetName() string {
 
 // * Resultado del upsert.
 type UpsertTemplateResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Template      *Template                `protobuf:"bytes,1,opt,name=template,proto3" json:"template,omitempty"` // Plantilla creada/actualizada
-	Meta          *errors.StandardResponse `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`         // Estado de la operación
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Template      *Template              `protobuf:"bytes,1,opt,name=template,proto3" json:"template,omitempty"` // Plantilla creada/actualizada
+	Meta          *MetaResponse          `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`         // Estado de la operación
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -214,7 +212,7 @@ func (x *UpsertTemplateResponse) GetTemplate() *Template {
 	return nil
 }
 
-func (x *UpsertTemplateResponse) GetMeta() *errors.StandardResponse {
+func (x *UpsertTemplateResponse) GetMeta() *MetaResponse {
 	if x != nil {
 		return x.Meta
 	}
@@ -222,27 +220,27 @@ func (x *UpsertTemplateResponse) GetMeta() *errors.StandardResponse {
 }
 
 // * Petición para eliminar por ID.
-type DeleteTemplateRequest struct {
+type DeleteTemplateByIdRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // ID interno
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteTemplateRequest) Reset() {
-	*x = DeleteTemplateRequest{}
+func (x *DeleteTemplateByIdRequest) Reset() {
+	*x = DeleteTemplateByIdRequest{}
 	mi := &file_api_template_v1_template_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteTemplateRequest) String() string {
+func (x *DeleteTemplateByIdRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteTemplateRequest) ProtoMessage() {}
+func (*DeleteTemplateByIdRequest) ProtoMessage() {}
 
-func (x *DeleteTemplateRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteTemplateByIdRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_template_v1_template_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -254,12 +252,12 @@ func (x *DeleteTemplateRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteTemplateRequest.ProtoReflect.Descriptor instead.
-func (*DeleteTemplateRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteTemplateByIdRequest.ProtoReflect.Descriptor instead.
+func (*DeleteTemplateByIdRequest) Descriptor() ([]byte, []int) {
 	return file_api_template_v1_template_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *DeleteTemplateRequest) GetId() uint32 {
+func (x *DeleteTemplateByIdRequest) GetId() uint32 {
 	if x != nil {
 		return x.Id
 	}
@@ -267,27 +265,27 @@ func (x *DeleteTemplateRequest) GetId() uint32 {
 }
 
 // * Respuesta de eliminación.
-type DeleteTemplateResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Meta          *errors.StandardResponse `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"` // Estado de la operación
+type DeleteTemplateByIdResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Meta          *MetaResponse          `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"` // Estado de la operación
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteTemplateResponse) Reset() {
-	*x = DeleteTemplateResponse{}
+func (x *DeleteTemplateByIdResponse) Reset() {
+	*x = DeleteTemplateByIdResponse{}
 	mi := &file_api_template_v1_template_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteTemplateResponse) String() string {
+func (x *DeleteTemplateByIdResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteTemplateResponse) ProtoMessage() {}
+func (*DeleteTemplateByIdResponse) ProtoMessage() {}
 
-func (x *DeleteTemplateResponse) ProtoReflect() protoreflect.Message {
+func (x *DeleteTemplateByIdResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_template_v1_template_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -299,12 +297,12 @@ func (x *DeleteTemplateResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteTemplateResponse.ProtoReflect.Descriptor instead.
-func (*DeleteTemplateResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteTemplateByIdResponse.ProtoReflect.Descriptor instead.
+func (*DeleteTemplateByIdResponse) Descriptor() ([]byte, []int) {
 	return file_api_template_v1_template_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *DeleteTemplateResponse) GetMeta() *errors.StandardResponse {
+func (x *DeleteTemplateByIdResponse) GetMeta() *MetaResponse {
 	if x != nil {
 		return x.Meta
 	}
@@ -460,21 +458,21 @@ var File_api_template_v1_template_proto protoreflect.FileDescriptor
 
 const file_api_template_v1_template_proto_rawDesc = "" +
 	"\n" +
-	"\x1eapi/template/v1/template.proto\x12\x0fapi.template.v1\x1a\x1dapi/errors/error_reason.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x16\n" +
-	"\x14ListTemplatesRequest\"\x85\x01\n" +
+	"\x1eapi/template/v1/template.proto\x12\x0fapi.template.v1\x1a\x1capi/template/v1/errors.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x16\n" +
+	"\x14ListTemplatesRequest\"\x83\x01\n" +
 	"\x15ListTemplatesResponse\x127\n" +
-	"\ttemplates\x18\x01 \x03(\v2\x19.api.template.v1.TemplateR\ttemplates\x123\n" +
-	"\x04meta\x18\x02 \x01(\v2\x1f.errors.common.StandardResponseR\x04meta\"E\n" +
+	"\ttemplates\x18\x01 \x03(\v2\x19.api.template.v1.TemplateR\ttemplates\x121\n" +
+	"\x04meta\x18\x02 \x01(\v2\x1d.api.template.v1.MetaResponseR\x04meta\"E\n" +
 	"\x15UpsertTemplateRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x01R\x02id\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x02R\x04name\"\x84\x01\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x02R\x04name\"\x82\x01\n" +
 	"\x16UpsertTemplateResponse\x125\n" +
-	"\btemplate\x18\x01 \x01(\v2\x19.api.template.v1.TemplateR\btemplate\x123\n" +
-	"\x04meta\x18\x02 \x01(\v2\x1f.errors.common.StandardResponseR\x04meta\",\n" +
-	"\x15DeleteTemplateRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\"M\n" +
-	"\x16DeleteTemplateResponse\x123\n" +
-	"\x04meta\x18\x01 \x01(\v2\x1f.errors.common.StandardResponseR\x04meta\"\xcf\x01\n" +
+	"\btemplate\x18\x01 \x01(\v2\x19.api.template.v1.TemplateR\btemplate\x121\n" +
+	"\x04meta\x18\x02 \x01(\v2\x1d.api.template.v1.MetaResponseR\x04meta\"0\n" +
+	"\x19DeleteTemplateByIdRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\"O\n" +
+	"\x1aDeleteTemplateByIdResponse\x121\n" +
+	"\x04meta\x18\x01 \x01(\v2\x1d.api.template.v1.MetaResponseR\x04meta\"\xcf\x01\n" +
 	"\bTemplate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12)\n" +
 	"\x04type\x18\x02 \x01(\v2\x15.api.template.v1.TypeR\x04type\x12\x12\n" +
@@ -489,13 +487,13 @@ const file_api_template_v1_template_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xf4\x02\n" +
-	"\tTemplates\x12r\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\x84\x03\n" +
+	"\x10TemplatesService\x12r\n" +
 	"\rListTemplates\x12%.api.template.v1.ListTemplatesRequest\x1a&.api.template.v1.ListTemplatesResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
 	"/templates\x12x\n" +
 	"\x0eUpsertTemplate\x12&.api.template.v1.UpsertTemplateRequest\x1a'.api.template.v1.UpsertTemplateResponse\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
-	"/templates\x12y\n" +
-	"\x12DeleteTemplateById\x12&.api.template.v1.DeleteTemplateRequest\x1a'.api.template.v1.DeleteTemplateResponse\"\x12\x82\xd3\xe4\x93\x02\f*\n" +
+	"/templates\x12\x81\x01\n" +
+	"\x12DeleteTemplateById\x12*.api.template.v1.DeleteTemplateByIdRequest\x1a+.api.template.v1.DeleteTemplateByIdResponse\"\x12\x82\xd3\xe4\x93\x02\f*\n" +
 	"/templatesBT\n" +
 	" dev.kratos.api.template.templateB\x0fTemplateProtoV1P\x01Z\x1dservice/api/template;templateb\x06proto3"
 
@@ -513,34 +511,34 @@ func file_api_template_v1_template_proto_rawDescGZIP() []byte {
 
 var file_api_template_v1_template_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_api_template_v1_template_proto_goTypes = []any{
-	(*ListTemplatesRequest)(nil),    // 0: api.template.v1.ListTemplatesRequest
-	(*ListTemplatesResponse)(nil),   // 1: api.template.v1.ListTemplatesResponse
-	(*UpsertTemplateRequest)(nil),   // 2: api.template.v1.UpsertTemplateRequest
-	(*UpsertTemplateResponse)(nil),  // 3: api.template.v1.UpsertTemplateResponse
-	(*DeleteTemplateRequest)(nil),   // 4: api.template.v1.DeleteTemplateRequest
-	(*DeleteTemplateResponse)(nil),  // 5: api.template.v1.DeleteTemplateResponse
-	(*Template)(nil),                // 6: api.template.v1.Template
-	(*Type)(nil),                    // 7: api.template.v1.Type
-	(*errors.StandardResponse)(nil), // 8: errors.common.StandardResponse
-	(*timestamppb.Timestamp)(nil),   // 9: google.protobuf.Timestamp
+	(*ListTemplatesRequest)(nil),       // 0: api.template.v1.ListTemplatesRequest
+	(*ListTemplatesResponse)(nil),      // 1: api.template.v1.ListTemplatesResponse
+	(*UpsertTemplateRequest)(nil),      // 2: api.template.v1.UpsertTemplateRequest
+	(*UpsertTemplateResponse)(nil),     // 3: api.template.v1.UpsertTemplateResponse
+	(*DeleteTemplateByIdRequest)(nil),  // 4: api.template.v1.DeleteTemplateByIdRequest
+	(*DeleteTemplateByIdResponse)(nil), // 5: api.template.v1.DeleteTemplateByIdResponse
+	(*Template)(nil),                   // 6: api.template.v1.Template
+	(*Type)(nil),                       // 7: api.template.v1.Type
+	(*MetaResponse)(nil),               // 8: api.template.v1.MetaResponse
+	(*timestamppb.Timestamp)(nil),      // 9: google.protobuf.Timestamp
 }
 var file_api_template_v1_template_proto_depIdxs = []int32{
 	6,  // 0: api.template.v1.ListTemplatesResponse.templates:type_name -> api.template.v1.Template
-	8,  // 1: api.template.v1.ListTemplatesResponse.meta:type_name -> errors.common.StandardResponse
+	8,  // 1: api.template.v1.ListTemplatesResponse.meta:type_name -> api.template.v1.MetaResponse
 	6,  // 2: api.template.v1.UpsertTemplateResponse.template:type_name -> api.template.v1.Template
-	8,  // 3: api.template.v1.UpsertTemplateResponse.meta:type_name -> errors.common.StandardResponse
-	8,  // 4: api.template.v1.DeleteTemplateResponse.meta:type_name -> errors.common.StandardResponse
+	8,  // 3: api.template.v1.UpsertTemplateResponse.meta:type_name -> api.template.v1.MetaResponse
+	8,  // 4: api.template.v1.DeleteTemplateByIdResponse.meta:type_name -> api.template.v1.MetaResponse
 	7,  // 5: api.template.v1.Template.type:type_name -> api.template.v1.Type
 	9,  // 6: api.template.v1.Template.created_at:type_name -> google.protobuf.Timestamp
 	9,  // 7: api.template.v1.Template.updated_at:type_name -> google.protobuf.Timestamp
 	9,  // 8: api.template.v1.Type.created_at:type_name -> google.protobuf.Timestamp
 	9,  // 9: api.template.v1.Type.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 10: api.template.v1.Templates.ListTemplates:input_type -> api.template.v1.ListTemplatesRequest
-	2,  // 11: api.template.v1.Templates.UpsertTemplate:input_type -> api.template.v1.UpsertTemplateRequest
-	4,  // 12: api.template.v1.Templates.DeleteTemplateById:input_type -> api.template.v1.DeleteTemplateRequest
-	1,  // 13: api.template.v1.Templates.ListTemplates:output_type -> api.template.v1.ListTemplatesResponse
-	3,  // 14: api.template.v1.Templates.UpsertTemplate:output_type -> api.template.v1.UpsertTemplateResponse
-	5,  // 15: api.template.v1.Templates.DeleteTemplateById:output_type -> api.template.v1.DeleteTemplateResponse
+	0,  // 10: api.template.v1.TemplatesService.ListTemplates:input_type -> api.template.v1.ListTemplatesRequest
+	2,  // 11: api.template.v1.TemplatesService.UpsertTemplate:input_type -> api.template.v1.UpsertTemplateRequest
+	4,  // 12: api.template.v1.TemplatesService.DeleteTemplateById:input_type -> api.template.v1.DeleteTemplateByIdRequest
+	1,  // 13: api.template.v1.TemplatesService.ListTemplates:output_type -> api.template.v1.ListTemplatesResponse
+	3,  // 14: api.template.v1.TemplatesService.UpsertTemplate:output_type -> api.template.v1.UpsertTemplateResponse
+	5,  // 15: api.template.v1.TemplatesService.DeleteTemplateById:output_type -> api.template.v1.DeleteTemplateByIdResponse
 	13, // [13:16] is the sub-list for method output_type
 	10, // [10:13] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name
@@ -553,6 +551,7 @@ func file_api_template_v1_template_proto_init() {
 	if File_api_template_v1_template_proto != nil {
 		return
 	}
+	file_api_template_v1_errors_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

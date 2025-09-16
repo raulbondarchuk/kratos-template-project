@@ -2,7 +2,7 @@ package template_service
 
 import (
 	"context"
-	"service/api/errors"
+
 	template "service/api/template/v1"
 	template_biz "service/internal/feature/template/biz"
 	"service/pkg/converter"
@@ -15,8 +15,8 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *template.List
 	bizResult, err := s.uc.ListTemplates(ctx)
 	if err != nil {
 		return &template.ListTemplatesResponse{
-			Meta: &errors.StandardResponse{
-				Code:    errors.ResponseCode_INTERNAL_ERROR,
+			Meta: &template.MetaResponse{
+				Code:    template.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
 				Message: err.Error(),
 			},
 		}, nil
@@ -24,8 +24,8 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *template.List
 
 	if len(bizResult) == 0 {
 		return &template.ListTemplatesResponse{
-			Meta: &errors.StandardResponse{
-				Code:    errors.ResponseCode_OK,
+			Meta: &template.MetaResponse{
+				Code:    template.ResponseCode_RESPONSE_CODE_OK,
 				Message: "No templates found",
 			},
 		}, nil
@@ -34,8 +34,8 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *template.List
 	protoResult, err := generic.ToDTOSliceGeneric[template_biz.Template, template.Template](bizResult)
 	if err != nil {
 		return &template.ListTemplatesResponse{
-			Meta: &errors.StandardResponse{
-				Code:    errors.ResponseCode_INTERNAL_ERROR,
+			Meta: &template.MetaResponse{
+				Code:    template.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
 				Message: err.Error(),
 			},
 		}, nil
@@ -51,8 +51,8 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *template.List
 
 	return &template.ListTemplatesResponse{
 		Templates: generic.ToPointerSliceGeneric(protoResult),
-		Meta: &errors.StandardResponse{
-			Code:    errors.ResponseCode_OK,
+		Meta: &template.MetaResponse{
+			Code:    template.ResponseCode_RESPONSE_CODE_OK,
 			Message: "OK",
 		},
 	}, nil

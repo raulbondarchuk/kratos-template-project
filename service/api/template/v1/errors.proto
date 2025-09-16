@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package api.template.v1;
+
+option go_package = "service/api/template;template";
+
+// Minimum set of codes. Zero is mandatory in proto3.
+enum ResponseCode {
+  RESPONSE_CODE_UNSPECIFIED = 0;
+  RESPONSE_CODE_OK = 200; // success
+  RESPONSE_CODE_INTERNAL_SERVER_ERROR = 500; // server error
+  // TODO: add other codes
+}
+
+// Your meta-object: only code and message.
+message MetaResponse {
+  ResponseCode code = 1; // RESPONSE_CODE_OK or RESPONSE_CODE_INTERNAL_SERVER_ERROR
+  string message = 2; // "ok" or error description
+}

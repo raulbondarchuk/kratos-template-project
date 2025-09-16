@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.template.v1;
 
-import "api/errors/error_reason.proto";
+import "api/template/v1/errors.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
@@ -91,7 +91,7 @@ message ListTemplatesRequest {}
 /** Respuesta con la lista de plantillas. */
 message ListTemplatesResponse {
   repeated Template templates = 1; // Colección de plantillas
-  errors.common.StandardResponse meta = 2; // Estado de la operación
+  MetaResponse meta = 2; // Estado de la operación
 }
 
 // ======================================================
@@ -107,7 +107,7 @@ message UpsertTemplateRequest {
 /** Resultado del upsert. */
 message UpsertTemplateResponse {
   Template template = 1; // Plantilla creada/actualizada
-  errors.common.StandardResponse meta = 2; // Estado de la operación
+  MetaResponse meta = 2; // Estado de la operación
 }
 
 // ======================================================
@@ -121,7 +121,7 @@ message DeleteTemplateByIdRequest {
 
 /** Respuesta de eliminación. */
 message DeleteTemplateByIdResponse {
-  errors.common.StandardResponse meta = 1; // Estado de la operación
+  MetaResponse meta = 1; // Estado de la operación
 }
 
 // ======================================================

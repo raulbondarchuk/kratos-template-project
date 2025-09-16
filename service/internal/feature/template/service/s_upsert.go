@@ -2,7 +2,7 @@ package template_service
 
 import (
 	"context"
-	"service/api/errors"
+
 	template "service/api/template/v1"
 	template_biz "service/internal/feature/template/biz"
 	"service/pkg/converter"
@@ -23,8 +23,8 @@ func (s *TemplatesService) UpsertTemplate(ctx context.Context, req *template.Ups
 	bizResult, err := s.uc.UpsertTemplate(ctx, request)
 	if err != nil {
 		return &template.UpsertTemplateResponse{
-			Meta: &errors.StandardResponse{
-				Code:    errors.ResponseCode_INTERNAL_ERROR,
+			Meta: &template.MetaResponse{
+				Code:    template.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
 				Message: err.Error(),
 			},
 		}, nil
@@ -34,8 +34,8 @@ func (s *TemplatesService) UpsertTemplate(ctx context.Context, req *template.Ups
 	protoResult, err := generic.ToDTOGeneric[template_biz.Template, template.Template](*bizResult)
 	if err != nil {
 		return &template.UpsertTemplateResponse{
-			Meta: &errors.StandardResponse{
-				Code:    errors.ResponseCode_INTERNAL_ERROR,
+			Meta: &template.MetaResponse{
+				Code:    template.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
 				Message: "Mapping error",
 			},
 		}, nil
@@ -49,8 +49,8 @@ func (s *TemplatesService) UpsertTemplate(ctx context.Context, req *template.Ups
 
 	return &template.UpsertTemplateResponse{
 		Template: &protoResult,
-		Meta: &errors.StandardResponse{
-			Code:    errors.ResponseCode_OK,
+		Meta: &template.MetaResponse{
+			Code:    template.ResponseCode_RESPONSE_CODE_OK,
 			Message: "OK",
 		},
 	}, nil

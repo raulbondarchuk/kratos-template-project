@@ -16,8 +16,8 @@ var ProviderSet = wire.NewSet(
 	template_service.NewTemplateService,
 
 	// bind service to interfaces that buf/protoc generates
-	wire.Bind(new(api_template.TemplatesHTTPServer), new(*template_service.TemplatesService)),
-	wire.Bind(new(api_template.TemplatesServer), new(*template_service.TemplatesService)),
+	wire.Bind(new(api_template.TemplatesServiceHTTPServer), new(*template_service.TemplatesService)),
+	wire.Bind(new(api_template.TemplatesServiceServer), new(*template_service.TemplatesService)),
 
 	// registrers (from registrars.go file)
 	NewTemplatesHTTPRegistrer,

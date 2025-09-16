@@ -3,16 +3,16 @@
 
 openapi: 3.0.3
 info:
-    title: Templates API
+    title: TemplatesService API
     description: '* API para gestión de plantillas (alertas/avisos).'
     version: 0.0.1
 paths:
     /templates:
         get:
             tags:
-                - Templates
+                - TemplatesService
             description: "* Lista todas las plantillas.\r\n\r\n **Descripción**\r\n Devuelve el catálogo completo de plantillas definidas.\r\n\r\n **Parámetros**\r\n _(sin parámetros)_\r\n\r\n **Respuestas**\r\n - `200 OK`: `templates` + `meta.code = OK`\r\n - `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n **Ejemplos**\r\n `GET /templates`"
-            operationId: Templates_ListTemplates
+            operationId: TemplatesService_ListTemplates
             responses:
                 "200":
                     description: OK
@@ -22,9 +22,9 @@ paths:
                                 $ref: '#/components/schemas/api.template.v1.ListTemplatesResponse'
         post:
             tags:
-                - Templates
+                - TemplatesService
             description: "* Crea o actualiza una plantilla (upsert).\r\n\r\n **Descripción**\r\n Si `id` es `0` o no se envía → crea; si `id` > 0 → actualiza.\r\n\r\n **Parámetros (body JSON)**\r\n - `id` (opcional, 0=create)\r\n - `name` (**obligatorio**)\r\n\r\n **Respuestas**\r\n - `200 OK`: `template` resultante + `meta.code = OK`\r\n - `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n **Ejemplos**\r\n `POST /templates`\r\n Body: `{ \"name\":\"Template 1\" }`"
-            operationId: Templates_UpsertTemplate
+            operationId: TemplatesService_UpsertTemplate
             requestBody:
                 content:
                     application/json:
@@ -40,9 +40,9 @@ paths:
                                 $ref: '#/components/schemas/api.template.v1.UpsertTemplateResponse'
         delete:
             tags:
-                - Templates
+                - TemplatesService
             description: "* Elimina una plantilla por ID.\r\n\r\n **Descripción**\r\n Borra la plantilla indicada por `id`.\r\n\r\n **Parámetros (query)**\r\n - `id` (**obligatorio**): ID interno\r\n\r\n **Respuestas**\r\n - `200 OK`: `meta.code = OK`\r\n - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n **Ejemplos**\r\n `DELETE /templates?id=123`"
-            operationId: Templates_DeleteTemplateById
+            operationId: TemplatesService_DeleteTemplateById
             parameters:
                 - name: id
                   in: query
@@ -55,14 +55,14 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.template.v1.DeleteTemplateResponse'
+                                $ref: '#/components/schemas/api.template.v1.DeleteTemplateByIdResponse'
 components:
     schemas:
-        api.template.v1.DeleteTemplateResponse:
+        api.template.v1.DeleteTemplateByIdResponse:
             type: object
             properties:
                 meta:
-                    $ref: '#/components/schemas/errors.common.StandardResponse'
+                    $ref: '#/components/schemas/api.template.v1.MetaResponse'
             description: '* Respuesta de eliminación.'
         api.template.v1.ListTemplatesResponse:
             type: object
@@ -72,8 +72,17 @@ components:
                     items:
                         $ref: '#/components/schemas/api.template.v1.Template'
                 meta:
-                    $ref: '#/components/schemas/errors.common.StandardResponse'
+                    $ref: '#/components/schemas/api.template.v1.MetaResponse'
             description: '* Respuesta con la lista de plantillas.'
+        api.template.v1.MetaResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                message:
+                    type: string
+            description: 'Your meta-object: only code and message.'
         api.template.v1.Template:
             type: object
             properties:
@@ -122,16 +131,7 @@ components:
                 template:
                     $ref: '#/components/schemas/api.template.v1.Template'
                 meta:
-                    $ref: '#/components/schemas/errors.common.StandardResponse'
+                    $ref: '#/components/schemas/api.template.v1.MetaResponse'
             description: '* Resultado del upsert.'
-        errors.common.StandardResponse:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    format: enum
-                message:
-                    type: string
-            description: General response format (can be extended)
 tags:
-    - name: Templates
+    - name: TemplatesService
