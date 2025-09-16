@@ -1,7 +1,7 @@
 package data
 
 import (
-	"service/internal/conf"
+	"service/internal/conf/v1"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"

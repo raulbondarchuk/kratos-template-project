@@ -5,7 +5,7 @@ package main
 
 import (
 	"service/internal/broker"
-	"service/internal/conf"
+	"service/internal/conf/v1"
 	"service/internal/data"
 	"service/internal/feature/template"
 	"service/internal/server"
@@ -18,12 +18,19 @@ import (
 // wireApp init kratos application.
 func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(
-		server.ProviderSet, // run grpc/http
-		data.ProviderSet,   // DB, Redis, etc
+		// infra
+		server.ProviderSet,
+		data.ProviderSet,
+		broker.ProviderSet,
+
 		// modules
-		template.ProviderSet, // Template module
-		broker.ProviderSet,   // MQTT broker
-		// final build kratos.App
-		newApp, // final build kratos.App
+		template.ProviderSet,
+
+		// single build + distribution to servers
+		BuildAllRegistrars,
+		ProvideHTTPRegistrers,
+		ProvideGRPCRegistrers,
+
+		newApp,
 	))
 }

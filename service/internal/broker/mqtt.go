@@ -1,7 +1,7 @@
 package broker
 
 import (
-	"service/internal/conf"
+	"service/internal/conf/v1"
 	template_biz "service/internal/feature/template/biz"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
