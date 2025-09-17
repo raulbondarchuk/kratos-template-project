@@ -8,7 +8,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# Логи
+# Logging
 . "$PSScriptRoot/make/utils.ps1"
 
 function Get-AppVersionFromYaml {

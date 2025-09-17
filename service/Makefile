@@ -74,3 +74,64 @@ clean clear cls:
 # Usage: make commit t="..." d="..."
 commit:
 	@if (-not '$(TITLE_EFF)' -or -not '$(DESC_EFF)') { Write-Host 'Uso: make commit t="..." d="..."'; exit 2 } ; if (-not (Test-Path '$(RELEASE_SCRIPT)')) { Write-Error "Script not found: $(RELEASE_SCRIPT)"; exit 1 } ; & '$(RELEASE_SCRIPT)' -Title '$(TITLE_EFF)' -Desc '$(DESC_EFF)' -ConfigPath '$(CONFIG_PATH)'
+
+
+# ==============================================================================
+# Workflow =====================================================================
+# ==============================================================================
+
+PATH_SCRIPTS_WORKFLOW_MODULE_PROTO := ./scripts/ps/workflow/module-proto.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_WIRE := ./scripts/ps/workflow/module-wire.ps1
+
+PATH_SCRIPTS_WORKFLOW_MODULE_F_FEATURE := ./scripts/ps/workflow/module-f-feature.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE := ./scripts/ps/workflow/module-f-service.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO := ./scripts/ps/workflow/module-f-repo.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ := ./scripts/ps/workflow/module-f-biz.ps1
+
+
+
+# Generate a new module skeleton
+.PHONY: module module-proto module-feature module-service module-repo module-biz module-wire
+
+# Create a new module (only .proto scaffolding)
+# Example:
+#   make module name="prueba"
+module:
+	make module-proto name="$(name)"
+	make gen
+	make module-feature name="$(name)"
+	make module-repo name="$(name)"
+	make module-biz name="$(name)"
+	make module-service name="$(name)"
+	make module-wire name="$(name)"
+	make wire
+
+# Generate a new module .proto in API skeleton
+module-proto:
+	@if (-not '$(name)') { Write-Host 'Usage: make module name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_PROTO)" -Name "$(name)"
+
+# Generate a new module feature in API skeleton
+module-feature:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-feature name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_FEATURE)" -Name "$(name)"
+
+# Generate a new module service in API skeleton
+module-service:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-feature name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE)" -Name "$(name)"
+
+# Generate a new module repo in API skeleton
+module-repo:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-repo name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO)" -Name "$(name)"
+
+# Generate a new module biz in API skeleton
+module-biz:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-biz name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ)" -Name "$(name)"
+
+# Generate a new module wire in API skeleton
+module-wire:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-wire name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_WIRE)" -Name "$(name)"
