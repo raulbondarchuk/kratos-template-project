@@ -1,13 +1,14 @@
+# scripts/ps/workflow/module.ps1
 [CmdletBinding()]
 param(
-  [Parameter(Mandatory = $true)] [string]$Name,
-  [int]$Version = 1,
-  [string]$ApiRoot = "./api",
-  [switch]$Force
+  [Parameter(Mandatory = $true)] [string]$Name
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+# consts
+$ApiRoot = "./api"
 
 # --- helpers (Approved Verbs) ---
 function ConvertTo-PascalCase {
@@ -15,50 +16,52 @@ function ConvertTo-PascalCase {
   $parts = ($InputString -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
   ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
 }
-
-function ConvertTo-LowerCase {
-  param([Parameter(Mandatory=$true)][string]$InputString)
-  $InputString.ToLower()
-}
-
-function ConvertTo-Plural {
-  param([Parameter(Mandatory=$true)][string]$InputNoun)
-  if ($InputNoun.ToLower().EndsWith('s')) { return $InputNoun }
-  return "$InputNoun" + "s"
-}
+function ConvertTo-LowerCase { param([Parameter(Mandatory=$true)][string]$InputString) $InputString.ToLower() }
+function ConvertTo-Plural    { param([Parameter(Mandatory=$true)][string]$InputNoun) if ($InputNoun.ToLower().EndsWith('s')) { $InputNoun } else { "$InputNoun" + "s" } }
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
-# --- derive names/paths ---
+# --- normalize names ---
 $base         = ConvertTo-LowerCase $Name
 $pascal       = ConvertTo-PascalCase $Name
 $pluralBase   = ConvertTo-LowerCase (ConvertTo-Plural $base)
 $pluralPascal = ConvertTo-PascalCase $pluralBase
 
-$pkgDir     = Join-Path -Path $ApiRoot -ChildPath "$base/v$Version"
+# --- detect next available version: v1, v2, v3... (first gap) ---
+$baseDir  = Join-Path -Path $ApiRoot -ChildPath $base
+$versions = @()
+if (Test-Path -LiteralPath $baseDir) {
+  Get-ChildItem -LiteralPath $baseDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+    if ($_.Name -match '^v(\d+)$') { $versions += [int]$Matches[1] }
+  }
+}
+$Version = 1
+while ($versions -contains $Version) { $Version++ }
+
+# --- paths for chosen version ---
+$pkgDir     = Join-Path -Path $baseDir -ChildPath "v$Version"
 $protoFile  = Join-Path $pkgDir "$base.proto"
 $errorsFile = Join-Path $pkgDir "errors.proto"
 
-$package   = "api.$base.v$Version"
-$goPkg     = "service/api/$base;$base"
-$javaOuter = "$($pascal)ProtoV$Version"
-$javaPkg   = "dev.kratos.api.$base.$base"
+$package    = "api.$base.v$Version"
+$goPkg      = "service/api/$base;$base"
+$javaOuter  = "$($pascal)ProtoV$Version"
+$javaPkg    = "dev.kratos.api.$base.$base"
 
 $route        = "/$pluralBase"
 $errorsImport = "api/$base/v$Version/errors.proto"
 
-# --- create folder ---
+# --- create folders ---
 if (-not (Test-Path -LiteralPath $pkgDir)) {
-  New-Item -ItemType Directory -Path $pkgDir | Out-Null
+  New-Item -ItemType Directory -Path $pkgDir -Force | Out-Null
 }
 
-# --- guard overwrite ---
-if (-not $Force) {
-  if (Test-Path $protoFile)  { throw "File exists: $protoFile (use -Force to overwrite)" }
-  if (Test-Path $errorsFile) { throw "File exists: $errorsFile (use -Force to overwrite)" }
+# --- safety: should not hit because we pick a free version ---
+if ((Test-Path $protoFile) -or (Test-Path $errorsFile)) {
+  throw "Files already exist for '$base' v$Version. Aborting."
 }
 
-# --- errors.proto content (keep) ---
+# --- errors.proto content ---
 $errorsContent = @"
 syntax = "proto3";
 
@@ -164,7 +167,7 @@ message $pascal {
 [IO.File]::WriteAllText($errorsFile, $errorsContent, $utf8NoBom)
 [IO.File]::WriteAllText($protoFile,  $protoContent,  $utf8NoBom)
 
-Write-Host "Created:" -ForegroundColor Green
+Write-Host ("Created {0}/v{1}:" -f $base, $Version) -ForegroundColor Green
 Write-Host "  $errorsFile"
 Write-Host "  $protoFile"
 
@@ -173,9 +176,11 @@ $buf = Get-Command buf -ErrorAction SilentlyContinue
 if ($buf) {
   $cwd    = (Resolve-Path ".").Path
   $dirAbs = (Resolve-Path $pkgDir).Path
-  $relDir = if ($dirAbs.StartsWith($cwd, [StringComparison]::OrdinalIgnoreCase)) {
-    $dirAbs.Substring($cwd.Length).TrimStart('\')
-  } else { $pkgDir }
+  if ($dirAbs.StartsWith($cwd, [StringComparison]::OrdinalIgnoreCase)) {
+    $relDir = $dirAbs.Substring($cwd.Length).TrimStart('\')
+  } else { 
+    $relDir = $pkgDir 
+  }
   $relDir = ($relDir -replace '\\','/')
 
   try {

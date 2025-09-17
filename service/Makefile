@@ -83,14 +83,11 @@ commit:
 PATH_SCRIPTS_WORKFLOW_MODULE := ./scripts/ps/workflow/module.ps1
 
 # Generate a new endpoint skeleton
-.PHONY: endpoint
+.PHONY: module
 
 # Create a new endpoint (only .proto scaffolding)
 # Example:
-#   make endpoint name="prueba"
-#   make endpoint name="alerts" v=2
-#   make endpoint name="prueba" force=1
+#   make module name="prueba"
 module:
-	@if (-not '$(name)') { Write-Host 'Usage: make endpoint name="<name>" [v=<version>] [force=1]'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File $(PATH_SCRIPTS_WORKFLOW_MODULE) -Name "$(name)" $(if $(strip $(v)),-Version $(v),) $(if $(strip $(force)),-Force,)
-	make gen
+	@if (-not '$(name)') { Write-Host 'Usage: make module name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE)" -Name "$(name)"
