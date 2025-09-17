@@ -88,10 +88,10 @@ PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE := ./scripts/ps/workflow/module-f-service
 PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO := ./scripts/ps/workflow/module-f-repo.ps1
 PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ := ./scripts/ps/workflow/module-f-biz.ps1
 
-
+PATH_SCRIPTS_WORKFLOW_MODULE_DELETE := ./scripts/ps/workflow/module-delete.ps1
 
 # Generate a new module skeleton
-.PHONY: module module-proto module-feature module-service module-repo module-biz module-wire
+.PHONY: module module-proto module-feature module-service module-repo module-biz module-wire module-delete
 
 # Create a new module (only .proto scaffolding)
 # Example:
@@ -135,3 +135,12 @@ module-biz:
 module-wire:
 	@if (-not '$(name)') { Write-Host 'Usage: make module-wire name="<name>"'; exit 2 }
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_WIRE)" -Name "$(name)"
+
+# Delete a module (all versions or a specific version with version="vN")
+# Examples:
+#   make module-delete name="prueba"
+#   make module-delete name="prueba" version="v2"
+module-delete:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-delete name="<name>" [version="vN"]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_DELETE)" -Name "$(name)" $(if $(strip $(version)),-Version $(version),)
+	make wire
