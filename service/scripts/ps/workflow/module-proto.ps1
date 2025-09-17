@@ -7,10 +7,22 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# --- utils (logs) ---
+try {
+  . (Join-Path $PSScriptRoot 'utils.ps1')
+} catch {
+  function Show-Step { param([string]$Message) Write-Host "`n==> $Message" -ForegroundColor Cyan }
+  function Show-Info { param([string]$Message) Write-Host "$Message" -ForegroundColor DarkGray }
+  function Show-OK   { param([string]$Message) Write-Host "  [OK] $Message" -ForegroundColor Green }
+  function Show-Warn { param([string]$Message) Write-Host "  [WARN] $Message" -ForegroundColor Yellow }
+  function Show-ErrorAndExit { param([string]$Message) Write-Host "  [ERROR] $Message" -ForegroundColor Red; exit 1 }
+}
+
 # consts
 $ApiRoot = "./api"
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
-# --- helpers (Approved Verbs) ---
+# --- helpers ---
 function ConvertTo-PascalCase {
   param([Parameter(Mandatory=$true)][string]$InputString)
   $parts = ($InputString -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
@@ -19,7 +31,8 @@ function ConvertTo-PascalCase {
 function ConvertTo-LowerCase { param([Parameter(Mandatory=$true)][string]$InputString) $InputString.ToLower() }
 function ConvertTo-Plural    { param([Parameter(Mandatory=$true)][string]$InputNoun) if ($InputNoun.ToLower().EndsWith('s')) { $InputNoun } else { "$InputNoun" + "s" } }
 
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+Show-Step "Generating .proto module"
+Show-Info "Input name: $Name"
 
 # --- normalize names ---
 $base         = ConvertTo-LowerCase $Name
@@ -27,18 +40,29 @@ $pascal       = ConvertTo-PascalCase $Name
 $pluralBase   = ConvertTo-LowerCase (ConvertTo-Plural $base)
 $pluralPascal = ConvertTo-PascalCase $pluralBase
 
+Show-Info "Normalized: base='$base', pascal='$pascal'"
+
 # --- detect next available version: v1, v2, v3... (first gap) ---
+Show-Step "Detecting next free API version"
 $baseDir  = Join-Path -Path $ApiRoot -ChildPath $base
 $versions = @()
 if (Test-Path -LiteralPath $baseDir) {
   Get-ChildItem -LiteralPath $baseDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
     if ($_.Name -match '^v(\d+)$') { $versions += [int]$Matches[1] }
   }
+  if ($versions.Count -gt 0) {
+    Show-Info ("Existing versions: " + ($versions | Sort-Object | ForEach-Object { "v$_" } -join ", "))
+  } else {
+    Show-Info "Existing versions: none"
+  }
+} else {
+  Show-Warn "API base dir not found: $baseDir (will create)"
 }
 $Version = 1
 while ($versions -contains $Version) { $Version++ }
+Show-OK "Chosen version: v$Version"
 
-# --- paths for chosen version ---
+# --- paths & meta for chosen version ---
 $pkgDir     = Join-Path -Path $baseDir -ChildPath "v$Version"
 $protoFile  = Join-Path $pkgDir "$base.proto"
 $errorsFile = Join-Path $pkgDir "errors.proto"
@@ -55,14 +79,23 @@ $serviceName = "${pascal}v${Version}Service"
 $route        = "/v$Version/$base"
 $errorsImport = "api/$base/v$Version/errors.proto"
 
+Show-Step "Preparing output"
+Show-Info "Package: $package"
+Show-Info "Service: $serviceName"
+Show-Info "Route:   $route"
+Show-Info "Out dir: $pkgDir"
+
 # --- create folders ---
 if (-not (Test-Path -LiteralPath $pkgDir)) {
   New-Item -ItemType Directory -Path $pkgDir -Force | Out-Null
+  Show-OK "Created directory: $pkgDir"
+} else {
+  Show-Info "Directory exists: $pkgDir"
 }
 
 # --- safety: should not hit because we pick a free version ---
 if ((Test-Path $protoFile) -or (Test-Path $errorsFile)) {
-  throw "Files already exist for '$base' v$Version. Aborting."
+  Show-ErrorAndExit "Files already exist for '$base' v$Version. Aborting."
 }
 
 # --- errors.proto content ---
@@ -168,9 +201,15 @@ message $pascal {
 "@
 
 # --- write files (UTF-8 no BOM) ---
+Show-Step "Writing files"
 [IO.File]::WriteAllText($errorsFile, $errorsContent, $utf8NoBom)
-[IO.File]::WriteAllText($protoFile,  $protoContent,  $utf8NoBom)
+Show-OK "errors.proto -> $errorsFile"
 
-Write-Host ("Created {0}/v{1}:" -f $base, $Version) -ForegroundColor Green
-Write-Host "  $errorsFile"
-Write-Host "  $protoFile"
+[IO.File]::WriteAllText($protoFile,  $protoContent,  $utf8NoBom)
+Show-OK "$base.proto   -> $protoFile"
+
+Show-Step "Done"
+Show-OK ("Created {0}/v{1}" -f $base, $Version)
+Show-Info "Package:  $package"
+Show-Info "Service:  $serviceName"
+Show-Info "Route:    $route"
