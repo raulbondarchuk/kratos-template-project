@@ -23,8 +23,8 @@ try { . (Join-Path $PSScriptRoot 'utils.ps1') } catch {
   function Show-ErrorAndExit { param([string]$Message) Write-Host "  [ERROR] $Message" -ForegroundColor Red; exit 1 }
 }
 
-function To-Lower { param([string]$s) $s.ToLower() }
-$base = To-Lower $Name
+function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
+$base = ConvertTo-LowerCase $Name
 
 # --- discover versions present ---
 $featBase = Join-Path $FeatureRoot $base
@@ -113,7 +113,7 @@ if (@($versionsToDelete).Count -gt 0) {
 }
 
 # --- helper: multiline regex replace with count ---
-function Replace-ML {
+function Update-MultilineText {
   param([string]$Text, [string]$Pattern, [string]$With, [string]$What)
   # используем inline-флаг (?m) внутри $Pattern
   $re   = New-Object System.Text.RegularExpressions.Regex($Pattern)
@@ -141,11 +141,11 @@ if (-not (Test-Path -LiteralPath $RegistersAgg)) {
       $patItemHTTP  = '(?m)^\s*server_http\.HTTPRegister\(\s*' + [regex]::Escape($a) + 'HTTP\s*\)\s*,\s*$'
       $patItemGRPC  = '(?m)^\s*server_grpc\.GRPCRegister\(\s*' + [regex]::Escape($a) + 'GRPC\s*\)\s*,\s*$'
 
-      $txt = Replace-ML -Text $txt -Pattern $patImport    -With '' -What "import: $a"
-      $txt = Replace-ML -Text $txt -Pattern $patParamHTTP -With '' -What "param: ${a}HTTP"
-      $txt = Replace-ML -Text $txt -Pattern $patParamGRPC -With '' -What "param: ${a}GRPC"
-      $txt = Replace-ML -Text $txt -Pattern $patItemHTTP  -With '' -What "slice item: ${a}HTTP"
-      $txt = Replace-ML -Text $txt -Pattern $patItemGRPC  -With '' -What "slice item: ${a}GRPC"
+      $txt = Update-MultilineText -Text $txt -Pattern $patImport    -With '' -What "import: $a"
+      $txt = Update-MultilineText -Text $txt -Pattern $patParamHTTP -With '' -What "param: ${a}HTTP"
+      $txt = Update-MultilineText -Text $txt -Pattern $patParamGRPC -With '' -What "param: ${a}GRPC"
+      $txt = Update-MultilineText -Text $txt -Pattern $patItemHTTP  -With '' -What "slice item: ${a}HTTP"
+      $txt = Update-MultilineText -Text $txt -Pattern $patItemGRPC  -With '' -What "slice item: ${a}GRPC"
     }
   } else {
     # remove ALL versions basev\d+
@@ -155,11 +155,11 @@ if (-not (Test-Path -LiteralPath $RegistersAgg)) {
     $patItemHTTP  = '(?m)^\s*server_http\.HTTPRegister\(\s*' + [regex]::Escape($base) + 'v\d+HTTP\s*\)\s*,\s*$'
     $patItemGRPC  = '(?m)^\s*server_grpc\.GRPCRegister\(\s*' + [regex]::Escape($base) + 'v\d+GRPC\s*\)\s*,\s*$'
 
-    $txt = Replace-ML -Text $txt -Pattern $patImport    -With '' -What "imports: ${base}v*"
-    $txt = Replace-ML -Text $txt -Pattern $patParamHTTP -With '' -What "params: ${base}v* HTTP"
-    $txt = Replace-ML -Text $txt -Pattern $patParamGRPC -With '' -What "params: ${base}v* GRPC"
-    $txt = Replace-ML -Text $txt -Pattern $patItemHTTP  -With '' -What "slice items: ${base}v* HTTP"
-    $txt = Replace-ML -Text $txt -Pattern $patItemGRPC  -With '' -What "slice items: ${base}v* GRPC"
+    $txt = Update-MultilineText -Text $txt -Pattern $patImport    -With '' -What "imports: ${base}v*"
+    $txt = Update-MultilineText -Text $txt -Pattern $patParamHTTP -With '' -What "params: ${base}v* HTTP"
+    $txt = Update-MultilineText -Text $txt -Pattern $patParamGRPC -With '' -What "params: ${base}v* GRPC"
+    $txt = Update-MultilineText -Text $txt -Pattern $patItemHTTP  -With '' -What "slice items: ${base}v* HTTP"
+    $txt = Update-MultilineText -Text $txt -Pattern $patItemGRPC  -With '' -What "slice items: ${base}v* GRPC"
   }
 
   # схлопываем лишние пустые строки
@@ -179,14 +179,14 @@ if (-not (Test-Path -LiteralPath $MainWire)) {
     foreach ($a in $aliases) {
       $patImp  = '(?m)^\s*' + [regex]::Escape($a) + '\s+"[^"]+"\s*$'
       $patProv = '(?m)^\s*' + [regex]::Escape($a) + '\.ProviderSet\s*,\s*$'
-      $txt = Replace-ML -Text $txt -Pattern $patImp  -With '' -What "wire import: $a"
-      $txt = Replace-ML -Text $txt -Pattern $patProv -With '' -What "wire provider: $a"
+      $txt = Update-MultilineText -Text $txt -Pattern $patImp  -With '' -What "wire import: $a"
+      $txt = Update-MultilineText -Text $txt -Pattern $patProv -With '' -What "wire provider: $a"
     }
   } else {
     $patImp  = '(?m)^\s*' + [regex]::Escape($base) + 'v\d+\s+"[^"]+"\s*$'
     $patProv = '(?m)^\s*' + [regex]::Escape($base) + 'v\d+\.ProviderSet\s*,\s*$'
-    $txt = Replace-ML -Text $txt -Pattern $patImp  -With '' -What "wire imports: ${base}v*"
-    $txt = Replace-ML -Text $txt -Pattern $patProv -With '' -What "wire providers: ${base}v*"
+    $txt = Update-MultilineText -Text $txt -Pattern $patImp  -With '' -What "wire imports: ${base}v*"
+    $txt = Update-MultilineText -Text $txt -Pattern $patProv -With '' -What "wire providers: ${base}v*"
   }
 
   $txt = [regex]::Replace($txt, "(\r?\n){3,}", "`r`n`r`n")
