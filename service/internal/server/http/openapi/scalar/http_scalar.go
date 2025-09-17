@@ -9,11 +9,11 @@ import (
 	kratoshttp "github.com/go-kratos/kratos/v2/transport/http"
 )
 
-// Поднимает:
-//   - /scalar/openapi.yaml — спецификация OpenAPI (yaml)
-//   - /docs               — HTML со Scalar API Reference
+// Starts:
+//   - /scalar/openapi.yaml — specification OpenAPI (yaml)
+//   - /docs               — HTML with Scalar API Reference
 func AttachScalarDocs(s *kratoshttp.Server) {
-	// Спека под отдельным путём (не конфликтует со Swagger UI)
+	// Specification under a separate path (does not conflict with Swagger UI)
 	s.HandleFunc("/scalar/openapi.yaml", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		data, err := openapifs.FS.ReadFile("openapi.yaml")
 		if err != nil {
@@ -25,14 +25,14 @@ func AttachScalarDocs(s *kratoshttp.Server) {
 		_, _ = w.Write(data)
 	})
 
-	// (необязательно) отдать /scalar/openapi/* если у тебя есть вложенные ресурсы
+	// (optional) return /scalar/openapi/* if you have nested resources
 	if sub, err := fs.Sub(openapifs.FS, "openapi"); err == nil {
 		s.Handle("/scalar/openapi/",
 			stdhttp.StripPrefix("/scalar/openapi/",
 				stdhttp.FileServer(stdhttp.FS(sub))))
 	}
 
-	// Страница Scalar
+	// Scalar page
 	s.HandleFunc("/docs", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = w.Write([]byte(`<!doctype html>
@@ -49,19 +49,19 @@ func AttachScalarDocs(s *kratoshttp.Server) {
 <body>
   <div id="app"></div>
 
-  <!-- Глобальный объект Scalar доступен после этого скрипта -->
+  <!-- Global Scalar object is available after this script -->
   <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest"></script>
   <script>
-    // Можно переопределить ?spec=/swagger/openapi.yaml
+    // You can override ?spec=/swagger/openapi.yaml
     const qs = new URLSearchParams(location.search);
     const specUrl = qs.get('spec') || '/scalar/openapi.yaml';
 
-    // Верный вызов для CDN-версии:
+    // Correct call for CDN version:
     Scalar.createApiReference('#app', {
       url: specUrl,
-      // proxyUrl можно не указывать на том же домене, но оставить строку если вынесешь спеки на другой origin:
+      // proxyUrl can be omitted on the same domain, but keep the string if you move the specs to another origin:
       // proxyUrl: 'https://proxy.scalar.com',
-      // Пара приятных опций (по желанию):
+      // Some nice options (optional):
       // theme: 'default',       // 'default' | 'alternate' | 'dark'
       // layout: 'modern',       // 'modern' | 'classic'
       // metaData: { title: 'API Docs' },

@@ -39,7 +39,7 @@ func NewHTTPServer(
 		r(srv)
 	}
 
-	// Документация и системные эндпоинты
+	// Documentation and system endpoints
 	swagger.AttachEmbeddedSwaggerUI(srv)
 	scalar.AttachScalarDocs(srv)
 	sys.LoadSystemEndpoints(srv)

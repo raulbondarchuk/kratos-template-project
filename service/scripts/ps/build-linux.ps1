@@ -58,14 +58,14 @@ if (Test-Path $cfg) {
 
     if ($yaml -match '(?m)^app:') {
         if ($yaml -match '(?m)^\s*version:\s*.+$') {
-            # заменяем существующую строку version:
+            # replace existing version: line
             $yaml = $yaml -replace '(?m)^\s*version:\s*.+$', "  version: $version"
         } else {
-            # если version: нет, добавляем сразу после app:
+            # if version: is not present, add it immediately after app:
             $yaml = $yaml -replace '(?m)^app:\s*$', "app:`r`n  version: $version"
         }
     } else {
-        # если секции app: вообще нет, добавляем в конец
+        # if app: section is not present, add it at the end
         $yaml += "`r`napp:`r`n  version: $version`r`n"
     }
 

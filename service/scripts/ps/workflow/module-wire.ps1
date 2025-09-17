@@ -19,7 +19,7 @@ function ConvertTo-PascalCase { param([string]$s)
 function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 
 $base    = ConvertTo-LowerCase $Name     # "prueba"
-# Используем $pascal в сообщении в конце скрипта
+# We use $pascal in the final message
 $pascal  = ConvertTo-PascalCase $Name    # "Prueba"
 
 # ---- detect latest feature vN ----

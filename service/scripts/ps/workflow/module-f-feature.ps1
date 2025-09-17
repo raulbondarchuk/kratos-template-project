@@ -49,7 +49,7 @@ $bizImport  = "service/internal/feature/$base/v$apiV/biz"
 $repoImport = "service/internal/feature/$base/v$apiV/repo"
 
 # -------------------------
-# register.go (module-local types + registrars) — с версией в имени сервиса
+# register.go (module-local types + registrars) — with version in service name
 # -------------------------
 $registerPath = Join-Path $featRootV "register.go"
 if (-not (Test-Path $registerPath)) {
@@ -88,7 +88,7 @@ func New${pascal}GRPCRegistrer(s api_$alias.${pascal}v${apiV}ServiceServer) GRPC
 }
 
 # -------------------------
-# wire.go (ProviderSet + binds) — с версией в имени сервиса
+# wire.go (ProviderSet + binds) — with version in service name
 # -------------------------
 $wirePath = Join-Path $featRootV "wire.go"
 if (-not (Test-Path $wirePath)) {
