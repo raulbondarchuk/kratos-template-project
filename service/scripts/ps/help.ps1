@@ -46,11 +46,11 @@ Config (Makefile)
 function Print-WithYellowMake {
   param([string]$Line)
   $rx = [regex]'make\s+\w+'
-  $matches = $rx.Matches($Line)
-  if ($matches.Count -eq 0) { Write-Host $Line; return }
+  $makeMatches = $rx.Matches($Line)
+  if ($makeMatches.Count -eq 0) { Write-Host $Line; return }
 
   $pos = 0
-  foreach ($m in $matches) {
+  foreach ($m in $makeMatches) {
     if ($m.Index -gt $pos) {
       Write-Host -NoNewline ($Line.Substring($pos, $m.Index - $pos))
     }
