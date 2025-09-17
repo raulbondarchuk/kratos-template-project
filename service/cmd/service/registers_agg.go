@@ -1,4 +1,4 @@
-// cmd/service/registrars_agg.go
+// cmd/service/registers_agg.go
 package main
 
 import (
@@ -16,23 +16,22 @@ func BuildAllRegistrars(
 	// HTTP
 	templateHTTP server_http.HTTPRegister,
 	// add other HTTP-registrers for modules here:
-	// usersHTTP server_http.HTTPRegister,
-	// alertsHTTP server_http.HTTPRegister,
 
 	// gRPC
 	templateGRPC server_grpc.GRPCRegister,
 	// add other gRPC-registrers for modules here:
-	// usersGRPC server_grpc.GRPCRegister,
-	// alertsGRPC server_grpc.GRPCRegister,
+
 ) AllRegistrers {
 	return AllRegistrers{
 		HTTP: []server_http.HTTPRegister{
 			templateHTTP,
-			// usersHTTP, alertsHTTP, ...
+			// add other HTTP-registrers for modules here:
+
 		},
 		GRPC: []server_grpc.GRPCRegister{
 			templateGRPC,
-			// usersGRPC, alertsGRPC, ...
+			// add other gRPC-registrers for modules here:
+
 		},
 	}
 }
