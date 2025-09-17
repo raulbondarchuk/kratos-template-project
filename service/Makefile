@@ -80,7 +80,7 @@ commit:
 # Workflow =====================================================================
 # ==============================================================================
 
-PATH_SCRIPTS_WORKFLOW_ENDPOINT := ./scripts/ps/workflow/endpoint.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE := ./scripts/ps/workflow/module.ps1
 
 # Generate a new endpoint skeleton
 .PHONY: endpoint
@@ -92,5 +92,5 @@ PATH_SCRIPTS_WORKFLOW_ENDPOINT := ./scripts/ps/workflow/endpoint.ps1
 #   make endpoint name="prueba" force=1
 module:
 	@if (-not '$(name)') { Write-Host 'Usage: make endpoint name="<name>" [v=<version>] [force=1]'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File $(PATH_SCRIPTS_WORKFLOW_ENDPOINT) -Name "$(name)" $(if $(strip $(v)),-Version $(v),) $(if $(strip $(force)),-Force,)
+	@powershell -NoProfile -ExecutionPolicy Bypass -File $(PATH_SCRIPTS_WORKFLOW_MODULE) -Name "$(name)" $(if $(strip $(v)),-Version $(v),) $(if $(strip $(force)),-Force,)
 	make gen
