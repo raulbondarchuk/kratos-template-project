@@ -48,7 +48,8 @@ $goPkg      = "service/api/$base;$base"
 $javaOuter  = "$($pascal)ProtoV$Version"
 $javaPkg    = "dev.kratos.api.$base.$base"
 
-$route        = "/$pluralBase"
+# IMPORTANT: versioned route (singular)
+$route        = "/v$Version/$base"
 $errorsImport = "api/$base/v$Version/errors.proto"
 
 # --- create folders ---
@@ -170,6 +171,3 @@ message $pascal {
 Write-Host ("Created {0}/v{1}:" -f $base, $Version) -ForegroundColor Green
 Write-Host "  $errorsFile"
 Write-Host "  $protoFile"
-
-# Formatting is disabled by default to avoid diff dependency
-# If you want to enable formatting, install Git for Windows which includes the diff tool
