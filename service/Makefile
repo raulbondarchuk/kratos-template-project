@@ -70,6 +70,19 @@ gorun:
 clean clear cls:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/clean.ps1 -BinDir "$(BIN_DIR)"
 
+# ==============================================================================
+# Docs =========================================================================
+# ==============================================================================
+
+PATH_SCRIPTS_MAKE_DOCS := scripts/ps/make/docs.ps1
+.PHONY: docs
+docs:
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE_DOCS)"
+
+# ==============================================================================
+# Commit =====================================================================
+# ==============================================================================
+
 # Commit with auto version bump
 # Usage: make commit t="..." d="..."
 commit:
@@ -144,3 +157,4 @@ module-delete:
 	@if (-not '$(name)') { Write-Host 'Usage: make module-delete name="<name>" [version="vN"]'; exit 2 }
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_DELETE)" -Name "$(name)" $(if $(strip $(version)),-Version $(version),)
 	make wire
+	make docs

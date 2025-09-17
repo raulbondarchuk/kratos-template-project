@@ -487,11 +487,11 @@ const file_api_template_v1_template_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\x8e\x03\n" +
-	"\x11Templatev1Service\x12u\n" +
-	"\rListTemplates\x12%.api.template.v1.ListTemplatesRequest\x1a&.api.template.v1.ListTemplatesResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/templates\x12{\n" +
-	"\x0eUpsertTemplate\x12&.api.template.v1.UpsertTemplateRequest\x1a'.api.template.v1.UpsertTemplateResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/v1/templates\x12\x84\x01\n" +
-	"\x12DeleteTemplateById\x12*.api.template.v1.DeleteTemplateByIdRequest\x1a+.api.template.v1.DeleteTemplateByIdResponse\"\x15\x82\xd3\xe4\x93\x02\x0f*\r/v1/templatesBT\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\x8b\x03\n" +
+	"\x11Templatev1Service\x12t\n" +
+	"\rListTemplates\x12%.api.template.v1.ListTemplatesRequest\x1a&.api.template.v1.ListTemplatesResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/template\x12z\n" +
+	"\x0eUpsertTemplate\x12&.api.template.v1.UpsertTemplateRequest\x1a'.api.template.v1.UpsertTemplateResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/v1/template\x12\x83\x01\n" +
+	"\x12DeleteTemplateById\x12*.api.template.v1.DeleteTemplateByIdRequest\x1a+.api.template.v1.DeleteTemplateByIdResponse\"\x14\x82\xd3\xe4\x93\x02\x0e*\f/v1/templateBT\n" +
 	" dev.kratos.api.template.templateB\x0fTemplateProtoV1P\x01Z\x1dservice/api/template;templateb\x06proto3"
 
 var (

@@ -37,7 +37,7 @@ type Templatev1ServiceHTTPServer interface {
 	// - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)
 	//
 	// **Ejemplos**
-	// `DELETE /templates?id=123`
+	// `DELETE /template?id=123`
 	DeleteTemplateById(context.Context, *DeleteTemplateByIdRequest) (*DeleteTemplateByIdResponse, error)
 	// ListTemplates* Lista todas las plantillas.
 	//
@@ -52,7 +52,7 @@ type Templatev1ServiceHTTPServer interface {
 	// - `200` con error lógico: `meta.code != OK` y `meta.message`
 	//
 	// **Ejemplos**
-	// `GET /templates`
+	// `GET /template`
 	ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error)
 	// UpsertTemplate* Crea o actualiza una plantilla (upsert).
 	//
@@ -68,16 +68,16 @@ type Templatev1ServiceHTTPServer interface {
 	// - `200` con error lógico: validación, duplicidad de `name`, etc.
 	//
 	// **Ejemplos**
-	// `POST /templates`
+	// `POST /template`
 	// Body: `{ "name":"Template 1" }`
 	UpsertTemplate(context.Context, *UpsertTemplateRequest) (*UpsertTemplateResponse, error)
 }
 
 func RegisterTemplatev1ServiceHTTPServer(s *http.Server, srv Templatev1ServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/v1/templates", _Templatev1Service_ListTemplates0_HTTP_Handler(srv))
-	r.POST("/v1/templates", _Templatev1Service_UpsertTemplate0_HTTP_Handler(srv))
-	r.DELETE("/v1/templates", _Templatev1Service_DeleteTemplateById0_HTTP_Handler(srv))
+	r.GET("/v1/template", _Templatev1Service_ListTemplates0_HTTP_Handler(srv))
+	r.POST("/v1/template", _Templatev1Service_UpsertTemplate0_HTTP_Handler(srv))
+	r.DELETE("/v1/template", _Templatev1Service_DeleteTemplateById0_HTTP_Handler(srv))
 }
 
 func _Templatev1Service_ListTemplates0_HTTP_Handler(srv Templatev1ServiceHTTPServer) func(ctx http.Context) error {
@@ -154,7 +154,7 @@ type Templatev1ServiceHTTPClient interface {
 	// - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)
 	//
 	// **Ejemplos**
-	// `DELETE /templates?id=123`
+	// `DELETE /template?id=123`
 	DeleteTemplateById(ctx context.Context, req *DeleteTemplateByIdRequest, opts ...http.CallOption) (rsp *DeleteTemplateByIdResponse, err error)
 	// ListTemplates* Lista todas las plantillas.
 	//
@@ -169,7 +169,7 @@ type Templatev1ServiceHTTPClient interface {
 	// - `200` con error lógico: `meta.code != OK` y `meta.message`
 	//
 	// **Ejemplos**
-	// `GET /templates`
+	// `GET /template`
 	ListTemplates(ctx context.Context, req *ListTemplatesRequest, opts ...http.CallOption) (rsp *ListTemplatesResponse, err error)
 	// UpsertTemplate* Crea o actualiza una plantilla (upsert).
 	//
@@ -185,7 +185,7 @@ type Templatev1ServiceHTTPClient interface {
 	// - `200` con error lógico: validación, duplicidad de `name`, etc.
 	//
 	// **Ejemplos**
-	// `POST /templates`
+	// `POST /template`
 	// Body: `{ "name":"Template 1" }`
 	UpsertTemplate(ctx context.Context, req *UpsertTemplateRequest, opts ...http.CallOption) (rsp *UpsertTemplateResponse, err error)
 }
@@ -211,10 +211,10 @@ func NewTemplatev1ServiceHTTPClient(client *http.Client) Templatev1ServiceHTTPCl
 // - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)
 //
 // **Ejemplos**
-// `DELETE /templates?id=123`
+// `DELETE /template?id=123`
 func (c *Templatev1ServiceHTTPClientImpl) DeleteTemplateById(ctx context.Context, in *DeleteTemplateByIdRequest, opts ...http.CallOption) (*DeleteTemplateByIdResponse, error) {
 	var out DeleteTemplateByIdResponse
-	pattern := "/v1/templates"
+	pattern := "/v1/template"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationTemplatev1ServiceDeleteTemplateById))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -238,10 +238,10 @@ func (c *Templatev1ServiceHTTPClientImpl) DeleteTemplateById(ctx context.Context
 // - `200` con error lógico: `meta.code != OK` y `meta.message`
 //
 // **Ejemplos**
-// `GET /templates`
+// `GET /template`
 func (c *Templatev1ServiceHTTPClientImpl) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...http.CallOption) (*ListTemplatesResponse, error) {
 	var out ListTemplatesResponse
-	pattern := "/v1/templates"
+	pattern := "/v1/template"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationTemplatev1ServiceListTemplates))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -266,11 +266,11 @@ func (c *Templatev1ServiceHTTPClientImpl) ListTemplates(ctx context.Context, in 
 // - `200` con error lógico: validación, duplicidad de `name`, etc.
 //
 // **Ejemplos**
-// `POST /templates`
+// `POST /template`
 // Body: `{ "name":"Template 1" }`
 func (c *Templatev1ServiceHTTPClientImpl) UpsertTemplate(ctx context.Context, in *UpsertTemplateRequest, opts ...http.CallOption) (*UpsertTemplateResponse, error) {
 	var out UpsertTemplateResponse
-	pattern := "/v1/templates"
+	pattern := "/v1/template"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationTemplatev1ServiceUpsertTemplate))
 	opts = append(opts, http.PathTemplate(pattern))

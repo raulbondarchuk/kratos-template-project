@@ -43,7 +43,7 @@ type Templatev1ServiceClient interface {
 	// - `200` con error lógico: `meta.code != OK` y `meta.message`
 	//
 	// **Ejemplos**
-	// `GET /templates`
+	// `GET /template`
 	ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error)
 	//* Crea o actualiza una plantilla (upsert).
 	//
@@ -59,7 +59,7 @@ type Templatev1ServiceClient interface {
 	// - `200` con error lógico: validación, duplicidad de `name`, etc.
 	//
 	// **Ejemplos**
-	// `POST /templates`
+	// `POST /template`
 	// Body: `{ "name":"Template 1" }`
 	UpsertTemplate(ctx context.Context, in *UpsertTemplateRequest, opts ...grpc.CallOption) (*UpsertTemplateResponse, error)
 	//* Elimina una plantilla por ID.
@@ -75,7 +75,7 @@ type Templatev1ServiceClient interface {
 	// - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)
 	//
 	// **Ejemplos**
-	// `DELETE /templates?id=123`
+	// `DELETE /template?id=123`
 	DeleteTemplateById(ctx context.Context, in *DeleteTemplateByIdRequest, opts ...grpc.CallOption) (*DeleteTemplateByIdResponse, error)
 }
 
@@ -136,7 +136,7 @@ type Templatev1ServiceServer interface {
 	// - `200` con error lógico: `meta.code != OK` y `meta.message`
 	//
 	// **Ejemplos**
-	// `GET /templates`
+	// `GET /template`
 	ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error)
 	//* Crea o actualiza una plantilla (upsert).
 	//
@@ -152,7 +152,7 @@ type Templatev1ServiceServer interface {
 	// - `200` con error lógico: validación, duplicidad de `name`, etc.
 	//
 	// **Ejemplos**
-	// `POST /templates`
+	// `POST /template`
 	// Body: `{ "name":"Template 1" }`
 	UpsertTemplate(context.Context, *UpsertTemplateRequest) (*UpsertTemplateResponse, error)
 	//* Elimina una plantilla por ID.
@@ -168,7 +168,7 @@ type Templatev1ServiceServer interface {
 	// - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)
 	//
 	// **Ejemplos**
-	// `DELETE /templates?id=123`
+	// `DELETE /template?id=123`
 	DeleteTemplateById(context.Context, *DeleteTemplateByIdRequest) (*DeleteTemplateByIdResponse, error)
 	mustEmbedUnimplementedTemplatev1ServiceServer()
 }
