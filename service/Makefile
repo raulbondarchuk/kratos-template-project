@@ -81,19 +81,24 @@ commit:
 # ==============================================================================
 
 PATH_SCRIPTS_WORKFLOW_MODULE_PROTO := ./scripts/ps/workflow/module-proto.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_FEATURE := ./scripts/ps/workflow/module-feature.ps1
 
 # Generate a new module skeleton
-.PHONY: module module-proto
+.PHONY: module module-proto module-feature
 
 # Create a new module (only .proto scaffolding)
 # Example:
 #   make module name="prueba"
 module:
 	make module-proto name="$(name)"
-# make gen
+	make gen
 
 # Generate a new module .proto in API skeleton
 module-proto:
 	@if (-not '$(name)') { Write-Host 'Usage: make module name="<name>"'; exit 2 }
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_PROTO)" -Name "$(name)"
 
+# Generate a new module feature in API skeleton
+module-feature:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-feature name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_FEATURE)" -Name "$(name)"
