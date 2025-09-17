@@ -88,7 +88,7 @@ if (Test-Path -LiteralPath $baseDir) {
 }
 $Version = 1
 while ($versions -contains $Version) { $Version++ }
-Show-OK "Chosen version: v$Version"
+Show-Info "Chosen version: v$Version"
 
 # --- paths & meta for chosen version ---
 $pkgDir     = Join-Path -Path $baseDir -ChildPath "v$Version"
@@ -116,7 +116,7 @@ Show-Info "Out dir: $pkgDir"
 # --- create folders ---
 if (-not (Test-Path -LiteralPath $pkgDir)) {
   New-Item -ItemType Directory -Path $pkgDir -Force | Out-Null
-  Show-OK "Created directory: $pkgDir"
+  Show-Info "Created directory: $pkgDir"
 } else {
   Show-Info "Directory exists: $pkgDir"
 }

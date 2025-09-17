@@ -46,7 +46,7 @@ Get-ChildItem -LiteralPath $featDir -Directory -ea SilentlyContinue | ForEach-Ob
 }
 if ($V -le 0) { Show-ErrorAndExit "No versioned folder under $featDir (expected v1/v2/...)."}
 Show-Info ("Feature versions found: " + ($existing -join ", "))
-Show-OK  "Using latest: v$V"
+Show-Info  "Using latest: v$V"
 
 $alias      = "{0}v{1}" -f $base, $V
 $importPath = "service/internal/feature/$base/v$V"
@@ -116,25 +116,25 @@ $raL = $raBefore -split "`r?`n"
 
 # 1a) import alias
 $raL = Add-ImportLine -Lines $raL -Line "$alias `"$importPath`""
-if (($raL -join "`n") -ne $raBefore) { Show-OK "Added import alias to registrars_agg.go" } else { Show-Info "Import alias already present" }
+if (($raL -join "`n") -ne $raBefore) { Show-Info "Added import alias to registrars_agg.go" } else { Show-Info "Import alias already present" }
 
 # 1b) typed params
 $raTmp = $raL -join "`n"
 $raL = Add-ParamAfterAnchor -Lines $raL -Anchor '^[ \t]*// add other HTTP-registrers for modules here:.*$' -ParamLine "$alias`HTTP $alias.HTTPRegister,"
-if (($raL -join "`n") -ne $raTmp) { Show-OK "Added HTTP param to BuildAllRegistrars" } else { Show-Info "HTTP param already present" }
+if (($raL -join "`n") -ne $raTmp) { Show-Info "Added HTTP param to BuildAllRegistrars" } else { Show-Info "HTTP param already present" }
 
 $raTmp = $raL -join "`n"
 $raL = Add-ParamAfterAnchor -Lines $raL -Anchor '^[ \t]*// add other gRPC-registrers for modules here:.*$'  -ParamLine "$alias`GRPC $alias.GRPCRegister,"
-if (($raL -join "`n") -ne $raTmp) { Show-OK "Added GRPC param to BuildAllRegistrars" } else { Show-Info "GRPC param already present" }
+if (($raL -join "`n") -ne $raTmp) { Show-Info "Added GRPC param to BuildAllRegistrars" } else { Show-Info "GRPC param already present" }
 
 # 1c) slice items
 $raTmp = $raL -join "`n"
 $raL = Add-InSlice -Lines $raL -HeaderRegex 'HTTP:\s*\[\]server_http\.HTTPRegister\s*\{' -ItemLine "server_http.HTTPRegister($alias`HTTP),"
-if (($raL -join "`n") -ne $raTmp) { Show-OK "Inserted item into HTTP slice" } else { Show-Info "HTTP slice already contains item" }
+if (($raL -join "`n") -ne $raTmp) { Show-Info "Inserted item into HTTP slice" } else { Show-Info "HTTP slice already contains item" }
 
 $raTmp = $raL -join "`n"
 $raL = Add-InSlice -Lines $raL -HeaderRegex 'GRPC:\s*\[\]server_grpc\.GRPCRegister\s*\{' -ItemLine "server_grpc.GRPCRegister($alias`GRPC),"
-if (($raL -join "`n") -ne $raTmp) { Show-OK "Inserted item into GRPC slice" } else { Show-Info "GRPC slice already contains item" }
+if (($raL -join "`n") -ne $raTmp) { Show-Info "Inserted item into GRPC slice" } else { Show-Info "GRPC slice already contains item" }
 
 [IO.File]::WriteAllLines($RegistersAgg, $raL, $utf8NoBom)
 Show-OK "registrars_agg.go updated"
@@ -147,7 +147,7 @@ $mwL = $mwBefore -split "`r?`n"
 
 # 2a) import alias
 $mwL = Add-ImportLine -Lines $mwL -Line "$alias `"$importPath`""
-if (($mwL -join "`n") -ne $mwBefore) { Show-OK "Added import alias to wire.go" } else { Show-Info "Import alias already present in wire.go" }
+if (($mwL -join "`n") -ne $mwBefore) { Show-Info "Added import alias to wire.go" } else { Show-Info "Import alias already present in wire.go" }
 
 # 2b) ProviderSet in // modules with proper indent
 $prov = "$alias.ProviderSet,"
@@ -157,22 +157,22 @@ if (($mwL -join "`n") -notmatch [regex]::Escape($prov)) {
   if ($modulesMatch) {
     $mIdx = $modulesMatch.LineNumber - 1
 
-    # взять отступ первой непустой строки после // modules (например, template.ProviderSet,)
+    # take indent of first non-empty line after // modules (e.g. template.ProviderSet,)
     $indent = $null
     for ($k = $mIdx + 1; $k -lt $mwL.Count; $k++) {
-      if ($mwL[$k] -match '^\s*$') { continue }                       # пустые
-      $indent = ($mwL[$k] -replace '^(\s*).*','$1')                   # РОВНО как у существующей строки
+      if ($mwL[$k] -match '^\s*$') { continue }                       # empty
+      $indent = ($mwL[$k] -replace '^(\s*).*','$1')                   # exactly like existing line
       break
     }
     if (-not $indent) {
-      # fallback: ровно как у комментария // modules (без добавления \t)
+      # fallback: exactly like comment // modules (without adding \t)
       $indent = ($mwL[$mIdx] -replace '^(\s*).*','$1')
     }
 
     $mwL = $mwL[0..$mIdx] + @("$indent$prov") + $mwL[($mIdx+1)..($mwL.Count-1)]
-    Show-OK "Inserted ProviderSet under // modules with indent='$indent'"
+    Show-Info "Inserted ProviderSet under"
   } else {
-    # fallback: перед newApp, внутри wire.Build(...)
+    # fallback: before newApp, inside wire.Build(...)
     $buildStart = ($mwL | Select-String -Pattern 'wire\.Build\(' | Select-Object -First 1).LineNumber
     $newAppIdx  = ($mwL | Select-String -Pattern '^\s*newApp,\s*$' | Where-Object { $_.LineNumber -gt $buildStart } | Select-Object -First 1).LineNumber
     if ($buildStart -and $newAppIdx) {

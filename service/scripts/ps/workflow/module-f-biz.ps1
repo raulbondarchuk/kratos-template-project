@@ -42,7 +42,7 @@ if (Test-Path $apiBaseDir) {
     if ($_.Name -match '^v(\d+)$') { $n=[int]$Matches[1]; if ($n -gt $max) { $max=$n } }
   }
   if ($max -gt 0) { $apiVersion=$max }
-  Show-OK "Using API version: v$apiVersion"
+  Show-Info "Using API version: v$apiVersion"
 } else {
   Show-Warn "API dir not found: $apiBaseDir. Using v1."
 }
@@ -52,7 +52,7 @@ $bizDir = Join-Path $featureRootV "biz"
 
 Show-Info "Ensuring directories:"
 $null = New-Item -ItemType Directory -Force -Path $bizDir
-Show-OK "Created/exists: $bizDir"
+Show-Info "Created/exists: $bizDir"
 
 # --- biz.go ---
 $p = Join-Path $bizDir "biz.go"
