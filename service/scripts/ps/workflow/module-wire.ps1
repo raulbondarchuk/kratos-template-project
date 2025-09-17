@@ -12,14 +12,15 @@ $RegistersAgg = "./cmd/service/registers_agg.go"
 $MainWire     = "./cmd/service/wire.go"
 $utf8NoBom    = New-Object System.Text.UTF8Encoding($false)
 
-function To-Pascal { param([string]$s)
+function ConvertTo-PascalCase { param([string]$s)
   $parts = ($s -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
   ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
 }
-function To-Lower { param([string]$s) $s.ToLower() }
+function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 
-$base    = To-Lower $Name     # "prueba"
-$pascal  = To-Pascal $Name    # "Prueba"
+$base    = ConvertTo-LowerCase $Name     # "prueba"
+# Используем $pascal в сообщении в конце скрипта
+$pascal  = ConvertTo-PascalCase $Name    # "Prueba"
 
 # ---- detect latest feature vN ----
 $featDir = Join-Path $FeatureRoot $base
@@ -27,7 +28,7 @@ if (-not (Test-Path -LiteralPath $featDir)) {
   throw "Feature directory not found: $featDir. Generate the feature first."
 }
 $V = 0
-Get-ChildItem -LiteralPath $featDir -Directory -ea SilentlyContinue | %{
+Get-ChildItem -LiteralPath $featDir -Directory -ea SilentlyContinue | ForEach-Object {
   if ($_.Name -match '^v(\d+)$') { $n=[int]$Matches[1]; if ($n -gt $V){$V=$n} }
 }
 if ($V -le 0) { throw "No versioned folder under $featDir (expected v1/v2/...)."}
@@ -35,7 +36,7 @@ $alias      = "{0}v{1}" -f $base, $V
 $importPath = "service/internal/feature/$base/v$V"
 
 # ---------- helpers ----------
-function Ensure-ImportLine {
+function Add-ImportLine {
   param([string[]]$Lines,[string]$Line)
   if (($Lines -join "`n") -match [regex]::Escape($Line)) { return ,$Lines }
   $iStart = ($Lines | Select-String -Pattern '^\s*import\s*\($' | Select-Object -First 1).LineNumber
@@ -56,7 +57,7 @@ function Ensure-ImportLine {
   ,$Lines
 }
 
-function Ensure-ParamAfterAnchor {
+function Add-ParamAfterAnchor {
   param([string[]]$Lines,[string]$Anchor,[string]$ParamLine)
   if (($Lines -join "`n") -match [regex]::Escape($ParamLine)) { return ,$Lines }
   for ($i=0; $i -lt $Lines.Count; $i++){
@@ -70,7 +71,7 @@ function Ensure-ParamAfterAnchor {
   ,$Lines
 }
 
-function Ensure-In-Slice {
+function Add-InSlice {
   param([string[]]$Lines,[string]$HeaderRegex,[string]$ItemLine)
   if (($Lines -join "`n") -match [regex]::Escape($ItemLine)) { return ,$Lines }
   for ($i=0; $i -lt $Lines.Count; $i++){
@@ -96,15 +97,15 @@ $ra = Get-Content -LiteralPath $RegistersAgg -Raw -Encoding UTF8
 $raL = $ra -split "`r?`n"
 
 # 1a) ensure import of module alias
-$raL = Ensure-ImportLine -Lines $raL -Line "$alias `"$importPath`""
+$raL = Add-ImportLine -Lines $raL -Line "$alias `"$importPath`""
 
 # 1b) ensure typed params in BuildAllRegistrars
-$raL = Ensure-ParamAfterAnchor -Lines $raL -Anchor '^[ \t]*// add other HTTP-registrers for modules here:.*$' -ParamLine "$alias`HTTP $alias.HTTPRegister,"
-$raL = Ensure-ParamAfterAnchor -Lines $raL -Anchor '^[ \t]*// add other gRPC-registrers for modules here:.*$'  -ParamLine "$alias`GRPC $alias.GRPCRegister,"
+$raL = Add-ParamAfterAnchor -Lines $raL -Anchor '^[ \t]*// add other HTTP-registrers for modules here:.*$' -ParamLine "$alias`HTTP $alias.HTTPRegister,"
+$raL = Add-ParamAfterAnchor -Lines $raL -Anchor '^[ \t]*// add other gRPC-registrers for modules here:.*$'  -ParamLine "$alias`GRPC $alias.GRPCRegister,"
 
 # 1c) ensure slice items with cast to common types
-$raL = Ensure-In-Slice -Lines $raL -HeaderRegex 'HTTP:\s*\[\]server_http\.HTTPRegister\s*\{' -ItemLine "server_http.HTTPRegister($alias`HTTP),"
-$raL = Ensure-In-Slice -Lines $raL -HeaderRegex 'GRPC:\s*\[\]server_grpc\.GRPCRegister\s*\{' -ItemLine "server_grpc.GRPCRegister($alias`GRPC),"
+$raL = Add-InSlice -Lines $raL -HeaderRegex 'HTTP:\s*\[\]server_http\.HTTPRegister\s*\{' -ItemLine "server_http.HTTPRegister($alias`HTTP),"
+$raL = Add-InSlice -Lines $raL -HeaderRegex 'GRPC:\s*\[\]server_grpc\.GRPCRegister\s*\{' -ItemLine "server_grpc.GRPCRegister($alias`GRPC),"
 
 [IO.File]::WriteAllLines($RegistersAgg, $raL, $utf8NoBom)
 
@@ -114,7 +115,7 @@ $mw = Get-Content -LiteralPath $MainWire -Raw -Encoding UTF8
 $mwL = $mw -split "`r?`n"
 
 # 2a) import alias
-$mwL = Ensure-ImportLine -Lines $mwL -Line "$alias `"$importPath`""
+$mwL = Add-ImportLine -Lines $mwL -Line "$alias `"$importPath`""
 
 # 2b) ProviderSet in // modules section (or before newApp,)
 $prov = "$alias.ProviderSet,"
@@ -136,4 +137,4 @@ if (($mwL -join "`n") -notmatch [regex]::Escape($prov)) {
 
 [IO.File]::WriteAllLines($MainWire, $mwL, $utf8NoBom)
 
-Write-Host ("wire updated: module '{0}' -> {1}, alias {2}" -f $base, $importPath, $alias) -ForegroundColor Green
+Write-Host ("wire updated: module '{0}' -> {1}, alias {2}, type {3}" -f $base, $importPath, $alias, $pascal) -ForegroundColor Green
