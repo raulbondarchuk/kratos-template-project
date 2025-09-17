@@ -17,7 +17,7 @@ option java_package = "dev.kratos.api.template.template";
 // ======================================================
 
 /** API para gestión de plantillas (alertas/avisos). */
-service TemplatesService {
+service Templatev1Service {
   /** Lista todas las plantillas.
    *
    * **Descripción**
@@ -31,10 +31,10 @@ service TemplatesService {
    * - `200` con error lógico: `meta.code != OK` y `meta.message`
    *
    * **Ejemplos**
-   * `GET /templates`
+   * `GET /template`
    */
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
-    option (google.api.http) = {get: "/templates"};
+    option (google.api.http) = {get: "/v1/template"};
   }
 
   /** Crea o actualiza una plantilla (upsert).
@@ -51,12 +51,12 @@ service TemplatesService {
    * - `200` con error lógico: validación, duplicidad de `name`, etc.
    *
    * **Ejemplos**
-   * `POST /templates`
+   * `POST /template`
    * Body: `{ "name":"Template 1" }`
    */
   rpc UpsertTemplate(UpsertTemplateRequest) returns (UpsertTemplateResponse) {
     option (google.api.http) = {
-      post: "/templates"
+      post: "/v1/template"
       body: "*"
     };
   }
@@ -74,15 +74,15 @@ service TemplatesService {
    * - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)
    *
    * **Ejemplos**
-   * `DELETE /templates?id=123`
+   * `DELETE /template?id=123`
    */
   rpc DeleteTemplateById(DeleteTemplateByIdRequest) returns (DeleteTemplateByIdResponse) {
-    option (google.api.http) = {delete: "/templates"};
+    option (google.api.http) = {delete: "/v1/template"};
   }
 }
 
 // ======================================================
-// ListTemplates (GET /templates)
+// ListTemplates (GET /template)
 // ======================================================
 
 /** Petición vacía. */
@@ -95,7 +95,7 @@ message ListTemplatesResponse {
 }
 
 // ======================================================
-// UpsertTemplate (POST /templates)
+// UpsertTemplate (POST /template)
 // ======================================================
 
 /** Cuerpo para crear/actualizar una plantilla. */
@@ -111,7 +111,7 @@ message UpsertTemplateResponse {
 }
 
 // ======================================================
-// DeleteTemplate (DELETE /templates?id=123)
+// DeleteTemplate (DELETE /template?id=123)
 // ======================================================
 
 /** Petición para eliminar por ID. */

@@ -487,14 +487,11 @@ const file_api_template_v1_template_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\x84\x03\n" +
-	"\x10TemplatesService\x12r\n" +
-	"\rListTemplates\x12%.api.template.v1.ListTemplatesRequest\x1a&.api.template.v1.ListTemplatesResponse\"\x12\x82\xd3\xe4\x93\x02\f\x12\n" +
-	"/templates\x12x\n" +
-	"\x0eUpsertTemplate\x12&.api.template.v1.UpsertTemplateRequest\x1a'.api.template.v1.UpsertTemplateResponse\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
-	"/templates\x12\x81\x01\n" +
-	"\x12DeleteTemplateById\x12*.api.template.v1.DeleteTemplateByIdRequest\x1a+.api.template.v1.DeleteTemplateByIdResponse\"\x12\x82\xd3\xe4\x93\x02\f*\n" +
-	"/templatesBT\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\x8b\x03\n" +
+	"\x11Templatev1Service\x12t\n" +
+	"\rListTemplates\x12%.api.template.v1.ListTemplatesRequest\x1a&.api.template.v1.ListTemplatesResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/template\x12z\n" +
+	"\x0eUpsertTemplate\x12&.api.template.v1.UpsertTemplateRequest\x1a'.api.template.v1.UpsertTemplateResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/v1/template\x12\x83\x01\n" +
+	"\x12DeleteTemplateById\x12*.api.template.v1.DeleteTemplateByIdRequest\x1a+.api.template.v1.DeleteTemplateByIdResponse\"\x14\x82\xd3\xe4\x93\x02\x0e*\f/v1/templateBT\n" +
 	" dev.kratos.api.template.templateB\x0fTemplateProtoV1P\x01Z\x1dservice/api/template;templateb\x06proto3"
 
 var (
@@ -533,12 +530,12 @@ var file_api_template_v1_template_proto_depIdxs = []int32{
 	9,  // 7: api.template.v1.Template.updated_at:type_name -> google.protobuf.Timestamp
 	9,  // 8: api.template.v1.Type.created_at:type_name -> google.protobuf.Timestamp
 	9,  // 9: api.template.v1.Type.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 10: api.template.v1.TemplatesService.ListTemplates:input_type -> api.template.v1.ListTemplatesRequest
-	2,  // 11: api.template.v1.TemplatesService.UpsertTemplate:input_type -> api.template.v1.UpsertTemplateRequest
-	4,  // 12: api.template.v1.TemplatesService.DeleteTemplateById:input_type -> api.template.v1.DeleteTemplateByIdRequest
-	1,  // 13: api.template.v1.TemplatesService.ListTemplates:output_type -> api.template.v1.ListTemplatesResponse
-	3,  // 14: api.template.v1.TemplatesService.UpsertTemplate:output_type -> api.template.v1.UpsertTemplateResponse
-	5,  // 15: api.template.v1.TemplatesService.DeleteTemplateById:output_type -> api.template.v1.DeleteTemplateByIdResponse
+	0,  // 10: api.template.v1.Templatev1Service.ListTemplates:input_type -> api.template.v1.ListTemplatesRequest
+	2,  // 11: api.template.v1.Templatev1Service.UpsertTemplate:input_type -> api.template.v1.UpsertTemplateRequest
+	4,  // 12: api.template.v1.Templatev1Service.DeleteTemplateById:input_type -> api.template.v1.DeleteTemplateByIdRequest
+	1,  // 13: api.template.v1.Templatev1Service.ListTemplates:output_type -> api.template.v1.ListTemplatesResponse
+	3,  // 14: api.template.v1.Templatev1Service.UpsertTemplate:output_type -> api.template.v1.UpsertTemplateResponse
+	5,  // 15: api.template.v1.Templatev1Service.DeleteTemplateById:output_type -> api.template.v1.DeleteTemplateByIdResponse
 	13, // [13:16] is the sub-list for method output_type
 	10, // [10:13] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name

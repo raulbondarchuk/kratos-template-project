@@ -33,42 +33,58 @@ help:
 	@$(HELP_PS) -AppName "$(APP_NAME)" -CmdDir "$(CMD_DIR)" -Bin "$(BIN_DIR)" -BufGen "$(BUF_GEN)" -ConfigPath "$(CONFIG_PATH)" -ReleaseScript "$(RELEASE_SCRIPT)"
 
 # PHONY targets
-.PHONY: all init deps gen wire run gorun clean commit release 
+.PHONY: all init deps gen wire run gorun clean commit release wire-ignore 
+
+PATH_SCRIPTS_PS := ./scripts/ps
+PATH_SCRIPTS_MAKE := ./scripts/ps/make
 
 # All targets
 all: init gen wire run
 
 # Tools setup
 init: 
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/init.ps1 -AppName "$(APP_NAME)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/init.ps1" -AppName "$(APP_NAME)"
 
 # Generate dependencies (buf.lock)
 deps:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/deps.ps1 -BufYaml "$(BUF_YAML)" -BufLock "$(BUF_LOCK)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/deps.ps1" -BufYaml "$(BUF_YAML)" -BufLock "$(BUF_LOCK)"
 
 # Generate protobuf code
 gen: deps
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/gen.ps1 -BufGen "$(BUF_GEN)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/gen.ps1" -BufGen "$(BUF_GEN)"
 
 # Wire (wire_gen.go)
 wire:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/wire.ps1 -CmdDir "$(CMD_DIR)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/wire.ps1" -CmdDir "$(CMD_DIR)"
 
 # Build
 build:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/build-linux.ps1 -AppName '$(APP_NAME_TO_BUILD)' -CmdDir '$(CMD_DIR)' -BinDir '$(BIN_DIR)'
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_PS)/build-linux.ps1" -AppName '$(APP_NAME_TO_BUILD)' -CmdDir '$(CMD_DIR)' -BinDir '$(BIN_DIR)'
 
 # Kratos run
 run:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/run.ps1 -Mode kratos
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/run.ps1" -Mode kratos
 
 # Go run
 gorun:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/run.ps1 -Mode go -CmdDir "$(CMD_DIR)" -ConfigPath "$(CONFIG_PATH)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/run.ps1" -Mode go -CmdDir "$(CMD_DIR)" -ConfigPath "$(CONFIG_PATH)"
 
 # Clean
 clean clear cls:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/ps/make/clean.ps1 -BinDir "$(BIN_DIR)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/clean.ps1" -BinDir "$(BIN_DIR)"
+
+# ==============================================================================
+# Docs =========================================================================
+# ==============================================================================
+
+PATH_SCRIPTS_MAKE_DOCS := .$(PATH_SCRIPTS_MAKE)/docs.ps1
+.PHONY: docs
+docs:
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE_DOCS)"
+
+# ==============================================================================
+# Commit =====================================================================
+# ==============================================================================
 
 # Commit with auto version bump
 # Usage: make commit t="..." d="..."
@@ -88,10 +104,10 @@ PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE := ./scripts/ps/workflow/module-f-service
 PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO := ./scripts/ps/workflow/module-f-repo.ps1
 PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ := ./scripts/ps/workflow/module-f-biz.ps1
 
-
+PATH_SCRIPTS_WORKFLOW_MODULE_DELETE := ./scripts/ps/workflow/module-delete.ps1
 
 # Generate a new module skeleton
-.PHONY: module module-proto module-feature module-service module-repo module-biz module-wire
+.PHONY: module module-proto module-feature module-service module-repo module-biz module-wire module-delete
 
 # Create a new module (only .proto scaffolding)
 # Example:
@@ -135,3 +151,13 @@ module-biz:
 module-wire:
 	@if (-not '$(name)') { Write-Host 'Usage: make module-wire name="<name>"'; exit 2 }
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_WIRE)" -Name "$(name)"
+
+# Delete a module (all versions or a specific version with version="vN")
+# Examples:
+#   make module-delete name="prueba"
+#   make module-delete name="prueba" version="v2"
+module-delete:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-delete name="<name>" [version="vN"]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_DELETE)" -Name "$(name)" $(if $(strip $(version)),-Version $(version),)
+	make wire
+	make docs

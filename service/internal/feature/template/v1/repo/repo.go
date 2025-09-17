@@ -2,7 +2,7 @@ package template_repo
 
 import (
 	"service/internal/data"
-	template_biz "service/internal/feature/template/biz"
+	template_biz "service/internal/feature/template/v1/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
 )

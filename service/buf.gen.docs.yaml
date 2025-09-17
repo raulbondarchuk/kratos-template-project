@@ -1,0 +1,16 @@
+# buf.gen.docs.yaml
+version: v1
+plugins:
+  - name: openapiv2
+    out: docs/openapi
+    strategy: all
+    opt:
+      - allow_merge=true
+      - merge_file_name=service
+
+  - name: openapi
+    out: docs
+    strategy: all
+    opt:
+      - fq_schema_naming=true
+      - default_response=false

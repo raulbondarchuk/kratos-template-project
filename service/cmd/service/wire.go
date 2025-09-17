@@ -7,7 +7,7 @@ import (
 	"service/internal/broker"
 	"service/internal/conf/v1"
 	"service/internal/data"
-	"service/internal/feature/template"
+	templatev1 "service/internal/feature/template/v1"
 	"service/internal/server"
 
 	"github.com/go-kratos/kratos/v2"
@@ -24,7 +24,8 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		broker.ProviderSet,
 
 		// modules
-		template.ProviderSet,
+
+		templatev1.ProviderSet,
 
 		// single build + distribution to servers
 		BuildAllRegistrars,

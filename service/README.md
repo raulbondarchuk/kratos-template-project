@@ -216,3 +216,10 @@ make clean
 - Este Makefile está diseñado para **Windows/PowerShell**.
 - Si usas otro entorno, adapta el `SHELL` o ejecuta los scripts directamente con PowerShell.  
 - El control de versiones **siempre** se deriva de `configs/config.yaml` → `app.version`.
+
+
+
+---
+NOTAS: 
+
+(Ctrl+Shift+P) -> "Go: Restart Language Server" para wire 

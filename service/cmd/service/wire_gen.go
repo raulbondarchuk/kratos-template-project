@@ -12,10 +12,10 @@ import (
 	"service/internal/broker"
 	"service/internal/conf/v1"
 	"service/internal/data"
-	"service/internal/feature/template"
-	"service/internal/feature/template/biz"
-	"service/internal/feature/template/repo"
-	"service/internal/feature/template/service"
+	"service/internal/feature/template/v1"
+	"service/internal/feature/template/v1/biz"
+	"service/internal/feature/template/v1/repo"
+	"service/internal/feature/template/v1/service"
 	"service/internal/server/grpc"
 	"service/internal/server/http"
 )
@@ -34,15 +34,15 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 	}
 	templateRepo := template_repo.NewTemplateRepo(dataData, logger)
 	templateUsecase := template_biz.NewTemplateUsecase(templateRepo, logger)
-	templatesService := template_service.NewTemplateService(templateUsecase)
-	httpRegister := template.NewTemplatesHTTPRegistrer(templatesService)
-	grpcRegister := template.NewTemplatesGRPCRegistrer(templatesService)
+	templateService := template_service.NewTemplateService(templateUsecase)
+	httpRegister := template.NewTemplatesHTTPRegistrer(templateService)
+	grpcRegister := template.NewTemplatesGRPCRegistrer(templateService)
 	allRegistrers := BuildAllRegistrars(httpRegister, grpcRegister)
 	v := ProvideGRPCRegistrers(allRegistrers)
 	server := server_grpc.NewGRPCServer(serverConf, v, logger)
 	v2 := ProvideHTTPRegistrers(allRegistrers)
 	httpServer := server_http.NewHTTPServer(serverConf, v2, logger)
-	brokerBroker := broker.NewBroker(templateUsecase, logger)
+	brokerBroker := broker.NewBroker(logger)
 	kratosApp := newApp(logger, app, server, httpServer, brokerBroker, dataConf)
 	return kratosApp, func() {
 		cleanup()
