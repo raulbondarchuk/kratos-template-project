@@ -90,6 +90,7 @@ PATH_SCRIPTS_WORKFLOW_ENDPOINT := ./scripts/ps/workflow/endpoint.ps1
 #   make endpoint name="prueba"
 #   make endpoint name="alerts" v=2
 #   make endpoint name="prueba" force=1
-endpoint:
+module:
 	@if (-not '$(name)') { Write-Host 'Usage: make endpoint name="<name>" [v=<version>] [force=1]'; exit 2 }
 	@powershell -NoProfile -ExecutionPolicy Bypass -File $(PATH_SCRIPTS_WORKFLOW_ENDPOINT) -Name "$(name)" $(if $(strip $(v)),-Version $(v),) $(if $(strip $(force)),-Force,)
+	make gen
