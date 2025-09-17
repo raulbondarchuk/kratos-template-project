@@ -80,14 +80,20 @@ commit:
 # Workflow =====================================================================
 # ==============================================================================
 
-PATH_SCRIPTS_WORKFLOW_MODULE := ./scripts/ps/workflow/module.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_PROTO := ./scripts/ps/workflow/module-proto.ps1
 
-# Generate a new endpoint skeleton
-.PHONY: module
+# Generate a new module skeleton
+.PHONY: module module-proto
 
-# Create a new endpoint (only .proto scaffolding)
+# Create a new module (only .proto scaffolding)
 # Example:
 #   make module name="prueba"
 module:
+	make module-proto name="$(name)"
+# make gen
+
+# Generate a new module .proto in API skeleton
+module-proto:
 	@if (-not '$(name)') { Write-Host 'Usage: make module name="<name>"'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE)" -Name "$(name)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_PROTO)" -Name "$(name)"
+

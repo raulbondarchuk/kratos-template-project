@@ -1,4 +1,4 @@
-# scripts/ps/workflow/module.ps1
+# scripts/ps/workflow/module-proto.ps1
 [CmdletBinding()]
 param(
   [Parameter(Mandatory = $true)] [string]$Name
@@ -171,21 +171,5 @@ Write-Host ("Created {0}/v{1}:" -f $base, $Version) -ForegroundColor Green
 Write-Host "  $errorsFile"
 Write-Host "  $protoFile"
 
-# --- buf format (module at "." -> filter with --path) ---
-$buf = Get-Command buf -ErrorAction SilentlyContinue
-if ($buf) {
-  $cwd    = (Resolve-Path ".").Path
-  $dirAbs = (Resolve-Path $pkgDir).Path
-  if ($dirAbs.StartsWith($cwd, [StringComparison]::OrdinalIgnoreCase)) {
-    $relDir = $dirAbs.Substring($cwd.Length).TrimStart('\')
-  } else { 
-    $relDir = $pkgDir 
-  }
-  $relDir = ($relDir -replace '\\','/')
-
-  try {
-    & buf format -w --path "$relDir" . 2>$null | Out-Null
-  } catch {
-    Write-Warning ("buf format skipped: {0}" -f $_.Exception.Message)
-  }
-}
+# Formatting is disabled by default to avoid diff dependency
+# If you want to enable formatting, install Git for Windows which includes the diff tool
