@@ -28,7 +28,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.prueba.v1.FindPruebasResponse'
+                                $ref: '#/components/schemas/api.prueba.v2.FindPruebasResponse'
         post:
             tags:
                 - PruebaService
@@ -38,7 +38,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaRequest'
+                            $ref: '#/components/schemas/api.prueba.v2.UpsertPruebaRequest'
                 required: true
             responses:
                 "200":
@@ -46,7 +46,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaResponse'
+                                $ref: '#/components/schemas/api.prueba.v2.UpsertPruebaResponse'
         delete:
             tags:
                 - PruebaService
@@ -64,7 +64,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.prueba.v1.DeletePruebaByIdResponse'
+                                $ref: '#/components/schemas/api.prueba.v2.DeletePruebaByIdResponse'
     /templates:
         get:
             tags:
@@ -170,6 +170,60 @@ components:
                     $ref: '#/components/schemas/api.prueba.v1.Prueba'
                 meta:
                     $ref: '#/components/schemas/api.prueba.v1.MetaResponse'
+        api.prueba.v2.DeletePruebaByIdResponse:
+            type: object
+            properties:
+                meta:
+                    $ref: '#/components/schemas/api.prueba.v2.MetaResponse'
+        api.prueba.v2.FindPruebasResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.prueba.v2.Prueba'
+                meta:
+                    $ref: '#/components/schemas/api.prueba.v2.MetaResponse'
+        api.prueba.v2.MetaResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                message:
+                    type: string
+            description: 'Your meta-object: only code and message.'
+        api.prueba.v2.Prueba:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        api.prueba.v2.UpsertPruebaRequest:
+            required:
+                - name
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+        api.prueba.v2.UpsertPruebaResponse:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/api.prueba.v2.Prueba'
+                meta:
+                    $ref: '#/components/schemas/api.prueba.v2.MetaResponse'
         api.template.v1.DeleteTemplateByIdResponse:
             type: object
             properties:
@@ -246,6 +300,8 @@ components:
                     $ref: '#/components/schemas/api.template.v1.MetaResponse'
             description: '* Resultado del upsert.'
 tags:
+    - name: PruebaService
+      description: 'Prueba Service: find, upsert, delete'
     - name: PruebaService
       description: 'Prueba Service: find, upsert, delete'
     - name: TemplatesService

@@ -27,7 +27,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1FindPruebasResponse"
+              "$ref": "#/definitions/pruebav2FindPruebasResponse"
             }
           },
           "default": {
@@ -65,7 +65,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1DeletePruebaByIdResponse"
+              "$ref": "#/definitions/pruebav2DeletePruebaByIdResponse"
             }
           },
           "default": {
@@ -96,7 +96,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1UpsertPruebaResponse"
+              "$ref": "#/definitions/pruebav2UpsertPruebaResponse"
             }
           },
           "default": {
@@ -112,7 +112,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1UpsertPruebaRequest"
+              "$ref": "#/definitions/pruebav2UpsertPruebaRequest"
             }
           }
         ],
@@ -280,6 +280,179 @@
       },
       "additionalProperties": {}
     },
+    "pruebav1DeletePruebaByIdResponse": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/apipruebav1MetaResponse"
+        }
+      }
+    },
+    "pruebav1FindPruebasResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pruebav1Prueba"
+          }
+        },
+        "meta": {
+          "$ref": "#/definitions/apipruebav1MetaResponse"
+        }
+      }
+    },
+    "pruebav1Prueba": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "pruebav1UpsertPruebaRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "0 -\u003e create"
+        },
+        "name": {
+          "type": "string",
+          "title": "required"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "pruebav1UpsertPruebaResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/pruebav1Prueba"
+        },
+        "meta": {
+          "$ref": "#/definitions/apipruebav1MetaResponse"
+        }
+      }
+    },
+    "pruebav2DeletePruebaByIdResponse": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/pruebav2MetaResponse"
+        }
+      }
+    },
+    "pruebav2FindPruebasResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pruebav2Prueba"
+          }
+        },
+        "meta": {
+          "$ref": "#/definitions/pruebav2MetaResponse"
+        }
+      }
+    },
+    "pruebav2MetaResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/pruebav2ResponseCode",
+          "title": "RESPONSE_CODE_OK or other codes"
+        },
+        "message": {
+          "type": "string",
+          "title": "e.g. \"ok\", \"ip blocked\", \"db error\", \"user not found\""
+        }
+      },
+      "description": "Your meta-object: only code and message."
+    },
+    "pruebav2Prueba": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "pruebav2ResponseCode": {
+      "type": "string",
+      "enum": [
+        "RESPONSE_CODE_UNSPECIFIED",
+        "RESPONSE_CODE_OK",
+        "RESPONSE_CODE_BAD_REQUEST",
+        "RESPONSE_CODE_UNAUTHORIZED",
+        "RESPONSE_CODE_FORBIDDEN",
+        "RESPONSE_CODE_NOT_FOUND",
+        "RESPONSE_CODE_METHOD_NOT_ALLOWED",
+        "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
+        "RESPONSE_CODE_NOT_IMPLEMENTED",
+        "RESPONSE_CODE_SERVICE_UNAVAILABLE"
+      ],
+      "default": "RESPONSE_CODE_UNSPECIFIED",
+      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_BAD_REQUEST: bad request\n - RESPONSE_CODE_UNAUTHORIZED: unauthorized\n - RESPONSE_CODE_FORBIDDEN: forbidden\n - RESPONSE_CODE_NOT_FOUND: not found\n - RESPONSE_CODE_METHOD_NOT_ALLOWED: method not allowed\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error\n - RESPONSE_CODE_NOT_IMPLEMENTED: not implemented\n - RESPONSE_CODE_SERVICE_UNAVAILABLE: service unavailable"
+    },
+    "pruebav2UpsertPruebaRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "0 -\u003e create"
+        },
+        "name": {
+          "type": "string",
+          "title": "required"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "pruebav2UpsertPruebaResponse": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/pruebav2Prueba"
+        },
+        "meta": {
+          "$ref": "#/definitions/pruebav2MetaResponse"
+        }
+      }
+    },
     "rpcStatus": {
       "type": "object",
       "properties": {
@@ -320,14 +493,6 @@
         }
       }
     },
-    "v1DeletePruebaByIdResponse": {
-      "type": "object",
-      "properties": {
-        "meta": {
-          "$ref": "#/definitions/apipruebav1MetaResponse"
-        }
-      }
-    },
     "v1DeleteTemplateByIdResponse": {
       "type": "object",
       "properties": {
@@ -337,21 +502,6 @@
         }
       },
       "description": "* Respuesta de eliminación."
-    },
-    "v1FindPruebasResponse": {
-      "type": "object",
-      "properties": {
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Prueba"
-          }
-        },
-        "meta": {
-          "$ref": "#/definitions/apipruebav1MetaResponse"
-        }
-      }
     },
     "v1ListTemplatesResponse": {
       "type": "object",
@@ -370,26 +520,6 @@
         }
       },
       "description": "* Respuesta con la lista de plantillas."
-    },
-    "v1Prueba": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
     },
     "v1Template": {
       "type": "object",
@@ -415,34 +545,6 @@
         }
       },
       "description": "* Plantilla de alerta/aviso."
-    },
-    "v1UpsertPruebaRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64",
-          "title": "0 -\u003e create"
-        },
-        "name": {
-          "type": "string",
-          "title": "required"
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "v1UpsertPruebaResponse": {
-      "type": "object",
-      "properties": {
-        "item": {
-          "$ref": "#/definitions/v1Prueba"
-        },
-        "meta": {
-          "$ref": "#/definitions/apipruebav1MetaResponse"
-        }
-      }
     },
     "v1UpsertTemplateRequest": {
       "type": "object",

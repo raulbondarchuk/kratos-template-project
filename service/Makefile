@@ -81,10 +81,15 @@ commit:
 # ==============================================================================
 
 PATH_SCRIPTS_WORKFLOW_MODULE_PROTO := ./scripts/ps/workflow/module-proto.ps1
-PATH_SCRIPTS_WORKFLOW_MODULE_FEATURE := ./scripts/ps/workflow/module-feature.ps1
+
+PATH_SCRIPTS_WORKFLOW_MODULE_F_FEATURE := ./scripts/ps/workflow/module-f-feature.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE := ./scripts/ps/workflow/module-f-service.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO := ./scripts/ps/workflow/module-f-repo.ps1
+PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ := ./scripts/ps/workflow/module-f-biz.ps1
+
 
 # Generate a new module skeleton
-.PHONY: module module-proto module-feature
+.PHONY: module module-proto module-feature module-service module-repo module-biz
 
 # Create a new module (only .proto scaffolding)
 # Example:
@@ -92,6 +97,10 @@ PATH_SCRIPTS_WORKFLOW_MODULE_FEATURE := ./scripts/ps/workflow/module-feature.ps1
 module:
 	make module-proto name="$(name)"
 	make gen
+	make module-feature name="$(name)"
+	make module-repo name="$(name)"
+	make module-biz name="$(name)"
+	make module-service name="$(name)"
 
 # Generate a new module .proto in API skeleton
 module-proto:
@@ -101,4 +110,19 @@ module-proto:
 # Generate a new module feature in API skeleton
 module-feature:
 	@if (-not '$(name)') { Write-Host 'Usage: make module-feature name="<name>"'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_FEATURE)" -Name "$(name)"
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_FEATURE)" -Name "$(name)"
+
+# Generate a new module service in API skeleton
+module-service:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-feature name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE)" -Name "$(name)"
+
+# Generate a new module repo in API skeleton
+module-repo:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-repo name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO)" -Name "$(name)"
+
+# Generate a new module biz in API skeleton
+module-biz:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-biz name="<name>"'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ)" -Name "$(name)"
