@@ -1,6 +1,8 @@
-# scripts/ps/workflow/feature.ps1
+# scripts/ps/workflow/module-feature.ps1
 [CmdletBinding()]
-param([Parameter(Mandatory = $true)] [string]$Name)
+param(
+  [Parameter(Mandatory = $true)] [string]$Name
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -16,93 +18,106 @@ function ConvertTo-PascalCase { param([string]$s)
 function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 function ConvertTo-ImportAlias { param([string]$s) ($s.ToLower() -replace '[^a-z0-9]','_') }
 
-# names
-$base      = ConvertTo-LowerCase $Name
-$pkgBase   = ($base -replace '[^a-z0-9]','_')
-$pascal    = ConvertTo-PascalCase $Name
-$alias     = ConvertTo-ImportAlias $base
+$base   = ConvertTo-LowerCase $Name            # e.g. "prueba"
+$pascal = ConvertTo-PascalCase $Name           # "Prueba"
+$pkg    = ($base -replace '[^a-z0-9]','_')
+$alias  = ConvertTo-ImportAlias $base
 
-# detect latest api vN
+# --- latest API version (vN) ---
 $apiBaseDir = Join-Path $ApiRoot $base
-$apiVersion = 1
-if (Test-Path -LiteralPath $apiBaseDir) {
+$apiV = 1
+if (Test-Path $apiBaseDir) {
   $max = 0
-  Get-ChildItem -LiteralPath $apiBaseDir -Directory | ForEach-Object {
+  Get-ChildItem $apiBaseDir -Directory -ea SilentlyContinue | ForEach-Object {
     if ($_.Name -match '^v(\d+)$') { $n=[int]$Matches[1]; if ($n -gt $max){$max=$n} }
   }
-  if ($max -gt 0) { $apiVersion = $max }
+  if ($max -gt 0) { $apiV = $max }
+} else {
+  Write-Warning "API dir not found: $apiBaseDir ; using v1."
 }
-$apiImport     = "service/api/$base/v$apiVersion"
-$featureRootV  = Join-Path (Join-Path $FeatureRoot $base) "v$apiVersion"
-$svcDirImport  = "service/internal/feature/$base/v$apiVersion/service"
-$bizDirImport  = "service/internal/feature/$base/v$apiVersion/biz"
-$repoDirImport = "service/internal/feature/$base/v$apiVersion/repo"
 
-# ensure dirs
-$null = New-Item -ItemType Directory -Force -Path $featureRootV
+# feature path uses same vN as API
+$featRootV = Join-Path (Join-Path $FeatureRoot $base) "v$apiV"
+$svcDir = Join-Path $featRootV "service"
+$bizDir = Join-Path $featRootV "biz"
+$repoDir = Join-Path $featRootV "repo"
+$null = New-Item -ItemType Directory -Force -Path $svcDir,$bizDir,$repoDir
 
-# register.go
-$registerPath = Join-Path $featureRootV "register.go"
+$apiImport    = "service/api/$base/v$apiV"
+$svcImport    = "service/internal/feature/$base/v$apiV/service"
+$bizImport    = "service/internal/feature/$base/v$apiV/biz"
+$repoImport   = "service/internal/feature/$base/v$apiV/repo"
+
+# -------------------------
+# register.go (module-local types + registrars)
+# -------------------------
+$registerPath = Join-Path $featRootV "register.go"
 if (-not (Test-Path $registerPath)) {
-$register = @"
-package $pkgBase
+$registerGo = @"
+package $pkg
 
 import (
 	api_$alias "$apiImport"
-	${pkgBase}_service "$svcDirImport"
-	server_grpc "service/internal/server/grpc"
-	server_http "service/internal/server/http"
+	${pkg}_service "$svcImport"
 
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
-var _ api_$alias.${pascal}ServiceHTTPServer = (*${pkgBase}_service.${pascal}Service)(nil)
-var _ api_$alias.${pascal}ServiceServer     = (*${pkgBase}_service.${pascal}Service)(nil)
+// Module-local types to avoid wire type collisions
+type HTTPRegister func(*http.Server)
+type GRPCRegister func(*grpc.Server)
 
-func New${pascal}HTTPRegister(s api_$alias.${pascal}ServiceHTTPServer) server_http.HTTPRegister {
+var _ api_$alias.${pascal}ServiceHTTPServer = (*${pkg}_service.${pascal}Service)(nil)
+var _ api_$alias.${pascal}ServiceServer     = (*${pkg}_service.${pascal}Service)(nil)
+
+func New${pascal}HTTPRegistrer(s api_$alias.${pascal}ServiceHTTPServer) HTTPRegister {
 	return func(srv *http.Server) {
 		api_$alias.Register${pascal}ServiceHTTPServer(srv, s)
 	}
 }
 
-func New${pascal}GRPCRegister(s api_$alias.${pascal}ServiceServer) server_grpc.GRPCRegister {
+func New${pascal}GRPCRegistrer(s api_$alias.${pascal}ServiceServer) GRPCRegister {
 	return func(srv *grpc.Server) {
 		api_$alias.Register${pascal}ServiceServer(srv, s)
 	}
 }
 "@
-[IO.File]::WriteAllText($registerPath, $register, $utf8NoBom)
+[IO.File]::WriteAllText($registerPath, $registerGo, $utf8NoBom)
 }
 
-# wire.go
-$wirePath = Join-Path $featureRootV "wire.go"
+# -------------------------
+# wire.go (ProviderSet + binds)
+# -------------------------
+$wirePath = Join-Path $featRootV "wire.go"
 if (-not (Test-Path $wirePath)) {
-$wire = @"
-package $pkgBase
+$wireGo = @"
+package $pkg
 
 import (
 	api_$alias "$apiImport"
-	${pkgBase}_biz "$bizDirImport"
-	${pkgBase}_repo "$repoDirImport"
-	${pkgBase}_service "$svcDirImport"
+	${pkg}_biz "$bizImport"
+	${pkg}_repo "$repoImport"
+	${pkg}_service "$svcImport"
 
 	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(
-	${pkgBase}_repo.New${pascal}Repo,
-	${pkgBase}_biz.New${pascal}Usecase,
-	${pkgBase}_service.New${pascal}Service,
+	${pkg}_repo.New${pascal}Repo,
+	${pkg}_biz.New${pascal}Usecase,
+	${pkg}_service.New${pascal}Service,
 
-	wire.Bind(new(api_$alias.${pascal}ServiceHTTPServer), new(*${pkgBase}_service.${pascal}Service)),
-	wire.Bind(new(api_$alias.${pascal}ServiceServer),     new(*${pkgBase}_service.${pascal}Service)),
+	// map generated service interfaces to our implementation
+	wire.Bind(new(api_$alias.${pascal}ServiceHTTPServer), new(*${pkg}_service.${pascal}Service)),
+	wire.Bind(new(api_$alias.${pascal}ServiceServer),     new(*${pkg}_service.${pascal}Service)),
 
-	New${pascal}HTTPRegister,
-	New${pascal}GRPCRegister,
+	// module-local registrars
+	New${pascal}HTTPRegistrer,
+	New${pascal}GRPCRegistrer,
 )
 "@
-[IO.File]::WriteAllText($wirePath, $wire, $utf8NoBom)
+[IO.File]::WriteAllText($wirePath, $wireGo, $utf8NoBom)
 }
 
-Write-Host ("feature: {0}/v{1} (register.go, wire.go)" -f $base, $apiVersion) -ForegroundColor Green
+Write-Host ("feature module: {0}/v{1}  (register.go, wire.go)" -f $base, $apiV) -ForegroundColor Green
