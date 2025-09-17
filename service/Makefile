@@ -77,7 +77,7 @@ clean clear cls:
 # Docs =========================================================================
 # ==============================================================================
 
-PATH_SCRIPTS_MAKE_DOCS := .$(PATH_SCRIPTS_MAKE)/docs.ps1
+PATH_SCRIPTS_MAKE_DOCS := $(PATH_SCRIPTS_MAKE)/docs.ps1
 .PHONY: docs
 docs:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE_DOCS)"
