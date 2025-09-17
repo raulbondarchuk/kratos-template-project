@@ -24,12 +24,39 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 # --- helpers ---
 function ConvertTo-PascalCase {
-  param([Parameter(Mandatory=$true)][string]$InputString)
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidateNotNullOrEmpty()]
+    [string]$InputString
+  )
   $parts = ($InputString -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
   ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
 }
-function ConvertTo-LowerCase { param([Parameter(Mandatory=$true)][string]$InputString) $InputString.ToLower() }
-function ConvertTo-Plural    { param([Parameter(Mandatory=$true)][string]$InputNoun) if ($InputNoun.ToLower().EndsWith('s')) { $InputNoun } else { "$InputNoun" + "s" } }
+
+function ConvertTo-LowerCase {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidateNotNullOrEmpty()]
+    [string]$InputString
+  )
+  $InputString.ToLower()
+}
+
+function ConvertTo-Plural {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidateNotNullOrEmpty()]
+    [string]$InputNoun
+  )
+  if ($InputNoun.ToLower().EndsWith('s')) { 
+    $InputNoun 
+  } else { 
+    "$InputNoun" + "s" 
+  }
+}
 
 Show-Step "Generating .proto module"
 Show-Info "Input name: $Name"
@@ -50,11 +77,12 @@ if (Test-Path -LiteralPath $baseDir) {
   Get-ChildItem -LiteralPath $baseDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
     if ($_.Name -match '^v(\d+)$') { $versions += [int]$Matches[1] }
   }
-  if ($versions.Count -gt 0) {
-    Show-Info ("Existing versions: " + ($versions | Sort-Object | ForEach-Object { "v$_" } -join ", "))
-  } else {
-    Show-Info "Existing versions: none"
-  }
+    if ($versions.Count -gt 0) {
+      $versionList = $versions | Sort-Object | ForEach-Object { "v$_" }
+      Show-Info ("Existing versions: " + ($versionList -join ", "))
+    } else {
+      Show-Info "Existing versions: none"
+    }
 } else {
   Show-Warn "API base dir not found: $baseDir (will create)"
 }
