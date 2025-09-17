@@ -34,8 +34,9 @@ $featureRootV = Join-Path (Join-Path $FeatureRoot $base) "v$apiVersion"
 $svcDir = Join-Path $featureRootV "service"
 $null = New-Item -ItemType Directory -Force -Path $svcDir
 
-$apiImport = "service/api/$base/v$apiVersion"
-$bizImport = "service/internal/feature/$base/v$apiVersion/biz"
+$apiImport    = "service/api/$base/v$apiVersion"
+$bizImport    = "service/internal/feature/$base/v$apiVersion/biz"
+$serviceName  = "${pascal}v${apiVersion}Service"  # <- имя сервиса с версией
 
 # service.go
 $p = Join-Path $svcDir "service.go"
@@ -49,7 +50,7 @@ import (
 )
 
 type ${pascal}Service struct {
-	api_$alias.Unimplemented${pascal}ServiceServer
+	api_$alias.Unimplemented${serviceName}Server
 	uc *${pkgBase}_biz.${pascal}Usecase
 }
 

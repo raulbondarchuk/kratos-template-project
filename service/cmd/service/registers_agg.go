@@ -26,12 +26,10 @@ func BuildAllRegistrars(
 		HTTP: []server_http.HTTPRegister{
 			server_http.HTTPRegister(templateHTTP),
 			// add other HTTP-registrers for modules here:
-
 		},
 		GRPC: []server_grpc.GRPCRegister{
 			server_grpc.GRPCRegister(templateGRPC),
 			// add other gRPC-registrers for modules here:
-
 		},
 	}
 }

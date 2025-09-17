@@ -38,18 +38,18 @@ if (Test-Path $apiBaseDir) {
 
 # feature path uses same vN as API
 $featRootV = Join-Path (Join-Path $FeatureRoot $base) "v$apiV"
-$svcDir = Join-Path $featRootV "service"
-$bizDir = Join-Path $featRootV "biz"
+$svcDir  = Join-Path $featRootV "service"
+$bizDir  = Join-Path $featRootV "biz"
 $repoDir = Join-Path $featRootV "repo"
-$null = New-Item -ItemType Directory -Force -Path $svcDir,$bizDir,$repoDir
+$null = New-Item -ItemType Directory -Force -Path $svcDir, $bizDir, $repoDir
 
-$apiImport    = "service/api/$base/v$apiV"
-$svcImport    = "service/internal/feature/$base/v$apiV/service"
-$bizImport    = "service/internal/feature/$base/v$apiV/biz"
-$repoImport   = "service/internal/feature/$base/v$apiV/repo"
+$apiImport  = "service/api/$base/v$apiV"
+$svcImport  = "service/internal/feature/$base/v$apiV/service"
+$bizImport  = "service/internal/feature/$base/v$apiV/biz"
+$repoImport = "service/internal/feature/$base/v$apiV/repo"
 
 # -------------------------
-# register.go (module-local types + registrars)
+# register.go (module-local types + registrars) — с версией в имени сервиса
 # -------------------------
 $registerPath = Join-Path $featRootV "register.go"
 if (-not (Test-Path $registerPath)) {
@@ -68,18 +68,19 @@ import (
 type HTTPRegister func(*http.Server)
 type GRPCRegister func(*grpc.Server)
 
-var _ api_$alias.${pascal}ServiceHTTPServer = (*${pkg}_service.${pascal}Service)(nil)
-var _ api_$alias.${pascal}ServiceServer     = (*${pkg}_service.${pascal}Service)(nil)
+// NOTE: versioned service interfaces from proto: ${pascal}v${apiV}Service...
+var _ api_$alias.${pascal}v${apiV}ServiceHTTPServer = (*${pkg}_service.${pascal}Service)(nil)
+var _ api_$alias.${pascal}v${apiV}ServiceServer     = (*${pkg}_service.${pascal}Service)(nil)
 
-func New${pascal}HTTPRegistrer(s api_$alias.${pascal}ServiceHTTPServer) HTTPRegister {
+func New${pascal}HTTPRegistrer(s api_$alias.${pascal}v${apiV}ServiceHTTPServer) HTTPRegister {
 	return func(srv *http.Server) {
-		api_$alias.Register${pascal}ServiceHTTPServer(srv, s)
+		api_$alias.Register${pascal}v${apiV}ServiceHTTPServer(srv, s)
 	}
 }
 
-func New${pascal}GRPCRegistrer(s api_$alias.${pascal}ServiceServer) GRPCRegister {
+func New${pascal}GRPCRegistrer(s api_$alias.${pascal}v${apiV}ServiceServer) GRPCRegister {
 	return func(srv *grpc.Server) {
-		api_$alias.Register${pascal}ServiceServer(srv, s)
+		api_$alias.Register${pascal}v${apiV}ServiceServer(srv, s)
 	}
 }
 "@
@@ -87,7 +88,7 @@ func New${pascal}GRPCRegistrer(s api_$alias.${pascal}ServiceServer) GRPCRegister
 }
 
 # -------------------------
-# wire.go (ProviderSet + binds)
+# wire.go (ProviderSet + binds) — с версией в имени сервиса
 # -------------------------
 $wirePath = Join-Path $featRootV "wire.go"
 if (-not (Test-Path $wirePath)) {
@@ -108,9 +109,9 @@ var ProviderSet = wire.NewSet(
 	${pkg}_biz.New${pascal}Usecase,
 	${pkg}_service.New${pascal}Service,
 
-	// map generated service interfaces to our implementation
-	wire.Bind(new(api_$alias.${pascal}ServiceHTTPServer), new(*${pkg}_service.${pascal}Service)),
-	wire.Bind(new(api_$alias.${pascal}ServiceServer),     new(*${pkg}_service.${pascal}Service)),
+	// map generated service interfaces (versioned) to our implementation
+	wire.Bind(new(api_$alias.${pascal}v${apiV}ServiceHTTPServer), new(*${pkg}_service.${pascal}Service)),
+	wire.Bind(new(api_$alias.${pascal}v${apiV}ServiceServer),     new(*${pkg}_service.${pascal}Service)),
 
 	// module-local registrars
 	New${pascal}HTTPRegistrer,
