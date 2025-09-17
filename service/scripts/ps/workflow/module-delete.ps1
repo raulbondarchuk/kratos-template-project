@@ -48,15 +48,27 @@ if (Test-Path -LiteralPath $apiBase) {
 $versionsToDelete = @()
 if ([string]::IsNullOrWhiteSpace($Version)) {
   Show-Step "Delete ALL versions of module '$base'"
-  $versionsToDelete = ($featVersions + $apiVersions | Sort-Object -Unique)
-  if ($versionsToDelete.Count -eq 0) { Show-Warn "No versions found under feature/api (still cleaning code links)." }
+
+  $versionsToDelete = @()
+  $versionsToDelete += $featVersions
+  $versionsToDelete += $apiVersions
+  $versionsToDelete = $versionsToDelete | Sort-Object -Unique
+
+  if (-not $versionsToDelete -or @($versionsToDelete).Count -eq 0) {
+    Show-Warn "No versions found under feature/api (still cleaning code links)."
+  }
 } else {
   if ($Version -notmatch '^v(\d+)$') { Show-ErrorAndExit "Invalid -Version '$Version'. Use vN (e.g. v2)." }
   $vNum = [int]$Matches[1]
+
   $exists = ($featVersions -contains $vNum) -or ($apiVersions -contains $vNum)
   if (-not $exists) {
-    $avail = (($featVersions + $apiVersions | Sort-Object -Unique) | ForEach-Object { "v$_" }) -join ", "
-    if (-not $avail) { $avail = "<none>" }
+    $availList = @()
+    $availList += $featVersions
+    $availList += $apiVersions
+    $availList  = $availList | Sort-Object -Unique
+    $avail      = ($availList | ForEach-Object { "v$_" }) -join ", "
+    if ([string]::IsNullOrWhiteSpace($avail)) { $avail = "<none>" }
     Show-ErrorAndExit "Version $Version of '$base' not found. Available: $avail"
   }
   Show-Step "Delete ONLY version $Version of module '$base'"
@@ -75,7 +87,7 @@ function Remove-DirIfExists([string]$Path) {
 }
 
 # --- 1) delete feature dirs ---
-if ($versionsToDelete.Count -gt 0) {
+if (@($versionsToDelete).Count -gt 0) {
   foreach ($v in $versionsToDelete) { Remove-DirIfExists (Join-Path $featBase ("v$v")) }
   if ((Test-Path -LiteralPath $featBase) -and ((Get-ChildItem -LiteralPath $featBase -Force | Measure-Object).Count -eq 0)) {
     Remove-DirIfExists $featBase
@@ -85,7 +97,7 @@ if ($versionsToDelete.Count -gt 0) {
 }
 
 # --- 2) delete api dirs ---
-if ($versionsToDelete.Count -gt 0) {
+if (@($versionsToDelete).Count -gt 0) {
   foreach ($v in $versionsToDelete) { Remove-DirIfExists (Join-Path $apiBase ("v$v")) }
   if ((Test-Path -LiteralPath $apiBase) -and ((Get-ChildItem -LiteralPath $apiBase -Force | Measure-Object).Count -eq 0)) {
     Remove-DirIfExists $apiBase
@@ -96,7 +108,7 @@ if ($versionsToDelete.Count -gt 0) {
 
 # --- build aliases to purge from code ---
 $aliases = @()
-if ($versionsToDelete.Count -gt 0) {
+if (@($versionsToDelete).Count -gt 0) {
   foreach ($v in $versionsToDelete) { $aliases += ("{0}v{1}" -f $base, $v) }
 }
 

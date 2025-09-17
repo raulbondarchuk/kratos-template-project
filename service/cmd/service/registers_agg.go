@@ -5,6 +5,7 @@ import (
 	template "service/internal/feature/template" // without /v — there is the root package template
 	server_grpc "service/internal/server/grpc"
 	server_http "service/internal/server/http"
+
 )
 
 type AllRegistrers struct {
@@ -38,3 +39,4 @@ func BuildAllRegistrars(
 
 func ProvideHTTPRegistrers(all AllRegistrers) []server_http.HTTPRegister { return all.HTTP }
 func ProvideGRPCRegistrers(all AllRegistrers) []server_grpc.GRPCRegister { return all.GRPC }
+
