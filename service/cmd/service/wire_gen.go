@@ -7,19 +7,20 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"service/internal/broker"
 	"service/internal/conf/v1"
 	"service/internal/data"
 	"service/internal/feature/template/v1"
-	template_biz "service/internal/feature/template/v1/biz"
-	template_repo "service/internal/feature/template/v1/repo"
-	template_service "service/internal/feature/template/v1/service"
-	server_grpc "service/internal/server/grpc"
-	server_http "service/internal/server/http"
+	"service/internal/feature/template/v1/biz"
+	"service/internal/feature/template/v1/repo"
+	"service/internal/feature/template/v1/service"
+	"service/internal/server/grpc"
+	"service/internal/server/http"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/log"
-
+import (
 	_ "go.uber.org/automaxprocs"
 )
 
