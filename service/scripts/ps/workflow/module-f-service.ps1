@@ -36,7 +36,7 @@ $null = New-Item -ItemType Directory -Force -Path $svcDir
 
 $apiImport    = "service/api/$base/v$apiVersion"
 $bizImport    = "service/internal/feature/$base/v$apiVersion/biz"
-$serviceName  = "${pascal}v${apiVersion}Service"  # <- имя сервиса с версией
+$serviceName  = "${pascal}v${apiVersion}Service"  # <- service name with version
 
 # service.go
 $p = Join-Path $svcDir "service.go"
