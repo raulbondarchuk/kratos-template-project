@@ -48,6 +48,9 @@ $goPkg      = "service/api/$base;$base"
 $javaOuter  = "$($pascal)ProtoV$Version"
 $javaPkg    = "dev.kratos.api.$base.$base"
 
+# Service name must include version suffix for Swagger isolation
+$serviceName = "${pascal}v${Version}Service"
+
 # IMPORTANT: versioned route (singular)
 $route        = "/v$Version/$base"
 $errorsImport = "api/$base/v$Version/errors.proto"
@@ -107,8 +110,8 @@ option java_multiple_files = true;
 option java_outer_classname = "$javaOuter";
 option java_package = "$javaPkg";
 
-// $pascal Service: find, upsert, delete
-service ${pascal}Service {
+// ${serviceName}: find, upsert, delete
+service $serviceName {
   // GET ${route} - list or search by filters
   rpc Find$pluralPascal(Find${pluralPascal}Request) returns (Find${pluralPascal}Response) {
     option (google.api.http) = { get: "${route}" };

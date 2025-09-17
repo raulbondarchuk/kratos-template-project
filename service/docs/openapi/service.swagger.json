@@ -6,7 +6,10 @@
   },
   "tags": [
     {
-      "name": "PruebaService"
+      "name": "Pruebav1Service"
+    },
+    {
+      "name": "Pruebav2Service"
     },
     {
       "name": "TemplatesService"
@@ -108,7 +111,7 @@
     "/v1/prueba": {
       "get": {
         "summary": "GET /v1/prueba - list or search by filters",
-        "operationId": "PruebaService_FindPruebas",
+        "operationId": "Pruebav1Service_FindPruebas",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -141,12 +144,12 @@
           }
         ],
         "tags": [
-          "PruebaService"
+          "Pruebav1Service"
         ]
       },
       "delete": {
         "summary": "DELETE /v1/prueba?id=123 - delete by id",
-        "operationId": "PruebaService_DeletePruebaById",
+        "operationId": "Pruebav1Service_DeletePruebaById",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -172,12 +175,12 @@
           }
         ],
         "tags": [
-          "PruebaService"
+          "Pruebav1Service"
         ]
       },
       "post": {
         "summary": "POST /v1/prueba - create or update (id=0 create, \u003e0 update)",
-        "operationId": "PruebaService_UpsertPrueba",
+        "operationId": "Pruebav1Service_UpsertPrueba",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -203,14 +206,14 @@
           }
         ],
         "tags": [
-          "PruebaService"
+          "Pruebav1Service"
         ]
       }
     },
     "/v2/prueba": {
       "get": {
         "summary": "GET /v2/prueba - list or search by filters",
-        "operationId": "PruebaService_FindPruebas",
+        "operationId": "Pruebav2Service_FindPruebas",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -243,12 +246,12 @@
           }
         ],
         "tags": [
-          "PruebaService"
+          "Pruebav2Service"
         ]
       },
       "delete": {
         "summary": "DELETE /v2/prueba?id=123 - delete by id",
-        "operationId": "PruebaService_DeletePruebaById",
+        "operationId": "Pruebav2Service_DeletePruebaById",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -274,12 +277,12 @@
           }
         ],
         "tags": [
-          "PruebaService"
+          "Pruebav2Service"
         ]
       },
       "post": {
         "summary": "POST /v2/prueba - create or update (id=0 create, \u003e0 update)",
-        "operationId": "PruebaService_UpsertPrueba",
+        "operationId": "Pruebav2Service_UpsertPrueba",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -305,7 +308,7 @@
           }
         ],
         "tags": [
-          "PruebaService"
+          "Pruebav2Service"
         ]
       }
     }

@@ -58,9 +58,9 @@ paths:
     /v1/prueba:
         get:
             tags:
-                - PruebaService
+                - Pruebav1Service
             description: GET /v1/prueba - list or search by filters
-            operationId: PruebaService_FindPruebas
+            operationId: Pruebav1Service_FindPruebas
             parameters:
                 - name: id
                   in: query
@@ -80,9 +80,9 @@ paths:
                                 $ref: '#/components/schemas/api.prueba.v1.FindPruebasResponse'
         post:
             tags:
-                - PruebaService
+                - Pruebav1Service
             description: POST /v1/prueba - create or update (id=0 create, >0 update)
-            operationId: PruebaService_UpsertPrueba
+            operationId: Pruebav1Service_UpsertPrueba
             requestBody:
                 content:
                     application/json:
@@ -98,9 +98,9 @@ paths:
                                 $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaResponse'
         delete:
             tags:
-                - PruebaService
+                - Pruebav1Service
             description: DELETE /v1/prueba?id=123 - delete by id
-            operationId: PruebaService_DeletePruebaById
+            operationId: Pruebav1Service_DeletePruebaById
             parameters:
                 - name: id
                   in: query
@@ -117,9 +117,9 @@ paths:
     /v2/prueba:
         get:
             tags:
-                - PruebaService
+                - Pruebav2Service
             description: GET /v2/prueba - list or search by filters
-            operationId: PruebaService_FindPruebas
+            operationId: Pruebav2Service_FindPruebas
             parameters:
                 - name: id
                   in: query
@@ -139,9 +139,9 @@ paths:
                                 $ref: '#/components/schemas/api.prueba.v2.FindPruebasResponse'
         post:
             tags:
-                - PruebaService
+                - Pruebav2Service
             description: POST /v2/prueba - create or update (id=0 create, >0 update)
-            operationId: PruebaService_UpsertPrueba
+            operationId: Pruebav2Service_UpsertPrueba
             requestBody:
                 content:
                     application/json:
@@ -157,9 +157,9 @@ paths:
                                 $ref: '#/components/schemas/api.prueba.v2.UpsertPruebaResponse'
         delete:
             tags:
-                - PruebaService
+                - Pruebav2Service
             description: DELETE /v2/prueba?id=123 - delete by id
-            operationId: PruebaService_DeletePruebaById
+            operationId: Pruebav2Service_DeletePruebaById
             parameters:
                 - name: id
                   in: query
@@ -359,9 +359,9 @@ components:
                     $ref: '#/components/schemas/api.template.v1.MetaResponse'
             description: '* Resultado del upsert.'
 tags:
-    - name: PruebaService
-      description: 'Prueba Service: find, upsert, delete'
-    - name: PruebaService
-      description: 'Prueba Service: find, upsert, delete'
+    - name: Pruebav1Service
+      description: 'Pruebav1Service: find, upsert, delete'
+    - name: Pruebav2Service
+      description: 'Pruebav2Service: find, upsert, delete'
     - name: TemplatesService
       description: '* API para gestión de plantillas (alertas/avisos).'
