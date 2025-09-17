@@ -1,13 +1,10 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/prueba/v1/errors.proto",
+    "title": "api/template/v1/errors.proto",
     "version": "version not set"
   },
   "tags": [
-    {
-      "name": "PruebaService"
-    },
     {
       "name": "TemplatesService"
     }
@@ -19,109 +16,6 @@
     "application/json"
   ],
   "paths": {
-    "/pruebas": {
-      "get": {
-        "summary": "* Lista o busca pruebas.\r\n\r\nDescripcion\r\nDevuelve lista de pruebas. Si hay filtros, se aplican.\r\n\r\nParametros (query)\r\n- 'id' (opcional)\r\n- 'name' (opcional)\r\n\r\nRespuestas\r\n- 200 OK: 'items' + 'meta.code = RESPONSE_CODE_OK'\r\n- 200 con error logico: 'meta.code != RESPONSE_CODE_OK' y 'meta.message'\r\n\r\nEjemplos\r\nGET /pruebas\r\nGET /pruebas?id=1",
-        "operationId": "PruebaService_FindPruebas",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1FindPruebasResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "description": "filtrar por ID",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "name",
-            "description": "filtrar por nombre",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "PruebaService"
-        ]
-      },
-      "delete": {
-        "summary": "* Elimina prueba por ID.\r\n\r\nParametros (query)\r\n- 'id' (obligatorio): ID interno\r\n\r\nRespuestas\r\n- 200 OK: 'meta.code = RESPONSE_CODE_OK'\r\n- 200 con error logico: 'meta.code != RESPONSE_CODE_OK'\r\n\r\nEjemplos\r\nDELETE /pruebas?id=123",
-        "operationId": "PruebaService_DeletePruebaById",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeletePruebaByIdResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "description": "ID interno",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "PruebaService"
-        ]
-      },
-      "post": {
-        "summary": "* Crea o actualiza (upsert) prueba.\r\n\r\nDescripcion\r\nSi 'id' es 0 o no se envia -\u003e crea; si 'id' \u003e 0 -\u003e actualiza.\r\n\r\nParametros (body JSON)\r\n- 'id' (opcional, 0=create)\r\n- 'name' (obligatorio)\r\n\r\nRespuestas\r\n- 200 OK: 'item' resultante + 'meta.code = RESPONSE_CODE_OK'\r\n- 200 con error logico: validacion o duplicidad\r\n\r\nEjemplos\r\nPOST /pruebas\r\nBody: { \"name\":\"Prueba 1\" }",
-        "operationId": "PruebaService_UpsertPrueba",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpsertPruebaResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "* Cuerpo para crear o actualizar.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1UpsertPruebaRequest"
-            }
-          }
-        ],
-        "tags": [
-          "PruebaService"
-        ]
-      }
-    },
     "/templates": {
       "get": {
         "summary": "* Lista todas las plantillas.\r\n\r\n**Descripción**\r\nDevuelve el catálogo completo de plantillas definidas.\r\n\r\n**Parámetros**\r\n_(sin parámetros)_\r\n\r\n**Respuestas**\r\n- `200 OK`: `templates` + `meta.code = OK`\r\n- `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n**Ejemplos**\r\n`GET /templates`",
@@ -210,68 +104,6 @@
     }
   },
   "definitions": {
-    "apipruebav1MetaResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "$ref": "#/definitions/apipruebav1ResponseCode",
-          "title": "RESPONSE_CODE_OK or other codes"
-        },
-        "message": {
-          "type": "string",
-          "title": "e.g. \"ok\", \"ip blocked\", \"db error\", \"user not found\""
-        }
-      },
-      "description": "Your meta-object: only code and message."
-    },
-    "apipruebav1ResponseCode": {
-      "type": "string",
-      "enum": [
-        "RESPONSE_CODE_UNSPECIFIED",
-        "RESPONSE_CODE_OK",
-        "RESPONSE_CODE_BAD_REQUEST",
-        "RESPONSE_CODE_UNAUTHORIZED",
-        "RESPONSE_CODE_FORBIDDEN",
-        "RESPONSE_CODE_NOT_FOUND",
-        "RESPONSE_CODE_METHOD_NOT_ALLOWED",
-        "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
-        "RESPONSE_CODE_NOT_IMPLEMENTED",
-        "RESPONSE_CODE_SERVICE_UNAVAILABLE"
-      ],
-      "default": "RESPONSE_CODE_UNSPECIFIED",
-      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_BAD_REQUEST: bad request\n - RESPONSE_CODE_UNAUTHORIZED: unauthorized\n - RESPONSE_CODE_FORBIDDEN: forbidden\n - RESPONSE_CODE_NOT_FOUND: not found\n - RESPONSE_CODE_METHOD_NOT_ALLOWED: method not allowed\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error\n - RESPONSE_CODE_NOT_IMPLEMENTED: not implemented\n - RESPONSE_CODE_SERVICE_UNAVAILABLE: service unavailable"
-    },
-    "apitemplatev1MetaResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "$ref": "#/definitions/apitemplatev1ResponseCode",
-          "title": "RESPONSE_CODE_OK or other codes"
-        },
-        "message": {
-          "type": "string",
-          "title": "message description (e.g. \"ok\", \"ip blocked\", \"data base error\", \"user not found\" etc.)"
-        }
-      },
-      "description": "Your meta-object: only code and message."
-    },
-    "apitemplatev1ResponseCode": {
-      "type": "string",
-      "enum": [
-        "RESPONSE_CODE_UNSPECIFIED",
-        "RESPONSE_CODE_OK",
-        "RESPONSE_CODE_BAD_REQUEST",
-        "RESPONSE_CODE_UNAUTHORIZED",
-        "RESPONSE_CODE_FORBIDDEN",
-        "RESPONSE_CODE_NOT_FOUND",
-        "RESPONSE_CODE_METHOD_NOT_ALLOWED",
-        "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
-        "RESPONSE_CODE_NOT_IMPLEMENTED",
-        "RESPONSE_CODE_SERVICE_UNAVAILABLE"
-      ],
-      "default": "RESPONSE_CODE_UNSPECIFIED",
-      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_BAD_REQUEST: bad request\n - RESPONSE_CODE_UNAUTHORIZED: unauthorized\n - RESPONSE_CODE_FORBIDDEN: forbidden\n - RESPONSE_CODE_NOT_FOUND: not found\n - RESPONSE_CODE_METHOD_NOT_ALLOWED: method not allowed\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error\n - RESPONSE_CODE_NOT_IMPLEMENTED: not implemented\n - RESPONSE_CODE_SERVICE_UNAVAILABLE: service unavailable"
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -321,42 +153,15 @@
         }
       }
     },
-    "v1DeletePruebaByIdResponse": {
-      "type": "object",
-      "properties": {
-        "meta": {
-          "$ref": "#/definitions/apipruebav1MetaResponse"
-        }
-      },
-      "description": "* Respuesta de eliminacion."
-    },
     "v1DeleteTemplateByIdResponse": {
       "type": "object",
       "properties": {
         "meta": {
-          "$ref": "#/definitions/apitemplatev1MetaResponse",
+          "$ref": "#/definitions/v1MetaResponse",
           "title": "Estado de la operación"
         }
       },
       "description": "* Respuesta de eliminación."
-    },
-    "v1FindPruebasResponse": {
-      "type": "object",
-      "properties": {
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Prueba"
-          },
-          "title": "coleccion de resultados"
-        },
-        "meta": {
-          "$ref": "#/definitions/apipruebav1MetaResponse",
-          "title": "estado de la operacion"
-        }
-      },
-      "description": "* Respuesta con lista."
     },
     "v1ListTemplatesResponse": {
       "type": "object",
@@ -370,33 +175,42 @@
           "title": "Colección de plantillas"
         },
         "meta": {
-          "$ref": "#/definitions/apitemplatev1MetaResponse",
+          "$ref": "#/definitions/v1MetaResponse",
           "title": "Estado de la operación"
         }
       },
       "description": "* Respuesta con la lista de plantillas."
     },
-    "v1Prueba": {
+    "v1MetaResponse": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
+        "code": {
+          "$ref": "#/definitions/v1ResponseCode",
+          "title": "RESPONSE_CODE_OK or other codes"
         },
-        "name": {
+        "message": {
           "type": "string",
-          "title": "ejemplo: \"Prueba 1\""
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+          "title": "message description (e.g. \"ok\", \"ip blocked\", \"data base error\", \"user not found\" etc.)"
         }
       },
-      "description": "* Modelo prueba. Ajusta campos al dominio."
+      "description": "Your meta-object: only code and message."
+    },
+    "v1ResponseCode": {
+      "type": "string",
+      "enum": [
+        "RESPONSE_CODE_UNSPECIFIED",
+        "RESPONSE_CODE_OK",
+        "RESPONSE_CODE_BAD_REQUEST",
+        "RESPONSE_CODE_UNAUTHORIZED",
+        "RESPONSE_CODE_FORBIDDEN",
+        "RESPONSE_CODE_NOT_FOUND",
+        "RESPONSE_CODE_METHOD_NOT_ALLOWED",
+        "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
+        "RESPONSE_CODE_NOT_IMPLEMENTED",
+        "RESPONSE_CODE_SERVICE_UNAVAILABLE"
+      ],
+      "default": "RESPONSE_CODE_UNSPECIFIED",
+      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_BAD_REQUEST: bad request\n - RESPONSE_CODE_UNAUTHORIZED: unauthorized\n - RESPONSE_CODE_FORBIDDEN: forbidden\n - RESPONSE_CODE_NOT_FOUND: not found\n - RESPONSE_CODE_METHOD_NOT_ALLOWED: method not allowed\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error\n - RESPONSE_CODE_NOT_IMPLEMENTED: not implemented\n - RESPONSE_CODE_SERVICE_UNAVAILABLE: service unavailable"
     },
     "v1Template": {
       "type": "object",
@@ -422,36 +236,6 @@
         }
       },
       "description": "* Plantilla de alerta/aviso."
-    },
-    "v1UpsertPruebaRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64",
-          "title": "0 -\u003e crear"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "description": "* Cuerpo para crear o actualizar.",
-      "required": [
-        "name"
-      ]
-    },
-    "v1UpsertPruebaResponse": {
-      "type": "object",
-      "properties": {
-        "item": {
-          "$ref": "#/definitions/v1Prueba",
-          "title": "entidad creada o actualizada"
-        },
-        "meta": {
-          "$ref": "#/definitions/apipruebav1MetaResponse"
-        }
-      },
-      "description": "* Resultado del upsert."
     },
     "v1UpsertTemplateRequest": {
       "type": "object",
@@ -479,7 +263,7 @@
           "title": "Plantilla creada/actualizada"
         },
         "meta": {
-          "$ref": "#/definitions/apitemplatev1MetaResponse",
+          "$ref": "#/definitions/v1MetaResponse",
           "title": "Estado de la operación"
         }
       },

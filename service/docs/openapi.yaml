@@ -3,68 +3,10 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: TemplatesService API
+    description: '* API para gestión de plantillas (alertas/avisos).'
     version: 0.0.1
 paths:
-    /pruebas:
-        get:
-            tags:
-                - PruebaService
-            description: "* Lista o busca pruebas.\r\n\r\n Descripcion\r\n Devuelve lista de pruebas. Si hay filtros, se aplican.\r\n\r\n Parametros (query)\r\n - 'id' (opcional)\r\n - 'name' (opcional)\r\n\r\n Respuestas\r\n - 200 OK: 'items' + 'meta.code = RESPONSE_CODE_OK'\r\n - 200 con error logico: 'meta.code != RESPONSE_CODE_OK' y 'meta.message'\r\n\r\n Ejemplos\r\n GET /pruebas\r\n GET /pruebas?id=1"
-            operationId: PruebaService_FindPruebas
-            parameters:
-                - name: id
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.prueba.v1.FindPruebasResponse'
-        post:
-            tags:
-                - PruebaService
-            description: "* Crea o actualiza (upsert) prueba.\r\n\r\n Descripcion\r\n Si 'id' es 0 o no se envia -> crea; si 'id' > 0 -> actualiza.\r\n\r\n Parametros (body JSON)\r\n - 'id' (opcional, 0=create)\r\n - 'name' (obligatorio)\r\n\r\n Respuestas\r\n - 200 OK: 'item' resultante + 'meta.code = RESPONSE_CODE_OK'\r\n - 200 con error logico: validacion o duplicidad\r\n\r\n Ejemplos\r\n POST /pruebas\r\n Body: { \"name\":\"Prueba 1\" }"
-            operationId: PruebaService_UpsertPrueba
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaResponse'
-        delete:
-            tags:
-                - PruebaService
-            description: "* Elimina prueba por ID.\r\n\r\n Parametros (query)\r\n - 'id' (obligatorio): ID interno\r\n\r\n Respuestas\r\n - 200 OK: 'meta.code = RESPONSE_CODE_OK'\r\n - 200 con error logico: 'meta.code != RESPONSE_CODE_OK'\r\n\r\n Ejemplos\r\n DELETE /pruebas?id=123"
-            operationId: PruebaService_DeletePruebaById
-            parameters:
-                - name: id
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.prueba.v1.DeletePruebaByIdResponse'
     /templates:
         get:
             tags:
@@ -116,65 +58,6 @@ paths:
                                 $ref: '#/components/schemas/api.template.v1.DeleteTemplateByIdResponse'
 components:
     schemas:
-        api.prueba.v1.DeletePruebaByIdResponse:
-            type: object
-            properties:
-                meta:
-                    $ref: '#/components/schemas/api.prueba.v1.MetaResponse'
-            description: '* Respuesta de eliminacion.'
-        api.prueba.v1.FindPruebasResponse:
-            type: object
-            properties:
-                items:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.prueba.v1.Prueba'
-                meta:
-                    $ref: '#/components/schemas/api.prueba.v1.MetaResponse'
-            description: '* Respuesta con lista.'
-        api.prueba.v1.MetaResponse:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    format: enum
-                message:
-                    type: string
-            description: 'Your meta-object: only code and message.'
-        api.prueba.v1.Prueba:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: uint32
-                name:
-                    type: string
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-            description: '* Modelo prueba. Ajusta campos al dominio.'
-        api.prueba.v1.UpsertPruebaRequest:
-            required:
-                - name
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: uint32
-                name:
-                    type: string
-            description: '* Cuerpo para crear o actualizar.'
-        api.prueba.v1.UpsertPruebaResponse:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/api.prueba.v1.Prueba'
-                meta:
-                    $ref: '#/components/schemas/api.prueba.v1.MetaResponse'
-            description: '* Resultado del upsert.'
         api.template.v1.DeleteTemplateByIdResponse:
             type: object
             properties:
@@ -251,7 +134,4 @@ components:
                     $ref: '#/components/schemas/api.template.v1.MetaResponse'
             description: '* Resultado del upsert.'
 tags:
-    - name: PruebaService
-      description: '* API para gestion de pruebas.'
     - name: TemplatesService
-      description: '* API para gestión de plantillas (alertas/avisos).'

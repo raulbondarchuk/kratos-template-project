@@ -1,4 +1,3 @@
-# scripts/ps/workflow/endpoint.ps1
 [CmdletBinding()]
 param(
   [Parameter(Mandatory = $true)] [string]$Name,
@@ -59,7 +58,7 @@ if (-not $Force) {
   if (Test-Path $errorsFile) { throw "File exists: $errorsFile (use -Force to overwrite)" }
 }
 
-# --- errors.proto content ---
+# --- errors.proto content (keep) ---
 $errorsContent = @"
 syntax = "proto3";
 
@@ -79,7 +78,6 @@ enum ResponseCode {
   RESPONSE_CODE_INTERNAL_SERVER_ERROR = 500; // server error
   RESPONSE_CODE_NOT_IMPLEMENTED = 501;       // not implemented
   RESPONSE_CODE_SERVICE_UNAVAILABLE = 503;   // service unavailable
-  // TODO: add your codes here
 }
 
 // Your meta-object: only code and message.
@@ -89,7 +87,7 @@ message MetaResponse {
 }
 "@
 
-# --- <name>.proto content (CRUD: upsert, find(+filters), delete) ---
+# --- <name>.proto content (minimal comments) ---
 $protoContent = @"
 syntax = "proto3";
 
@@ -105,50 +103,14 @@ option java_multiple_files = true;
 option java_outer_classname = "$javaOuter";
 option java_package = "$javaPkg";
 
-// ======================================================
-// ${pascal}Service
-// ======================================================
-
-/** API para gestion de $pluralBase. */
+// $pascal Service: find, upsert, delete
 service ${pascal}Service {
-  /** Lista o busca $pluralBase.
-   *
-   * Descripcion
-   * Devuelve lista de $pluralBase. Si hay filtros, se aplican.
-   *
-   * Parametros (query)
-   * - 'id' (opcional)
-   * - 'name' (opcional)
-   *
-   * Respuestas
-   * - 200 OK: 'items' + 'meta.code = RESPONSE_CODE_OK'
-   * - 200 con error logico: 'meta.code != RESPONSE_CODE_OK' y 'meta.message'
-   *
-   * Ejemplos
-   * GET ${route}
-   * GET ${route}?id=1
-   */
+  // GET ${route} - list or search by filters
   rpc Find$pluralPascal(Find${pluralPascal}Request) returns (Find${pluralPascal}Response) {
-    option (google.api.http) = {get: "${route}"};
+    option (google.api.http) = { get: "${route}" };
   }
 
-  /** Crea o actualiza (upsert) $base.
-   *
-   * Descripcion
-   * Si 'id' es 0 o no se envia -> crea; si 'id' > 0 -> actualiza.
-   *
-   * Parametros (body JSON)
-   * - 'id' (opcional, 0=create)
-   * - 'name' (obligatorio)
-   *
-   * Respuestas
-   * - 200 OK: 'item' resultante + 'meta.code = RESPONSE_CODE_OK'
-   * - 200 con error logico: validacion o duplicidad
-   *
-   * Ejemplos
-   * POST ${route}
-   * Body: { "name":"$pascal 1" }
-   */
+  // POST ${route} - create or update (id=0 create, >0 update)
   rpc Upsert$pascal(Upsert${pascal}Request) returns (Upsert${pascal}Response) {
     option (google.api.http) = {
       post: "${route}"
@@ -156,77 +118,43 @@ service ${pascal}Service {
     };
   }
 
-  /** Elimina $base por ID.
-   *
-   * Parametros (query)
-   * - 'id' (obligatorio): ID interno
-   *
-   * Respuestas
-   * - 200 OK: 'meta.code = RESPONSE_CODE_OK'
-   * - 200 con error logico: 'meta.code != RESPONSE_CODE_OK'
-   *
-   * Ejemplos
-   * DELETE ${route}?id=123
-   */
+  // DELETE ${route}?id=123 - delete by id
   rpc Delete${pascal}ById(Delete${pascal}ByIdRequest) returns (Delete${pascal}ByIdResponse) {
-    option (google.api.http) = {delete: "${route}"};
+    option (google.api.http) = { delete: "${route}" };
   }
 }
 
-// ======================================================
-// Find$pluralPascal (GET ${route})
-// ======================================================
-
-/** Filtros de busqueda. Si vacio -> listado completo. */
 message Find${pluralPascal}Request {
-  uint32 id = 1 [(google.api.field_behavior) = OPTIONAL];   // filtrar por ID
-  string name = 2 [(google.api.field_behavior) = OPTIONAL]; // filtrar por nombre
+  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL]; // optional
+  string name = 2 [(google.api.field_behavior) = OPTIONAL]; // optional
 }
 
-/** Respuesta con lista. */
 message Find${pluralPascal}Response {
-  repeated $pascal items = 1; // coleccion de resultados
-  MetaResponse meta = 2;      // estado de la operacion
-}
-
-// ======================================================
-// Upsert$pascal (POST ${route})
-// ======================================================
-
-/** Cuerpo para crear o actualizar. */
-message Upsert${pascal}Request {
-  uint32 id = 1 [(google.api.field_behavior) = OPTIONAL];  // 0 -> crear
-  string name = 2 [(google.api.field_behavior) = REQUIRED];
-}
-
-/** Resultado del upsert. */
-message Upsert${pascal}Response {
-  $pascal item = 1;  // entidad creada o actualizada
+  repeated $pascal items = 1;
   MetaResponse meta = 2;
 }
 
-// ======================================================
-// Delete${pascal}ById (DELETE ${route}?id=123)
-// ======================================================
-
-/** Peticion para eliminar por ID. */
-message Delete${pascal}ByIdRequest {
-  uint32 id = 1 [(google.api.field_behavior) = REQUIRED]; // ID interno
+message Upsert${pascal}Request {
+  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL]; // 0 -> create
+  string name = 2 [(google.api.field_behavior) = REQUIRED]; // required
 }
 
-/** Respuesta de eliminacion. */
+message Upsert${pascal}Response {
+  $pascal item = 1;
+  MetaResponse meta = 2;
+}
+
+message Delete${pascal}ByIdRequest {
+  uint32 id = 1 [(google.api.field_behavior) = REQUIRED]; // required
+}
+
 message Delete${pascal}ByIdResponse {
   MetaResponse meta = 1;
 }
 
-// ======================================================
-// Common models
-// ======================================================
-
-/** Modelo $base. Ajusta campos al dominio. */
 message $pascal {
   uint32 id = 1;
-  string name = 2; // ejemplo: "$pascal 1"
+  string name = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
 }
@@ -243,7 +171,7 @@ Write-Host "  $protoFile"
 # --- buf format (module at "." -> filter with --path) ---
 $buf = Get-Command buf -ErrorAction SilentlyContinue
 if ($buf) {
-  $cwd   = (Resolve-Path ".").Path
+  $cwd    = (Resolve-Path ".").Path
   $dirAbs = (Resolve-Path $pkgDir).Path
   $relDir = if ($dirAbs.StartsWith($cwd, [StringComparison]::OrdinalIgnoreCase)) {
     $dirAbs.Substring($cwd.Length).TrimStart('\')
