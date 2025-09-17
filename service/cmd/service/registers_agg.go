@@ -5,7 +5,6 @@ import (
 	templatev1 "service/internal/feature/template/v1" // without /v — there is the root package template
 	server_grpc "service/internal/server/grpc"
 	server_http "service/internal/server/http"
-
 )
 
 type AllRegistrers struct {
@@ -15,22 +14,22 @@ type AllRegistrers struct {
 
 func BuildAllRegistrars(
 	// HTTP
-	templateHTTP templatev1.HTTPRegister,
+	templatev1HTTP templatev1.HTTPRegister,
 	// add other HTTP-registrers for modules here:
 
 	// gRPC
-	templateGRPC templatev1.GRPCRegister,
+	templatev1GRPC templatev1.GRPCRegister,
 	// add other gRPC-registrers for modules here:
 
 ) AllRegistrers {
 	return AllRegistrers{
 		HTTP: []server_http.HTTPRegister{
-			server_http.HTTPRegister(templateHTTP),
+			server_http.HTTPRegister(templatev1HTTP),
 			// add other HTTP-registrers for modules here:
 
 		},
 		GRPC: []server_grpc.GRPCRegister{
-			server_grpc.GRPCRegister(templateGRPC),
+			server_grpc.GRPCRegister(templatev1GRPC),
 			// add other gRPC-registrers for modules here:
 
 		},
