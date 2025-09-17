@@ -9,6 +9,15 @@ $ApiRoot     = "./api"
 $FeatureRoot = "./internal/feature"
 $utf8NoBom   = New-Object System.Text.UTF8Encoding($false)
 
+# --- utils (logs) ---
+try { . (Join-Path $PSScriptRoot 'utils.ps1') } catch {
+  function Show-Step { param([string]$Message) Write-Host "`n==> $Message" -ForegroundColor Cyan }
+  function Show-Info { param([string]$Message) Write-Host "$Message" -ForegroundColor DarkGray }
+  function Show-OK   { param([string]$Message) Write-Host "  [OK] $Message" -ForegroundColor Green }
+  function Show-Warn { param([string]$Message) Write-Host "  [WARN] $Message" -ForegroundColor Yellow }
+  function Show-ErrorAndExit { param([string]$Message) Write-Host "  [ERROR] $Message" -ForegroundColor Red; exit 1 }
+}
+
 function ConvertTo-PascalCase { param([string]$s)
   $parts = ($s -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
   ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
@@ -16,26 +25,40 @@ function ConvertTo-PascalCase { param([string]$s)
 function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 function ConvertTo-Plural    { param([string]$s) if ($s.ToLower().EndsWith('s')){$s}else{"$s"+"s"} }
 
-$base      = ConvertTo-LowerCase $Name
-$pkgBase   = ($base -replace '[^a-z0-9]','_')
-$pascal    = ConvertTo-PascalCase $Name
+Show-Step "Generating biz layer"
+$base         = ConvertTo-LowerCase $Name
+$pkgBase      = ($base -replace '[^a-z0-9]','_')
+$pascal       = ConvertTo-PascalCase $Name
 $pluralPascal = ConvertTo-PascalCase (ConvertTo-Plural $base)
+Show-Info "Module: base='$base', pascal='$pascal', plural='$pluralPascal'"
 
-# latest api vN
+# --- detect latest API vN ---
+Show-Info "Detecting latest API version in '$ApiRoot/$base'..."
 $apiBaseDir = Join-Path $ApiRoot $base
 $apiVersion = 1
 if (Test-Path $apiBaseDir) {
-  $max=0; Get-ChildItem $apiBaseDir -Directory | ForEach-Object { if ($_.Name -match '^v(\d+)$'){ $n=[int]$Matches[1]; if($n -gt $max){$max=$n} } }
-  if ($max -gt 0){ $apiVersion=$max }
+  $max = 0
+  Get-ChildItem $apiBaseDir -Directory | ForEach-Object {
+    if ($_.Name -match '^v(\d+)$') { $n=[int]$Matches[1]; if ($n -gt $max) { $max=$n } }
+  }
+  if ($max -gt 0) { $apiVersion=$max }
+  Show-OK "Using API version: v$apiVersion"
+} else {
+  Show-Warn "API dir not found: $apiBaseDir. Using v1."
 }
+
 $featureRootV = Join-Path (Join-Path $FeatureRoot $base) "v$apiVersion"
 $bizDir = Join-Path $featureRootV "biz"
-$null = New-Item -ItemType Directory -Force -Path $bizDir
 
-# biz.go
+Show-Info "Ensuring directories:"
+$null = New-Item -ItemType Directory -Force -Path $bizDir
+Show-OK "Created/exists: $bizDir"
+
+# --- biz.go ---
 $p = Join-Path $bizDir "biz.go"
 if (-not (Test-Path $p)) {
-$txt = @"
+  Show-Info "Writing: $p"
+  $txt = @"
 package ${pkgBase}_biz
 
 import (
@@ -59,13 +82,17 @@ func New${pascal}Usecase(repo ${pascal}Repo, logger log.Logger) *${pascal}Usecas
 	return &${pascal}Usecase{repo: repo, log: log.NewHelper(logger)}
 }
 "@
-[IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+  Show-OK "Created: biz.go"
+} else {
+  Show-Info "Skip (exists): $p"
 }
 
-# entity.go
+# --- entity.go ---
 $p = Join-Path $bizDir "entity.go"
 if (-not (Test-Path $p)) {
-$txt = @"
+  Show-Info "Writing: $p"
+  $txt = @"
 package ${pkgBase}_biz
 
 import "time"
@@ -77,13 +104,17 @@ type ${pascal} struct {
 	UpdatedAt time.Time
 }
 "@
-[IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+  Show-OK "Created: entity.go"
+} else {
+  Show-Info "Skip (exists): $p"
 }
 
-# usecase.go
+# --- usecase.go ---
 $p = Join-Path $bizDir "usecase.go"
 if (-not (Test-Path $p)) {
-$txt = @"
+  Show-Info "Writing: $p"
+  $txt = @"
 package ${pkgBase}_biz
 
 import "context"
@@ -100,7 +131,10 @@ func (uc *${pascal}Usecase) Delete${pascal}ById(ctx context.Context, id uint) er
 	return uc.repo.Delete${pascal}ById(ctx, id)
 }
 "@
-[IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+  Show-OK "Created: usecase.go"
+} else {
+  Show-Info "Skip (exists): $p"
 }
 
-Write-Host ("biz: {0}/v{1}" -f $base, $apiVersion) -ForegroundColor Green
+Show-OK ("biz generated: {0}/v{1}" -f $base, $apiVersion)

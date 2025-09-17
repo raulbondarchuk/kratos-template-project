@@ -30,6 +30,7 @@ func BuildAllRegistrars(
 		GRPC: []server_grpc.GRPCRegister{
 			server_grpc.GRPCRegister(templateGRPC),
 			// add other gRPC-registrers for modules here:
+
 		},
 	}
 }
