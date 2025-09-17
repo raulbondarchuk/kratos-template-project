@@ -32,8 +32,8 @@ Comandos
   make clean    - limpiar bin/, wire_gen.go, *.pb.go, swagger/openapi
 
 Commit + version automatica
-  make commit t="Titulo" d="Descripcion"
-  (usa $ReleaseScript; etiqueta desde app.version en $ConfigPath)
+  make commit t="Titulo" d="Descripcion"   - commit con version automatica (etiqueta desde app.version en $ConfigPath)
+  
 
 Config (Makefile)
   CMD_DIR=$CmdDir
@@ -43,7 +43,7 @@ Config (Makefile)
   
 "@
 
-function Print-WithYellowMake {
+function Write-WithYellowMake {
   param([string]$Line)
   $rx = [regex]'make\s+\w+'
   $makeMatches = $rx.Matches($Line)
@@ -69,6 +69,6 @@ foreach ($line in $text -split "`r?`n") {
   if ($line -match '^(===|Flujo recomendado|Comandos|Commit \+ version automatica|Config)') {
     Write-Host $line -ForegroundColor Cyan
   } else {
-    Print-WithYellowMake $line
+    Write-WithYellowMake $line
   }
 }
