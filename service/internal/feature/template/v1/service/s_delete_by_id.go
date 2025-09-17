@@ -7,7 +7,7 @@ import (
 )
 
 // DeleteTemplateById delete template by id and return response with meta
-func (s *TemplatesService) DeleteTemplateById(ctx context.Context, req *template.DeleteTemplateByIdRequest) (*template.DeleteTemplateByIdResponse, error) {
+func (s *TemplateService) DeleteTemplateById(ctx context.Context, req *template.DeleteTemplateByIdRequest) (*template.DeleteTemplateByIdResponse, error) {
 
 	// use case
 	err := s.uc.DeleteTemplateById(ctx, uint(req.Id))

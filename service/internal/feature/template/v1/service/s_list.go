@@ -4,13 +4,13 @@ import (
 	"context"
 
 	template "service/api/template/v1"
-	template_biz "service/internal/feature/template/biz"
+	template_biz "service/internal/feature/template/v1/biz"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
 // ListTemplates list templates and return response with meta
-func (s *TemplatesService) ListTemplates(ctx context.Context, req *template.ListTemplatesRequest) (*template.ListTemplatesResponse, error) {
+func (s *TemplateService) ListTemplates(ctx context.Context, req *template.ListTemplatesRequest) (*template.ListTemplatesResponse, error) {
 
 	bizResult, err := s.uc.ListTemplates(ctx)
 	if err != nil {

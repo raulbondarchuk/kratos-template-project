@@ -4,14 +4,14 @@ import (
 	"context"
 
 	template "service/api/template/v1"
-	template_biz "service/internal/feature/template/biz"
+	template_biz "service/internal/feature/template/v1/biz"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
 // UpsertTemplate upsert template and return response with template.
 // If id is 0, it will create a new template, otherwise it will update the existing template.
-func (s *TemplatesService) UpsertTemplate(ctx context.Context, req *template.UpsertTemplateRequest) (*template.UpsertTemplateResponse, error) {
+func (s *TemplateService) UpsertTemplate(ctx context.Context, req *template.UpsertTemplateRequest) (*template.UpsertTemplateResponse, error) {
 
 	// biz-level model
 	request := &template_biz.Template{

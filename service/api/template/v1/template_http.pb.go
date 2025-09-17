@@ -19,11 +19,11 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationTemplatesServiceDeleteTemplateById = "/api.template.v1.TemplatesService/DeleteTemplateById"
-const OperationTemplatesServiceListTemplates = "/api.template.v1.TemplatesService/ListTemplates"
-const OperationTemplatesServiceUpsertTemplate = "/api.template.v1.TemplatesService/UpsertTemplate"
+const OperationTemplatev1ServiceDeleteTemplateById = "/api.template.v1.Templatev1Service/DeleteTemplateById"
+const OperationTemplatev1ServiceListTemplates = "/api.template.v1.Templatev1Service/ListTemplates"
+const OperationTemplatev1ServiceUpsertTemplate = "/api.template.v1.Templatev1Service/UpsertTemplate"
 
-type TemplatesServiceHTTPServer interface {
+type Templatev1ServiceHTTPServer interface {
 	// DeleteTemplateById* Elimina una plantilla por ID.
 	//
 	// **Descripción**
@@ -73,20 +73,20 @@ type TemplatesServiceHTTPServer interface {
 	UpsertTemplate(context.Context, *UpsertTemplateRequest) (*UpsertTemplateResponse, error)
 }
 
-func RegisterTemplatesServiceHTTPServer(s *http.Server, srv TemplatesServiceHTTPServer) {
+func RegisterTemplatev1ServiceHTTPServer(s *http.Server, srv Templatev1ServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/templates", _TemplatesService_ListTemplates0_HTTP_Handler(srv))
-	r.POST("/templates", _TemplatesService_UpsertTemplate0_HTTP_Handler(srv))
-	r.DELETE("/templates", _TemplatesService_DeleteTemplateById0_HTTP_Handler(srv))
+	r.GET("/v1/templates", _Templatev1Service_ListTemplates0_HTTP_Handler(srv))
+	r.POST("/v1/templates", _Templatev1Service_UpsertTemplate0_HTTP_Handler(srv))
+	r.DELETE("/v1/templates", _Templatev1Service_DeleteTemplateById0_HTTP_Handler(srv))
 }
 
-func _TemplatesService_ListTemplates0_HTTP_Handler(srv TemplatesServiceHTTPServer) func(ctx http.Context) error {
+func _Templatev1Service_ListTemplates0_HTTP_Handler(srv Templatev1ServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ListTemplatesRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationTemplatesServiceListTemplates)
+		http.SetOperation(ctx, OperationTemplatev1ServiceListTemplates)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.ListTemplates(ctx, req.(*ListTemplatesRequest))
 		})
@@ -99,7 +99,7 @@ func _TemplatesService_ListTemplates0_HTTP_Handler(srv TemplatesServiceHTTPServe
 	}
 }
 
-func _TemplatesService_UpsertTemplate0_HTTP_Handler(srv TemplatesServiceHTTPServer) func(ctx http.Context) error {
+func _Templatev1Service_UpsertTemplate0_HTTP_Handler(srv Templatev1ServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UpsertTemplateRequest
 		if err := ctx.Bind(&in); err != nil {
@@ -108,7 +108,7 @@ func _TemplatesService_UpsertTemplate0_HTTP_Handler(srv TemplatesServiceHTTPServ
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationTemplatesServiceUpsertTemplate)
+		http.SetOperation(ctx, OperationTemplatev1ServiceUpsertTemplate)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.UpsertTemplate(ctx, req.(*UpsertTemplateRequest))
 		})
@@ -121,13 +121,13 @@ func _TemplatesService_UpsertTemplate0_HTTP_Handler(srv TemplatesServiceHTTPServ
 	}
 }
 
-func _TemplatesService_DeleteTemplateById0_HTTP_Handler(srv TemplatesServiceHTTPServer) func(ctx http.Context) error {
+func _Templatev1Service_DeleteTemplateById0_HTTP_Handler(srv Templatev1ServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in DeleteTemplateByIdRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationTemplatesServiceDeleteTemplateById)
+		http.SetOperation(ctx, OperationTemplatev1ServiceDeleteTemplateById)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.DeleteTemplateById(ctx, req.(*DeleteTemplateByIdRequest))
 		})
@@ -140,7 +140,7 @@ func _TemplatesService_DeleteTemplateById0_HTTP_Handler(srv TemplatesServiceHTTP
 	}
 }
 
-type TemplatesServiceHTTPClient interface {
+type Templatev1ServiceHTTPClient interface {
 	// DeleteTemplateById* Elimina una plantilla por ID.
 	//
 	// **Descripción**
@@ -190,12 +190,12 @@ type TemplatesServiceHTTPClient interface {
 	UpsertTemplate(ctx context.Context, req *UpsertTemplateRequest, opts ...http.CallOption) (rsp *UpsertTemplateResponse, err error)
 }
 
-type TemplatesServiceHTTPClientImpl struct {
+type Templatev1ServiceHTTPClientImpl struct {
 	cc *http.Client
 }
 
-func NewTemplatesServiceHTTPClient(client *http.Client) TemplatesServiceHTTPClient {
-	return &TemplatesServiceHTTPClientImpl{client}
+func NewTemplatev1ServiceHTTPClient(client *http.Client) Templatev1ServiceHTTPClient {
+	return &Templatev1ServiceHTTPClientImpl{client}
 }
 
 // DeleteTemplateById* Elimina una plantilla por ID.
@@ -212,11 +212,11 @@ func NewTemplatesServiceHTTPClient(client *http.Client) TemplatesServiceHTTPClie
 //
 // **Ejemplos**
 // `DELETE /templates?id=123`
-func (c *TemplatesServiceHTTPClientImpl) DeleteTemplateById(ctx context.Context, in *DeleteTemplateByIdRequest, opts ...http.CallOption) (*DeleteTemplateByIdResponse, error) {
+func (c *Templatev1ServiceHTTPClientImpl) DeleteTemplateById(ctx context.Context, in *DeleteTemplateByIdRequest, opts ...http.CallOption) (*DeleteTemplateByIdResponse, error) {
 	var out DeleteTemplateByIdResponse
-	pattern := "/templates"
+	pattern := "/v1/templates"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationTemplatesServiceDeleteTemplateById))
+	opts = append(opts, http.Operation(OperationTemplatev1ServiceDeleteTemplateById))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
@@ -239,11 +239,11 @@ func (c *TemplatesServiceHTTPClientImpl) DeleteTemplateById(ctx context.Context,
 //
 // **Ejemplos**
 // `GET /templates`
-func (c *TemplatesServiceHTTPClientImpl) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...http.CallOption) (*ListTemplatesResponse, error) {
+func (c *Templatev1ServiceHTTPClientImpl) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...http.CallOption) (*ListTemplatesResponse, error) {
 	var out ListTemplatesResponse
-	pattern := "/templates"
+	pattern := "/v1/templates"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationTemplatesServiceListTemplates))
+	opts = append(opts, http.Operation(OperationTemplatev1ServiceListTemplates))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -268,11 +268,11 @@ func (c *TemplatesServiceHTTPClientImpl) ListTemplates(ctx context.Context, in *
 // **Ejemplos**
 // `POST /templates`
 // Body: `{ "name":"Template 1" }`
-func (c *TemplatesServiceHTTPClientImpl) UpsertTemplate(ctx context.Context, in *UpsertTemplateRequest, opts ...http.CallOption) (*UpsertTemplateResponse, error) {
+func (c *Templatev1ServiceHTTPClientImpl) UpsertTemplate(ctx context.Context, in *UpsertTemplateRequest, opts ...http.CallOption) (*UpsertTemplateResponse, error) {
 	var out UpsertTemplateResponse
-	pattern := "/templates"
+	pattern := "/v1/templates"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationTemplatesServiceUpsertTemplate))
+	opts = append(opts, http.Operation(OperationTemplatev1ServiceUpsertTemplate))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

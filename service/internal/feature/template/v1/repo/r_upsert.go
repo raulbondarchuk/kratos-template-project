@@ -3,7 +3,7 @@ package template_repo
 import (
 	"context"
 	"service/internal/data/model"
-	template_biz "service/internal/feature/template/biz"
+	template_biz "service/internal/feature/template/v1/biz"
 	"service/pkg/generic"
 )
 

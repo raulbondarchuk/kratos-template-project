@@ -19,17 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TemplatesService_ListTemplates_FullMethodName      = "/api.template.v1.TemplatesService/ListTemplates"
-	TemplatesService_UpsertTemplate_FullMethodName     = "/api.template.v1.TemplatesService/UpsertTemplate"
-	TemplatesService_DeleteTemplateById_FullMethodName = "/api.template.v1.TemplatesService/DeleteTemplateById"
+	Templatev1Service_ListTemplates_FullMethodName      = "/api.template.v1.Templatev1Service/ListTemplates"
+	Templatev1Service_UpsertTemplate_FullMethodName     = "/api.template.v1.Templatev1Service/UpsertTemplate"
+	Templatev1Service_DeleteTemplateById_FullMethodName = "/api.template.v1.Templatev1Service/DeleteTemplateById"
 )
 
-// TemplatesServiceClient is the client API for TemplatesService service.
+// Templatev1ServiceClient is the client API for Templatev1Service service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // * API para gestión de plantillas (alertas/avisos).
-type TemplatesServiceClient interface {
+type Templatev1ServiceClient interface {
 	//* Lista todas las plantillas.
 	//
 	// **Descripción**
@@ -79,50 +79,50 @@ type TemplatesServiceClient interface {
 	DeleteTemplateById(ctx context.Context, in *DeleteTemplateByIdRequest, opts ...grpc.CallOption) (*DeleteTemplateByIdResponse, error)
 }
 
-type templatesServiceClient struct {
+type templatev1ServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTemplatesServiceClient(cc grpc.ClientConnInterface) TemplatesServiceClient {
-	return &templatesServiceClient{cc}
+func NewTemplatev1ServiceClient(cc grpc.ClientConnInterface) Templatev1ServiceClient {
+	return &templatev1ServiceClient{cc}
 }
 
-func (c *templatesServiceClient) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error) {
+func (c *templatev1ServiceClient) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListTemplatesResponse)
-	err := c.cc.Invoke(ctx, TemplatesService_ListTemplates_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Templatev1Service_ListTemplates_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *templatesServiceClient) UpsertTemplate(ctx context.Context, in *UpsertTemplateRequest, opts ...grpc.CallOption) (*UpsertTemplateResponse, error) {
+func (c *templatev1ServiceClient) UpsertTemplate(ctx context.Context, in *UpsertTemplateRequest, opts ...grpc.CallOption) (*UpsertTemplateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpsertTemplateResponse)
-	err := c.cc.Invoke(ctx, TemplatesService_UpsertTemplate_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Templatev1Service_UpsertTemplate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *templatesServiceClient) DeleteTemplateById(ctx context.Context, in *DeleteTemplateByIdRequest, opts ...grpc.CallOption) (*DeleteTemplateByIdResponse, error) {
+func (c *templatev1ServiceClient) DeleteTemplateById(ctx context.Context, in *DeleteTemplateByIdRequest, opts ...grpc.CallOption) (*DeleteTemplateByIdResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteTemplateByIdResponse)
-	err := c.cc.Invoke(ctx, TemplatesService_DeleteTemplateById_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Templatev1Service_DeleteTemplateById_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TemplatesServiceServer is the server API for TemplatesService service.
-// All implementations must embed UnimplementedTemplatesServiceServer
+// Templatev1ServiceServer is the server API for Templatev1Service service.
+// All implementations must embed UnimplementedTemplatev1ServiceServer
 // for forward compatibility.
 //
 // * API para gestión de plantillas (alertas/avisos).
-type TemplatesServiceServer interface {
+type Templatev1ServiceServer interface {
 	//* Lista todas las plantillas.
 	//
 	// **Descripción**
@@ -170,118 +170,118 @@ type TemplatesServiceServer interface {
 	// **Ejemplos**
 	// `DELETE /templates?id=123`
 	DeleteTemplateById(context.Context, *DeleteTemplateByIdRequest) (*DeleteTemplateByIdResponse, error)
-	mustEmbedUnimplementedTemplatesServiceServer()
+	mustEmbedUnimplementedTemplatev1ServiceServer()
 }
 
-// UnimplementedTemplatesServiceServer must be embedded to have
+// UnimplementedTemplatev1ServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedTemplatesServiceServer struct{}
+type UnimplementedTemplatev1ServiceServer struct{}
 
-func (UnimplementedTemplatesServiceServer) ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error) {
+func (UnimplementedTemplatev1ServiceServer) ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTemplates not implemented")
 }
-func (UnimplementedTemplatesServiceServer) UpsertTemplate(context.Context, *UpsertTemplateRequest) (*UpsertTemplateResponse, error) {
+func (UnimplementedTemplatev1ServiceServer) UpsertTemplate(context.Context, *UpsertTemplateRequest) (*UpsertTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertTemplate not implemented")
 }
-func (UnimplementedTemplatesServiceServer) DeleteTemplateById(context.Context, *DeleteTemplateByIdRequest) (*DeleteTemplateByIdResponse, error) {
+func (UnimplementedTemplatev1ServiceServer) DeleteTemplateById(context.Context, *DeleteTemplateByIdRequest) (*DeleteTemplateByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTemplateById not implemented")
 }
-func (UnimplementedTemplatesServiceServer) mustEmbedUnimplementedTemplatesServiceServer() {}
-func (UnimplementedTemplatesServiceServer) testEmbeddedByValue()                          {}
+func (UnimplementedTemplatev1ServiceServer) mustEmbedUnimplementedTemplatev1ServiceServer() {}
+func (UnimplementedTemplatev1ServiceServer) testEmbeddedByValue()                           {}
 
-// UnsafeTemplatesServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TemplatesServiceServer will
+// UnsafeTemplatev1ServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to Templatev1ServiceServer will
 // result in compilation errors.
-type UnsafeTemplatesServiceServer interface {
-	mustEmbedUnimplementedTemplatesServiceServer()
+type UnsafeTemplatev1ServiceServer interface {
+	mustEmbedUnimplementedTemplatev1ServiceServer()
 }
 
-func RegisterTemplatesServiceServer(s grpc.ServiceRegistrar, srv TemplatesServiceServer) {
-	// If the following call pancis, it indicates UnimplementedTemplatesServiceServer was
+func RegisterTemplatev1ServiceServer(s grpc.ServiceRegistrar, srv Templatev1ServiceServer) {
+	// If the following call pancis, it indicates UnimplementedTemplatev1ServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&TemplatesService_ServiceDesc, srv)
+	s.RegisterService(&Templatev1Service_ServiceDesc, srv)
 }
 
-func _TemplatesService_ListTemplates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Templatev1Service_ListTemplates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTemplatesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TemplatesServiceServer).ListTemplates(ctx, in)
+		return srv.(Templatev1ServiceServer).ListTemplates(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TemplatesService_ListTemplates_FullMethodName,
+		FullMethod: Templatev1Service_ListTemplates_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TemplatesServiceServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
+		return srv.(Templatev1ServiceServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TemplatesService_UpsertTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Templatev1Service_UpsertTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpsertTemplateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TemplatesServiceServer).UpsertTemplate(ctx, in)
+		return srv.(Templatev1ServiceServer).UpsertTemplate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TemplatesService_UpsertTemplate_FullMethodName,
+		FullMethod: Templatev1Service_UpsertTemplate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TemplatesServiceServer).UpsertTemplate(ctx, req.(*UpsertTemplateRequest))
+		return srv.(Templatev1ServiceServer).UpsertTemplate(ctx, req.(*UpsertTemplateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TemplatesService_DeleteTemplateById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Templatev1Service_DeleteTemplateById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteTemplateByIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TemplatesServiceServer).DeleteTemplateById(ctx, in)
+		return srv.(Templatev1ServiceServer).DeleteTemplateById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TemplatesService_DeleteTemplateById_FullMethodName,
+		FullMethod: Templatev1Service_DeleteTemplateById_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TemplatesServiceServer).DeleteTemplateById(ctx, req.(*DeleteTemplateByIdRequest))
+		return srv.(Templatev1ServiceServer).DeleteTemplateById(ctx, req.(*DeleteTemplateByIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// TemplatesService_ServiceDesc is the grpc.ServiceDesc for TemplatesService service.
+// Templatev1Service_ServiceDesc is the grpc.ServiceDesc for Templatev1Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var TemplatesService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.template.v1.TemplatesService",
-	HandlerType: (*TemplatesServiceServer)(nil),
+var Templatev1Service_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.template.v1.Templatev1Service",
+	HandlerType: (*Templatev1ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListTemplates",
-			Handler:    _TemplatesService_ListTemplates_Handler,
+			Handler:    _Templatev1Service_ListTemplates_Handler,
 		},
 		{
 			MethodName: "UpsertTemplate",
-			Handler:    _TemplatesService_UpsertTemplate_Handler,
+			Handler:    _Templatev1Service_UpsertTemplate_Handler,
 		},
 		{
 			MethodName: "DeleteTemplateById",
-			Handler:    _TemplatesService_DeleteTemplateById_Handler,
+			Handler:    _Templatev1Service_DeleteTemplateById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
