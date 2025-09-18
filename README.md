@@ -227,3 +227,12 @@ Después vienen dos bloques: `redis` y `mqtt`, que se encuentran dentro del bloq
 - `redis` está comentado porque, de momento, no lo utilizamos.
 - `mqtt` contiene la configuración de conexión y los tópicos a los que queremos suscribirnos. 
 También existe la opción de **desactivar mqtt**, lo que significa que la configuración seguirá presente, pero el servicio no intentará conectarse.
+
+## 📑 La estructura del proyecto
+
+<details>
+<summary>👉 Click para ver pequeña mapa de la estructura</summary>
+
+![Mapa de la estructura del proyecto](.readme/struct.png)
+
+</details>
