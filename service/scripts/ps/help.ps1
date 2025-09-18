@@ -43,14 +43,6 @@ Comandos principales
   make gorun    - go run ./$CmdDir -conf ./configs
   make clean    - limpiar bin/, wire_gen.go, *.pb.go, swagger/openapi
   make docs     - regenerar solo documentacion (docs/, docs/openapi)
-  
-Comandos de modulo
-  make module-proto name="foo"           - generar solo proto
-  make module-feature name="foo"         - generar solo feature
-  make module-repo name="foo"            - generar solo repo
-  make module-biz name="foo"             - generar solo biz
-  make module-service name="foo"         - generar solo service
-  make module-wire name="foo"            - generar solo wire
 
 == CONFIG ====================================================================
   
@@ -59,7 +51,10 @@ Config (Makefile)
   BIN=$Bin
   BUF_GEN=$BufGen
   CONFIG_PATH=$ConfigPath
+
+==============================================================================
 "@
+
 
 function Write-WithYellowMake {
   param([string]$Line)
