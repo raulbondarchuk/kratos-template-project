@@ -1,225 +1,121 @@
-# Makefile — Guía rápida
+# 🚀 Kratos Template Project (PowerShell + Make)
 
-> **Entorno:** Este proyecto usa un **Makefile para Windows** que ejecuta **PowerShell**:  
-> `SHELL := powershell.exe` con `-NoProfile -ExecutionPolicy Bypass`.  
-> Ejecuta los comandos desde la carpeta `service/`.
+Este repositorio es un **template** para proyectos basados en [Go Kratos](https://go-kratos.dev/), con soporte para:
 
-## Requisitos
-
-- **Go** (versión reciente).
-- **PowerShell** en Windows.
-- Git instalado y configurado.
-- Acceso a `origin` (remote por defecto).
-- 
----
-
-## Ayuda integrada
-
-Muestra ayuda en **español** (por defecto):
-
-```bash
-make help
-```
-
-En **inglés**:
-
-```bash
-make help LANG=en
-```
+- Generación de código con **buf**  
+- Inyección de dependencias con **wire**
+- Flujo de trabajo completo de **módulos** (proto, feature, repo, biz, service)  
+- **Documentación OpenAPI** autogenerada
+  - [Swagger](https://swagger.io/)
+  - [Scalar](https://scalar.com/)
+- Scripts **PowerShell** para Windows, integrados en `make`
+- Soporte de dos tipos de base de datos.
+  - **MySQL** (GORM)
+    - Ensure - Comprobar si existe un esquema y autogeneración utilizando scripts `.sql`
+    - Migrate - Migraciones de tablas y configuración de campos.
+    - Seed - Autogeneración de valores por defecto utilizando scripts `.sql`
+  - **Postgres** (GORM)
+    - Ensure - Comprobar si existe un esquema y autogeneración utilizando scripts `.sql`
+    - Migrate - Migraciones de tablas y configuración de campos.
+    - Seed - Autogeneración de valores por defecto utilizando scripts `.sql`
 
 ---
 
-## Preparación del entorno
+## 📦 Requisitos
 
-Instala las herramientas necesarias y actualiza dependencias:
-
-```bash
-make init
-```
-
-Esto instalará: `buf`, `protoc-gen-go`, `protoc-gen-go-grpc`, `protoc-gen-go-http`, `protoc-gen-openapi`, `grpc-gateway`, `protoc-gen-openapiv2`, `wire`, `kratos`, y ejecutará `go mod tidy`.
-
-> Si hay errores de imports de Protobuf, prueba:
-> ```bash
-> buf --version
-> buf dep update
-> ```
+- [Go](https://go.dev/) ≥ 1.25 
+- [buf](https://buf.build) con extención recomendada `Buf`
+  - En caso de utilizar [Cursor](https://cursor.com/dashboard) hay que instalar la extención utilizando [VSIX](https://www.vsixhub.com/vsix/155966/) 
+- [Protocol Buffers](https://protobuf.dev/) - Compilador de protobuf (`protoc`)
+  - Windows: `choco install protoc`
+- [wire](https://github.com/google/wire)
+- PowerShell (Windows o [pwsh cross-platform](https://learn.microsoft.com/en-us/powershell/))  
 
 ---
 
-## Generación de código
+## ⚡ Configuraciines `.env`
 
-Genera código a partir de los protos y corre **wire**:
+```sh
+# Database (Puede ser MySQL o Postgres)
+DB_DRIVER= mysql # mysql | postgres
+DB_USER=root
+DB_PASSWORD=passw@rd
+DB_HOST=127.0.0.1
+DB_PORT=3307
+DB_SCHEMA=kratos-template # Nombre de la esquema
 
-```bash
-make gen
+# Configuraciones adicionales para Postgres
+# DB_SSLMODE=disable # disable|require|verify-ca|verify-full
+# DB_TS=UTC # Europe/Madrid
+
+# MQTT Broker
+MQTT_USERNAME="usernamemqtt"                
+MQTT_PASSWORD="passw@rdmqtt"
 ```
-
-Hace:
-- `buf dep update`
-- `buf generate --template buf.gen.yaml`
-- `wire` dentro de `cmd/service` (genera `wire_gen.go`)
-
 ---
 
-## Compilar
+## ⚡ Flujo recomendado
 
-Compila binario (usa script PowerShell):
+Lo mejor para ejecutar el servicio por primera vez es usar `make all`.
 
-```bash
-make build
+Comando `make all` ejecuta otros `make` en orden correcto.
+
+```sh
+make all        # init -> gen -> wire -> run
+# Orden de make
+make init       # instala herramientas necesarias
+make gen        # genera código protobuf (buf generate)
+make wire       # genera inyección con wire
+make run        # ejecuta con kratos run (hot reload)
 ```
 
-Salida: `bin/service.linux`
+## 📚 Flujo recomendado módulos
 
----
+Al iniciar el proyecto y asegurarnos de que todas las configuraciones sean correctas, podemos crear y eliminar módulos automáticamente en nuestro proyecto.
 
-## Ejecutar
+> **Nota:** Es importante saber que, en caso de **no usar base de datos**, será necesario **comentar `data.ProviderSet`** dentro de **`cmd/service/wire.go`** para evitar **errores de wire**.
 
-Con **Kratos** (hot reload) **(Recomendado)**:
+Crear un módulo completo (proto + feature + repo + biz + service + wire + generación .proto y docs):
 
-```bash
-make krun
+```sh
+make module name="foo"
 ```
 
-Con `go run`:
+Eliminar un módulo:
 
-```bash
-make run
+```sh
+make module-delete name="foo"               # todas las versiones
+make module-delete name="foo" version="v2"  # sólo v2
 ```
 
----
+## 📝 Commit + versionado automático
 
-## Tidy y limpieza
 
-Ordenar módulos:
-
-```bash
-make tidy
+```sh
+make commit t="Titulo" d="Descripcion"
 ```
 
-Limpiar binarios y archivos generados por wire:
+#### 🔧 Comandos principales 
 
-```bash
-make clean
+```sh
+make help      # Ayuda interactiva (colores y ejemplos)
+make init      # Instalar/actualizar herramientas + go mod tidy
+make deps      # Actualizar buf.lock si cambió buf.yaml
+make gen       # Generar código protobuf (usa buf.gen.yaml)
+make wire      # Generar inyección (wire) en cmd/service
+make build     # Compilar binario en bin/
+make run       # Ejecutar con kratos run
+make gorun     # Ejecutar con go run directamente
+make clean     # Limpiar binarios, wire_gen.go, archivos .pb.go
+make docs      # Regenerar documentación (docs/ y docs/openapi)
 ```
+#### 🔧 Comandos de módulos
 
----
-
-## Commits con versionado automático
-
-### Resumen del flujo
-
-El objetivo `commit` llama a `scripts/ps/git-release.ps1`, que:
-
-1. Lee **solo** la versión base desde `configs/config.yaml`, campo `app.version` (p. ej., `v1`, `v2`).  
-   > Tú **no** pasas versiones manualmente.
-2. Calcula el siguiente **patch** como `vX.N` consultando **origin** (remoto) para evitar colisiones entre personas (usa `git ls-remote --tags`).  
-   - Ej.: si `app.version = v1`, saldrán `v1.1`, `v1.2`, …
-   - Si cambias a `v2`, el siguiente será `v2.1`, etc.
-3. **Política de ramas**:
-   - **Prohibido** en `main` y `master`.
-   - **Prohibido** en estado **detached HEAD**.
-4. Flujo de push:
-   - Empuja primero **la rama actual** (crea upstream si no existe).
-   - Empuja **el tag** con **reintento automático** si el nombre ya existe (elige `vX.(N+1)` y reintenta).
-5. Si no hay cambios (`git status` vacío), sale sin error.
-
-El **mensaje del tag** es **igual que el mensaje de commit** (título + descripción).
-
-### Uso (sintaxis completa, corta `t=` / `d=`)
-
-```bash
-make commit t="Título del commit" d="Descripción del commit"
+```sh
+make module-proto name="foo"    # Generar sólo .proto
+make module-feature name="foo"  # Generar sólo feature
+make module-repo name="foo"     # Generar sólo repo
+make module-biz name="foo"      # Generar sólo biz
+make module-service name="foo"  # Generar sólo service
+make module-wire name="foo"     # Generar sólo wire
 ```
-
-Alias (Hagan lo mismo):
-
-```bash
-make release t="Título" d="Descripción"
-```
-
-```bash
-make commit t="Título" d="Descripción"
-```
-
-Compatibilidad: si alguna vez usas `TITLE=` / `DESC=`, también funciona (pero se recomienda `t=` y `d=`).
-
-> ⚠️ PowerShell: si tu texto incluye el signo `$`, escápalo con acento grave:
-> ```powershell
-> make commit t="feat: ingest LTA" d="support `\$MSG:11"
-> ```
-
----
-
-## Ejemplos rápidos
-
-```bash
-# 1) Preparar herramientas y dependencias
-make init
-
-# 2) Generar código (protos + wire)
-make gen
-
-# 3) Compilar
-make build
-
-# 4) Ejecutar
-make run
-# o
-make krun
-
-# 5) Commit + tag + push automático (vX.N desde config.yaml)
-make commit t="fix: reconexión mqtt" d="backoff exponencial y logs"
-
-# 6) Limpiar (Si es necesario)
-make clean
-```
-
----
-
-## Personalización
-
-- Cambiar nombre de app/binario:
-  ```bash
-  make build APP_NAME_TO_BUILD=otro CMD_DIR=cmd/otro
-  ```
-- Cambiar rutas (si mueves scripts o config):
-  - `RELEASE_SCRIPT := ./scripts/ps/git-release.ps1`
-  - `CONFIG_PATH := ./configs/config.yaml`
-- Cambiar idioma de la ayuda:
-  ```bash
-  make help LANG=en
-  ```
-
----
-
-## Solución de problemas
-
-- **“Script not found”** al hacer commit:  
-  Asegúrate de que `RELEASE_SCRIPT` apunta a `./scripts/ps/git-release.ps1` **desde la carpeta `service/`**.
-- **Error por rama bloqueada**:  
-  Cambia a una rama de feature (`git checkout -b feature/...`). `main`/`master` no están permitidas.
-- **Colisión de tag al empujar**:  
-  El script reintenta automáticamente calculando un nuevo patch. Si ves errores repetidos, ejecuta:
-  ```powershell
-  git fetch --tags
-  ```
-  y vuelve a intentarlo.
-- **Caracteres especiales en PowerShell**:  
-  Escapa `$` con acento grave \` como se mostró arriba.
-
----
-
-## Notas
-
-- Este Makefile está diseñado para **Windows/PowerShell**.
-- Si usas otro entorno, adapta el `SHELL` o ejecuta los scripts directamente con PowerShell.  
-- El control de versiones **siempre** se deriva de `configs/config.yaml` → `app.version`.
-
-
-
----
-NOTAS: 
-
-(Ctrl+Shift+P) -> "Go: Restart Language Server" para wire 
