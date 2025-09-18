@@ -12,6 +12,7 @@ server:
     timeout: 1s
 data:
   database:
+    active: false
     ensure_schema: false
     migrations: false
     seed: false

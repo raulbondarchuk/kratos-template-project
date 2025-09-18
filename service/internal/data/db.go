@@ -18,6 +18,10 @@ type Data struct{ DB *gorm.DB }
 func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 	h := log.NewHelper(logger)
 
+	if !config.Database.Active {
+		h.Infof("[DATABASE] [SKIPPED] Database is disabled")
+		return nil, nil, nil
+	}
 	// 1) Select adapter by DB_DRIVER / ENV (LoadConfig sets it)
 	drv := utils.EnvFirst("DB_DRIVER")
 

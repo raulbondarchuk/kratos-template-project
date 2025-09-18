@@ -43,9 +43,10 @@ message Server {
 message Data {
   // Database Es la configuración de la base de datos
   message Database {
-    bool ensure_schema = 1;
-    bool migrations = 2;
-    bool seed = 3;
+    bool active = 1;
+    bool ensure_schema = 2;
+    bool migrations = 3;
+    bool seed = 4;
   }
   // Redis Es la configuración del servidor Redis
   // message Redis {
