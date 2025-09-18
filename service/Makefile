@@ -76,7 +76,6 @@ clean clear cls:
 # ==============================================================================
 # Docs =========================================================================
 # ==============================================================================
-# TODO: DOCUMENTAR
 PATH_SCRIPTS_MAKE_DOCS := $(PATH_SCRIPTS_MAKE)/docs.ps1
 .PHONY: docs
 docs:
@@ -108,7 +107,6 @@ PATH_SCRIPTS_WORKFLOW_MODULE_DELETE := ./scripts/ps/workflow/module-delete.ps1
 
 # Generate a new module skeleton
 .PHONY: module module-proto module-feature module-service module-repo module-biz module-wire module-delete
-# TODO: DOCUMENTAR
 # Create a new module (only .proto scaffolding)
 # Example:
 #   make module name="prueba"
