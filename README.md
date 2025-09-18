@@ -1,18 +1,20 @@
-# 🚀 Kratos Template Project (PowerShell + Make)
+# 💅Kratos Template Project (PowerShell + Make)
 
-## 📑 Содержание
+## 🌐 Contenido
 
-| Раздел | Подразделы |
+| Sección | Subsección |
 |--------|------------|
-| [📦 Requisitos](#-requisitos) | - |
-| [⚡ Configuraciones .env](#-configuraciines-env) | - |
-| [⚡ Flujo recomendado](#-flujo-recomendado) | - |
-| [📚 Flujo recomendado módulos](#-flujo-recomendado-módulos) | - |
-| [📝 Commit + versionado automático](#-commit--versionado-automático) | - |
-| [📑 Documentación OpenAPI](#-documentación-openapi) | - |
+| [📦 Requisitos](#-requisitos) |  |
+| [⚡ Configuraciones .env](#-configuraciines-env) |  |
+| [⚡ Flujo recomendado](#-flujo-recomendado) |  |
+| [📚 Flujo recomendado módulos](#-flujo-recomendado-módulos) |  |
+| [📝 Commit + versionado automático](#-commit--versionado-automático) |  |
+| [📑 Documentación OpenAPI](#-documentación-openapi) |  |
 | [🛠️ Compilar binario](#️-compilar-binario-build-project) | [Comandos principales](#-comandos-principales)<br>[Comandos de módulos](#-comandos-de-módulos) |
 | [📑 Archivo config.yaml](#-archivo-configsconfigyaml) | [Bloque app](#-bloque-app)<br>[Bloque server](#-bloque-server)<br>[Bloque data](#-bloque-data) |
-| [🟣🟡🟠 La estructura del proyecto](#-la-estructura-del-proyecto) | - |
+| [⭕ La estructura del proyecto](#-la-estructura-del-proyecto) |  |
+
+---
 
 Este repositorio es un **template** para proyectos basados en [Go Kratos](https://go-kratos.dev/), con soporte para:
 
