@@ -228,7 +228,13 @@ Después vienen dos bloques: `redis` y `mqtt`, que se encuentran dentro del bloq
 - `mqtt` contiene la configuración de conexión y los tópicos a los que queremos suscribirnos. 
 También existe la opción de **desactivar mqtt**, lo que significa que la configuración seguirá presente, pero el servicio no intentará conectarse.
 
-## 📑 La estructura del proyecto
+## 🟣🟡🟠 La estructura del proyecto
+
+🟣 Primer tipo → carpetas y archivos con los que debemos trabajar habitualmente. Aquí es donde se escribe la lógica necesaria del proyecto.
+
+🟡 Segundo tipo → carpetas y archivos que sirven para la configuración del proyecto. También trabajamos con ellos, pero con mucha menos frecuencia.
+
+🟠 Tercer tipo → carpetas y archivos que solo pueden requerir pequeñas modificaciones en caso de errores o problemas específicos. Con estos archivos hay que ser cuidadosos.
 
 <details>
 <summary>👉 Click para ver pequeña mapa de la estructura</summary>
