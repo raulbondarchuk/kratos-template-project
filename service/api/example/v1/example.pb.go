@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.9
 // 	protoc        (unknown)
-// source: api/example/v1/template.proto
+// source: api/example/v1/example.proto
 
 package example
 
@@ -32,7 +32,7 @@ type ListExamplesRequest struct {
 
 func (x *ListExamplesRequest) Reset() {
 	*x = ListExamplesRequest{}
-	mi := &file_api_example_v1_template_proto_msgTypes[0]
+	mi := &file_api_example_v1_example_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +44,7 @@ func (x *ListExamplesRequest) String() string {
 func (*ListExamplesRequest) ProtoMessage() {}
 
 func (x *ListExamplesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[0]
+	mi := &file_api_example_v1_example_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +57,7 @@ func (x *ListExamplesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExamplesRequest.ProtoReflect.Descriptor instead.
 func (*ListExamplesRequest) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{0}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{0}
 }
 
 // * Respuesta con la lista de plantillas.
@@ -71,7 +71,7 @@ type ListExamplesResponse struct {
 
 func (x *ListExamplesResponse) Reset() {
 	*x = ListExamplesResponse{}
-	mi := &file_api_example_v1_template_proto_msgTypes[1]
+	mi := &file_api_example_v1_example_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -83,7 +83,7 @@ func (x *ListExamplesResponse) String() string {
 func (*ListExamplesResponse) ProtoMessage() {}
 
 func (x *ListExamplesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[1]
+	mi := &file_api_example_v1_example_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -96,7 +96,7 @@ func (x *ListExamplesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExamplesResponse.ProtoReflect.Descriptor instead.
 func (*ListExamplesResponse) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{1}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ListExamplesResponse) GetExamples() []*Example {
@@ -124,7 +124,7 @@ type UpsertExampleRequest struct {
 
 func (x *UpsertExampleRequest) Reset() {
 	*x = UpsertExampleRequest{}
-	mi := &file_api_example_v1_template_proto_msgTypes[2]
+	mi := &file_api_example_v1_example_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -136,7 +136,7 @@ func (x *UpsertExampleRequest) String() string {
 func (*UpsertExampleRequest) ProtoMessage() {}
 
 func (x *UpsertExampleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[2]
+	mi := &file_api_example_v1_example_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -149,7 +149,7 @@ func (x *UpsertExampleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertExampleRequest.ProtoReflect.Descriptor instead.
 func (*UpsertExampleRequest) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{2}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UpsertExampleRequest) GetId() uint32 {
@@ -177,7 +177,7 @@ type UpsertExampleResponse struct {
 
 func (x *UpsertExampleResponse) Reset() {
 	*x = UpsertExampleResponse{}
-	mi := &file_api_example_v1_template_proto_msgTypes[3]
+	mi := &file_api_example_v1_example_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -189,7 +189,7 @@ func (x *UpsertExampleResponse) String() string {
 func (*UpsertExampleResponse) ProtoMessage() {}
 
 func (x *UpsertExampleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[3]
+	mi := &file_api_example_v1_example_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -202,7 +202,7 @@ func (x *UpsertExampleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertExampleResponse.ProtoReflect.Descriptor instead.
 func (*UpsertExampleResponse) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{3}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *UpsertExampleResponse) GetExample() *Example {
@@ -229,7 +229,7 @@ type DeleteExampleByIdRequest struct {
 
 func (x *DeleteExampleByIdRequest) Reset() {
 	*x = DeleteExampleByIdRequest{}
-	mi := &file_api_example_v1_template_proto_msgTypes[4]
+	mi := &file_api_example_v1_example_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -241,7 +241,7 @@ func (x *DeleteExampleByIdRequest) String() string {
 func (*DeleteExampleByIdRequest) ProtoMessage() {}
 
 func (x *DeleteExampleByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[4]
+	mi := &file_api_example_v1_example_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -254,7 +254,7 @@ func (x *DeleteExampleByIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteExampleByIdRequest.ProtoReflect.Descriptor instead.
 func (*DeleteExampleByIdRequest) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{4}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteExampleByIdRequest) GetId() uint32 {
@@ -274,7 +274,7 @@ type DeleteExampleByIdResponse struct {
 
 func (x *DeleteExampleByIdResponse) Reset() {
 	*x = DeleteExampleByIdResponse{}
-	mi := &file_api_example_v1_template_proto_msgTypes[5]
+	mi := &file_api_example_v1_example_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -286,7 +286,7 @@ func (x *DeleteExampleByIdResponse) String() string {
 func (*DeleteExampleByIdResponse) ProtoMessage() {}
 
 func (x *DeleteExampleByIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[5]
+	mi := &file_api_example_v1_example_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -299,7 +299,7 @@ func (x *DeleteExampleByIdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteExampleByIdResponse.ProtoReflect.Descriptor instead.
 func (*DeleteExampleByIdResponse) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{5}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteExampleByIdResponse) GetMeta() *MetaResponse {
@@ -323,7 +323,7 @@ type Example struct {
 
 func (x *Example) Reset() {
 	*x = Example{}
-	mi := &file_api_example_v1_template_proto_msgTypes[6]
+	mi := &file_api_example_v1_example_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -335,7 +335,7 @@ func (x *Example) String() string {
 func (*Example) ProtoMessage() {}
 
 func (x *Example) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[6]
+	mi := &file_api_example_v1_example_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -348,7 +348,7 @@ func (x *Example) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Example.ProtoReflect.Descriptor instead.
 func (*Example) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{6}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Example) GetId() uint32 {
@@ -398,7 +398,7 @@ type TypeExample struct {
 
 func (x *TypeExample) Reset() {
 	*x = TypeExample{}
-	mi := &file_api_example_v1_template_proto_msgTypes[7]
+	mi := &file_api_example_v1_example_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +410,7 @@ func (x *TypeExample) String() string {
 func (*TypeExample) ProtoMessage() {}
 
 func (x *TypeExample) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_template_proto_msgTypes[7]
+	mi := &file_api_example_v1_example_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +423,7 @@ func (x *TypeExample) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TypeExample.ProtoReflect.Descriptor instead.
 func (*TypeExample) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_template_proto_rawDescGZIP(), []int{7}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *TypeExample) GetId() uint32 {
@@ -454,11 +454,11 @@ func (x *TypeExample) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-var File_api_example_v1_template_proto protoreflect.FileDescriptor
+var File_api_example_v1_example_proto protoreflect.FileDescriptor
 
-const file_api_example_v1_template_proto_rawDesc = "" +
+const file_api_example_v1_example_proto_rawDesc = "" +
 	"\n" +
-	"\x1dapi/example/v1/template.proto\x12\x0eapi.example.v1\x1a\x1bapi/example/v1/errors.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x15\n" +
+	"\x1capi/example/v1/example.proto\x12\x0eapi.example.v1\x1a\x1bapi/example/v1/errors.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x15\n" +
 	"\x13ListExamplesRequest\"}\n" +
 	"\x14ListExamplesResponse\x123\n" +
 	"\bexamples\x18\x01 \x03(\v2\x17.api.example.v1.ExampleR\bexamples\x120\n" +
@@ -495,19 +495,19 @@ const file_api_example_v1_template_proto_rawDesc = "" +
 	"\x1edev.kratos.api.example.exampleB\x0eExampleProtoV1P\x01Z\x1bservice/api/example;exampleb\x06proto3"
 
 var (
-	file_api_example_v1_template_proto_rawDescOnce sync.Once
-	file_api_example_v1_template_proto_rawDescData []byte
+	file_api_example_v1_example_proto_rawDescOnce sync.Once
+	file_api_example_v1_example_proto_rawDescData []byte
 )
 
-func file_api_example_v1_template_proto_rawDescGZIP() []byte {
-	file_api_example_v1_template_proto_rawDescOnce.Do(func() {
-		file_api_example_v1_template_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_example_v1_template_proto_rawDesc), len(file_api_example_v1_template_proto_rawDesc)))
+func file_api_example_v1_example_proto_rawDescGZIP() []byte {
+	file_api_example_v1_example_proto_rawDescOnce.Do(func() {
+		file_api_example_v1_example_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_example_v1_example_proto_rawDesc), len(file_api_example_v1_example_proto_rawDesc)))
 	})
-	return file_api_example_v1_template_proto_rawDescData
+	return file_api_example_v1_example_proto_rawDescData
 }
 
-var file_api_example_v1_template_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_api_example_v1_template_proto_goTypes = []any{
+var file_api_example_v1_example_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_api_example_v1_example_proto_goTypes = []any{
 	(*ListExamplesRequest)(nil),       // 0: api.example.v1.ListExamplesRequest
 	(*ListExamplesResponse)(nil),      // 1: api.example.v1.ListExamplesResponse
 	(*UpsertExampleRequest)(nil),      // 2: api.example.v1.UpsertExampleRequest
@@ -519,7 +519,7 @@ var file_api_example_v1_template_proto_goTypes = []any{
 	(*MetaResponse)(nil),              // 8: api.example.v1.MetaResponse
 	(*timestamppb.Timestamp)(nil),     // 9: google.protobuf.Timestamp
 }
-var file_api_example_v1_template_proto_depIdxs = []int32{
+var file_api_example_v1_example_proto_depIdxs = []int32{
 	6,  // 0: api.example.v1.ListExamplesResponse.examples:type_name -> api.example.v1.Example
 	8,  // 1: api.example.v1.ListExamplesResponse.meta:type_name -> api.example.v1.MetaResponse
 	6,  // 2: api.example.v1.UpsertExampleResponse.example:type_name -> api.example.v1.Example
@@ -543,9 +543,9 @@ var file_api_example_v1_template_proto_depIdxs = []int32{
 	0,  // [0:10] is the sub-list for field type_name
 }
 
-func init() { file_api_example_v1_template_proto_init() }
-func file_api_example_v1_template_proto_init() {
-	if File_api_example_v1_template_proto != nil {
+func init() { file_api_example_v1_example_proto_init() }
+func file_api_example_v1_example_proto_init() {
+	if File_api_example_v1_example_proto != nil {
 		return
 	}
 	file_api_example_v1_errors_proto_init()
@@ -553,17 +553,17 @@ func file_api_example_v1_template_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_example_v1_template_proto_rawDesc), len(file_api_example_v1_template_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_example_v1_example_proto_rawDesc), len(file_api_example_v1_example_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_example_v1_template_proto_goTypes,
-		DependencyIndexes: file_api_example_v1_template_proto_depIdxs,
-		MessageInfos:      file_api_example_v1_template_proto_msgTypes,
+		GoTypes:           file_api_example_v1_example_proto_goTypes,
+		DependencyIndexes: file_api_example_v1_example_proto_depIdxs,
+		MessageInfos:      file_api_example_v1_example_proto_msgTypes,
 	}.Build()
-	File_api_example_v1_template_proto = out.File
-	file_api_example_v1_template_proto_goTypes = nil
-	file_api_example_v1_template_proto_depIdxs = nil
+	File_api_example_v1_example_proto = out.File
+	file_api_example_v1_example_proto_goTypes = nil
+	file_api_example_v1_example_proto_depIdxs = nil
 }

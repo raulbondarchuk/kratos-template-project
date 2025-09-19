@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: api/example/v1/template.proto
+// source: api/example/v1/example.proto
 
 package example
 
@@ -285,5 +285,5 @@ var Examplev1Service_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/example/v1/template.proto",
+	Metadata: "api/example/v1/example.proto",
 }
