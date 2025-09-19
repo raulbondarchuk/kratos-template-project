@@ -7,6 +7,8 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 )
 
+const useMock = true // Switch between mock/real implementation
+
 // exampleRepo is a concrete implementation of biz.ExampleRepo
 type exampleRepo struct {
 	data *data.Data
