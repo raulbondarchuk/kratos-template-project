@@ -12,10 +12,6 @@ import (
 	"service/internal/broker"
 	"service/internal/conf/v1"
 	"service/internal/data"
-	"service/internal/feature/prueba/v1"
-	"service/internal/feature/prueba/v1/biz"
-	"service/internal/feature/prueba/v1/repo"
-	"service/internal/feature/prueba/v1/service"
 	"service/internal/feature/template/v1"
 	"service/internal/feature/template/v1/biz"
 	"service/internal/feature/template/v1/repo"
@@ -40,13 +36,8 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 	templateUsecase := template_biz.NewTemplateUsecase(templateRepo, logger)
 	templateService := template_service.NewTemplateService(templateUsecase)
 	httpRegister := template.NewTemplatesHTTPRegistrer(templateService)
-	pruebaRepo := prueba_repo.NewPruebaRepo(dataData, logger)
-	pruebaUsecase := prueba_biz.NewPruebaUsecase(pruebaRepo, logger)
-	pruebaService := prueba_service.NewPruebaService(pruebaUsecase)
-	pruebaHTTPRegister := prueba.NewPruebaHTTPRegistrer(pruebaService)
 	grpcRegister := template.NewTemplatesGRPCRegistrer(templateService)
-	pruebaGRPCRegister := prueba.NewPruebaGRPCRegistrer(pruebaService)
-	allRegistrers := BuildAllRegistrars(httpRegister, pruebaHTTPRegister, grpcRegister, pruebaGRPCRegister)
+	allRegistrers := BuildAllRegistrars(httpRegister, grpcRegister)
 	v := ProvideGRPCRegistrers(allRegistrers)
 	server := server_grpc.NewGRPCServer(serverConf, v, logger)
 	v2 := ProvideHTTPRegistrers(allRegistrers)
