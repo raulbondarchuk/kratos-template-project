@@ -1,6 +1,9 @@
 # scripts/ps/workflow/repo.ps1
 [CmdletBinding()]
-param([Parameter(Mandatory = $true)] [string]$Name)
+param(
+  [Parameter(Mandatory = $true)] [string]$Name,
+  [string]$Ops = ""
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -25,6 +28,19 @@ function ConvertTo-PascalCase { param([string]$s)
 function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 function ConvertTo-Plural    { param([string]$s) if ($s.ToLower().EndsWith('s')){$s}else{"$s"+"s"} }
 
+# --- parse ops ---
+$opsList = @()
+if ($Ops) { $opsList = $Ops.ToLower().Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } }
+$HasGet = $false; $HasUpsert = $false; $HasDelete = $false
+foreach($op in $opsList){
+  switch ($op) {
+    'get' { $HasGet = $true } 'find' { $HasGet = $true } 'list' { $HasGet = $true } 'read' { $HasGet = $true }
+    'upsert' { $HasUpsert = $true } 'create' { $HasUpsert = $true } 'update' { $HasUpsert = $true }
+    'delete' { $HasDelete = $true } 'del' { $HasDelete = $true } 'remove' { $HasDelete = $true }
+    default { Show-Warn "Unknown op '$op' ignored" }
+  }
+}
+
 Show-Step "Generating repo layer"
 
 $base         = ConvertTo-LowerCase $Name
@@ -32,7 +48,7 @@ $pkgBase      = ($base -replace '[^a-z0-9]','_')
 $pascal       = ConvertTo-PascalCase $Name
 $pluralPascal = ConvertTo-PascalCase (ConvertTo-Plural $base)
 
-Show-Info "Module: base='$base', pascal='$pascal', pkg='$pkgBase'"
+Show-Info "Module: base='$base', pascal='$pascal', pkg='$pkgBase', ops=[$Ops]"
 
 # latest api vN -> feature vN dir
 $apiBaseDir = Join-Path $ApiRoot $base
@@ -54,7 +70,7 @@ $repoDir = Join-Path $featureRootV "repo"
 $null = New-Item -ItemType Directory -Force -Path $repoDir
 Show-Info "Repo dir ready: $repoDir"
 
-# repo.go
+# repo.go (always)
 $p = Join-Path $repoDir "repo.go"
 if (-not (Test-Path $p)) {
   Show-Info "Writing: $p"
@@ -81,10 +97,11 @@ func New${pascal}Repo(data *data.Data, logger log.Logger) ${pkgBase}_biz.${pasca
   Show-OK "Created: repo.go"
 } else { Show-Info "Skip (exists): $p" }
 
-# r_list.go
-$p = Join-Path $repoDir "r_list.go"
-if (-not (Test-Path $p)) {
-  Show-Info "Writing: $p"
+# r_list.go (GET)
+if ($HasGet) {
+  $p = Join-Path $repoDir "r_list.go"
+  if (-not (Test-Path $p)) {
+    Show-Info "Writing: $p"
 $txt = @"
 package ${pkgBase}_repo
 
@@ -97,14 +114,18 @@ func (r *${base}Repo) Find${pluralPascal}(ctx context.Context, id *uint, name *s
 	return []${pkgBase}_biz.${pascal}{}, nil
 }
 "@
-  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
-  Show-OK "Created: r_list.go"
-} else { Show-Info "Skip (exists): $p" }
+    [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+    Show-OK "Created: r_list.go"
+  } else { Show-Info "Skip (exists): $p" }
+} else {
+  Show-Info "No GET op; skip r_list.go"
+}
 
-# r_upsert.go
-$p = Join-Path $repoDir "r_upsert.go"
-if (-not (Test-Path $p)) {
-  Show-Info "Writing: $p"
+# r_upsert.go (UPSERT)
+if ($HasUpsert) {
+  $p = Join-Path $repoDir "r_upsert.go"
+  if (-not (Test-Path $p)) {
+    Show-Info "Writing: $p"
 $txt = @"
 package ${pkgBase}_repo
 
@@ -117,14 +138,18 @@ func (r *${base}Repo) Upsert${pascal}(ctx context.Context, in *${pkgBase}_biz.${
 	return in, nil
 }
 "@
-  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
-  Show-OK "Created: r_upsert.go"
-} else { Show-Info "Skip (exists): $p" }
+    [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+    Show-OK "Created: r_upsert.go"
+  } else { Show-Info "Skip (exists): $p" }
+} else {
+  Show-Info "No UPSERT op; skip r_upsert.go"
+}
 
-# r_delete_by_id.go
-$p = Join-Path $repoDir "r_delete_by_id.go"
-if (-not (Test-Path $p)) {
-  Show-Info "Writing: $p"
+# r_delete_by_id.go (DELETE)
+if ($HasDelete) {
+  $p = Join-Path $repoDir "r_delete_by_id.go"
+  if (-not (Test-Path $p)) {
+    Show-Info "Writing: $p"
 $txt = @"
 package ${pkgBase}_repo
 
@@ -134,8 +159,11 @@ func (r *${base}Repo) Delete${pascal}ById(ctx context.Context, id uint) error {
 	return nil
 }
 "@
-  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
-  Show-OK "Created: r_delete_by_id.go"
-} else { Show-Info "Skip (exists): $p" }
+    [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+    Show-OK "Created: r_delete_by_id.go"
+  } else { Show-Info "Skip (exists): $p" }
+} else {
+  Show-Info "No DELETE op; skip r_delete_by_id.go"
+}
 
 Show-OK ("repo generated: {0}/v{1}" -f $base, $apiVersion)

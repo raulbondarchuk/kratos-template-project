@@ -109,21 +109,23 @@ PATH_SCRIPTS_WORKFLOW_MODULE_DELETE := ./scripts/ps/workflow/module-delete.ps1
 .PHONY: module module-proto module-feature module-service module-repo module-biz module-wire module-delete
 # Create a new module (only .proto scaffolding)
 # Example:
-#   make module name="prueba"
+# make module name="city" → sin endpoints
+# make module name="city" ops="get,upsert" → con GET+UPSERT
+# make module name="city" ops="delete" → solo DELETE
 module:
-	make module-proto name="$(name)"
+	make module-proto   name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
 	make gen
 	make module-feature name="$(name)"
-	make module-repo name="$(name)"
-	make module-biz name="$(name)"
-	make module-service name="$(name)"
-	make module-wire name="$(name)"
+	make module-repo    name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
+	make module-biz     name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
+	make module-service name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
+	make module-wire    name="$(name)"
 	make wire
 
 # Generate a new module .proto in API skeleton
 module-proto:
-	@if (-not '$(name)') { Write-Host 'Usage: make module name="<name>"'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_PROTO)" -Name "$(name)"
+	@if (-not '$(name)') { Write-Host 'Usage: make module-proto name="<name>" [ops="get,upsert,delete"]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_PROTO)" -Name "$(name)" $(if $(strip $(ops)),-Ops "$(ops)",)
 
 # Generate a new module feature in API skeleton
 module-feature:
@@ -132,18 +134,20 @@ module-feature:
 
 # Generate a new module service in API skeleton
 module-service:
-	@if (-not '$(name)') { Write-Host 'Usage: make module-feature name="<name>"'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE)" -Name "$(name)"
+	@if (-not '$(name)') { Write-Host 'Usage: make module-service name="<name>" [ops="get,upsert,delete"]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_SERVICE)" -Name "$(name)" $(if $(strip $(ops)),-Ops "$(ops)",)
 
 # Generate a new module repo in API skeleton
 module-repo:
-	@if (-not '$(name)') { Write-Host 'Usage: make module-repo name="<name>"'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO)" -Name "$(name)"
+	@if (-not '$(name)') { Write-Host 'Usage: make module-repo name="<name>" [ops="get,upsert,delete"]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_REPO)" -Name "$(name)" $(if $(strip $(ops)),-Ops "$(ops)",)
+
 
 # Generate a new module biz in API skeleton
 module-biz:
-	@if (-not '$(name)') { Write-Host 'Usage: make module-biz name="<name>"'; exit 2 }
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ)" -Name "$(name)"
+	@if (-not '$(name)') { Write-Host 'Usage: make module-biz name="<name>" [ops="get,upsert,delete"]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_F_BIZ)" -Name "$(name)" $(if $(strip $(ops)),-Ops "$(ops)",)
+
 
 # Generate a new module wire in API skeleton
 module-wire:
