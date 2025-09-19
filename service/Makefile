@@ -113,12 +113,12 @@ PATH_SCRIPTS_WORKFLOW_MODULE_DELETE := ./scripts/ps/workflow/module-delete.ps1
 # make module name="city" ops="get,upsert" → con GET+UPSERT
 # make module name="city" ops="delete" → solo DELETE
 module:
-	make module-proto   name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
+	make module-proto   		name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
 	make gen
-	make module-feature name="$(name)"
-	make module-repo    name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
-	make module-biz     name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
-	make module-service name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
+	make module-feature 		name="$(name)"
+	make module-repo    		name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
+	make module-biz     		name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
+	make module-service 		name="$(name)" $(if $(strip $(ops)),ops="$(ops)",)
 	make module-wire    name="$(name)"
 	make wire
 
@@ -163,3 +163,27 @@ module-delete:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_DELETE)" -Name "$(name)" $(if $(strip $(version)),-Version $(version),)
 	make wire
 	make docs
+
+PATH_SCRIPTS_WORKFLOW_MODULE_TESTS_SERVICE := ./scripts/ps/workflow/module-tests-service.ps1
+
+.PHONY: tmodule module-tests-service tmodule-delete module-tests-delete
+PATH_SCRIPTS_WORKFLOW_MODULE_TESTS_DELETE := ./scripts/ps/workflow/module-tests-delete.ps1
+
+# make module-tests name="city" version="v2" force=1
+# version=v2 (optional) - specific version, otherwise latest
+# force=1 (optional) - overwrite if exists
+tmodule:
+	make module-tests-service name="$(name)" $(if $(strip $(version)),version="$(version)",) $(if $(strip $(force)),force="$(force)",)
+	
+module-tests-service:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-tests name="<name>" [version="v2"] [force=1]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_TESTS_SERVICE)" -Name "$(name)" $(if $(strip $(version)),-Version "$(version)",) $(if $(strip $(force)),-Force,)
+
+# make tmodule-delete name="city" version="v2"
+# version=v2 (optional) - specific version, otherwise all versions
+tmodule-delete:
+	make module-tests-delete name="$(name)" $(if $(strip $(version)),version="$(version)",)
+
+module-tests-delete:
+	@if (-not '$(name)') { Write-Host 'Usage: make module-tests-delete name="<name>" [version="v2"]'; exit 2 }
+	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_WORKFLOW_MODULE_TESTS_DELETE)" -Name "$(name)" $(if $(strip $(version)),-Version "$(version)",)

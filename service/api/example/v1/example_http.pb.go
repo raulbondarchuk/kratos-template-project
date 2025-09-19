@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.9.0
 // - protoc             (unknown)
-// source: api/example/v1/template.proto
+// source: api/example/v1/example.proto
 
 package example
 
