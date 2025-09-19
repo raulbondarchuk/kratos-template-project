@@ -36,20 +36,22 @@ Ejemplos (ops)
   make module-proto name="city" ops="get,upsert" -> solo .proto con GET + UPSERT
 
 OPS (endpoints por defecto)
-  --> get (alias: find, list, read)
+  - OPS es un parámetro opcional que se puede pasar a make module, make module-proto, make module-feature, make module-service, make module-repo, make module-biz, make module-wire
+  
+  1) get (alias: find, list, read)
       - Genera RPC Find* en .proto y archivos: s_find.go (service) y r_list.go (repo)
 
-  --> upsert (alias: create, update)
+  2) upsert (alias: create, update)
       - Genera RPC Upsert* en .proto y archivos: s_upsert.go (service) y r_upsert.go (repo)
 
-  --> delete (alias: del, remove)
+  3) delete (alias: del, remove)
       - Genera RPC Delete*ById en .proto y archivos: s_delete_by_id.go (service) y r_delete_by_id.go (repo)
 
-  --> Si ops está vacío:
+  4) Si ops está vacío:
       - No se generan RPCs de negocio (GET/UPSERT/DELETE).
       - En .proto se crea un único endpoint de mock: GET /vN/<base>/mock (// TODO: Mock de endpoint) para registrar rutas HTTP.
 
-  --> Cualquier token desconocido en ops se ignora; si todos son desconocidos, se trata como vacío y se genera el mock.
+  5) Cualquier token desconocido en ops se ignora; si todos son desconocidos, se trata como vacío y se genera el mock.
 
 Commit + version automatica
   make commit t="Titulo" d="Descripcion"   - commit con version automatica (etiqueta desde app.version en $ConfigPath)
