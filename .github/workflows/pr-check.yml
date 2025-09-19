@@ -1,0 +1,51 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches: [ "main", "master" ]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+env:
+  GO_VERSION: "1.25.0"
+
+defaults:
+  run:
+    working-directory: ./service
+
+jobs:
+  pr-check:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pr-${{ github.head_ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout (manual)
+        working-directory: .
+        env:
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -e
+          git clone "https://x-access-token:${GIT_TOKEN}@github.com/${REPO}.git" .
+          git fetch --no-tags origin "${SHA}"
+          git checkout --progress --force "${SHA}"
+          git submodule update --init --recursive
+          git config --global --add safe.directory "$PWD"
+
+      - name: Install Go (manual)
+        run: |
+          curl -sSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tgz
+          echo "/usr/local/go/bin" >> "$GITHUB_PATH"
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
+          go version
+
+      - name: Go mod download
+        run: go mod download
+
+      - name: Build (smoke)
+        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o service.linux ./cmd/service
+
+      - name: Unit tests
+        run: go test ./...
