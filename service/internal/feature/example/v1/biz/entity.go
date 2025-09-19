@@ -1,17 +1,17 @@
-package template_biz
+package example_biz
 
 import "time"
 
-// Template represents the template business model
-type Template struct {
+// Template represents the example business model
+type Example struct {
 	ID        uint
-	Type      Type
+	Type      TypeExample
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-type Type struct {
+type TypeExample struct {
 	ID        uint
 	Name      string
 	CreatedAt time.Time

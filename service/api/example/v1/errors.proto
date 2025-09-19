@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package api.template.v1;
+package api.example.v1;
 
-option go_package = "service/api/template;template";
+option go_package = "service/api/example;example";
 
 // Minimum set of codes. Zero is mandatory in proto3.
 enum ResponseCode {

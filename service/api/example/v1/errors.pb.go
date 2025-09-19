@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.9
 // 	protoc        (unknown)
-// source: api/template/v1/errors.proto
+// source: api/example/v1/errors.proto
 
-package template
+package example
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -76,11 +76,11 @@ func (x ResponseCode) String() string {
 }
 
 func (ResponseCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_template_v1_errors_proto_enumTypes[0].Descriptor()
+	return file_api_example_v1_errors_proto_enumTypes[0].Descriptor()
 }
 
 func (ResponseCode) Type() protoreflect.EnumType {
-	return &file_api_template_v1_errors_proto_enumTypes[0]
+	return &file_api_example_v1_errors_proto_enumTypes[0]
 }
 
 func (x ResponseCode) Number() protoreflect.EnumNumber {
@@ -89,21 +89,21 @@ func (x ResponseCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ResponseCode.Descriptor instead.
 func (ResponseCode) EnumDescriptor() ([]byte, []int) {
-	return file_api_template_v1_errors_proto_rawDescGZIP(), []int{0}
+	return file_api_example_v1_errors_proto_rawDescGZIP(), []int{0}
 }
 
 // Your meta-object: only code and message.
 type MetaResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          ResponseCode           `protobuf:"varint,1,opt,name=code,proto3,enum=api.template.v1.ResponseCode" json:"code,omitempty"` // RESPONSE_CODE_OK or other codes
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`                              // message description (e.g. "ok", "ip blocked", "data base error", "user not found" etc.)
+	Code          ResponseCode           `protobuf:"varint,1,opt,name=code,proto3,enum=api.example.v1.ResponseCode" json:"code,omitempty"` // RESPONSE_CODE_OK or other codes
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`                             // message description (e.g. "ok", "ip blocked", "data base error", "user not found" etc.)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MetaResponse) Reset() {
 	*x = MetaResponse{}
-	mi := &file_api_template_v1_errors_proto_msgTypes[0]
+	mi := &file_api_example_v1_errors_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -115,7 +115,7 @@ func (x *MetaResponse) String() string {
 func (*MetaResponse) ProtoMessage() {}
 
 func (x *MetaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_template_v1_errors_proto_msgTypes[0]
+	mi := &file_api_example_v1_errors_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,7 +128,7 @@ func (x *MetaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaResponse.ProtoReflect.Descriptor instead.
 func (*MetaResponse) Descriptor() ([]byte, []int) {
-	return file_api_template_v1_errors_proto_rawDescGZIP(), []int{0}
+	return file_api_example_v1_errors_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MetaResponse) GetCode() ResponseCode {
@@ -145,13 +145,13 @@ func (x *MetaResponse) GetMessage() string {
 	return ""
 }
 
-var File_api_template_v1_errors_proto protoreflect.FileDescriptor
+var File_api_example_v1_errors_proto protoreflect.FileDescriptor
 
-const file_api_template_v1_errors_proto_rawDesc = "" +
+const file_api_example_v1_errors_proto_rawDesc = "" +
 	"\n" +
-	"\x1capi/template/v1/errors.proto\x12\x0fapi.template.v1\"[\n" +
-	"\fMetaResponse\x121\n" +
-	"\x04code\x18\x01 \x01(\x0e2\x1d.api.template.v1.ResponseCodeR\x04code\x12\x18\n" +
+	"\x1bapi/example/v1/errors.proto\x12\x0eapi.example.v1\"Z\n" +
+	"\fMetaResponse\x120\n" +
+	"\x04code\x18\x01 \x01(\x0e2\x1c.api.example.v1.ResponseCodeR\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage*\xde\x02\n" +
 	"\fResponseCode\x12\x1d\n" +
 	"\x19RESPONSE_CODE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -163,28 +163,28 @@ const file_api_template_v1_errors_proto_rawDesc = "" +
 	" RESPONSE_CODE_METHOD_NOT_ALLOWED\x10\x95\x03\x12(\n" +
 	"#RESPONSE_CODE_INTERNAL_SERVER_ERROR\x10\xf4\x03\x12\"\n" +
 	"\x1dRESPONSE_CODE_NOT_IMPLEMENTED\x10\xf5\x03\x12&\n" +
-	"!RESPONSE_CODE_SERVICE_UNAVAILABLE\x10\xf7\x03B\x1fZ\x1dservice/api/template;templateb\x06proto3"
+	"!RESPONSE_CODE_SERVICE_UNAVAILABLE\x10\xf7\x03B\x1dZ\x1bservice/api/example;exampleb\x06proto3"
 
 var (
-	file_api_template_v1_errors_proto_rawDescOnce sync.Once
-	file_api_template_v1_errors_proto_rawDescData []byte
+	file_api_example_v1_errors_proto_rawDescOnce sync.Once
+	file_api_example_v1_errors_proto_rawDescData []byte
 )
 
-func file_api_template_v1_errors_proto_rawDescGZIP() []byte {
-	file_api_template_v1_errors_proto_rawDescOnce.Do(func() {
-		file_api_template_v1_errors_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_template_v1_errors_proto_rawDesc), len(file_api_template_v1_errors_proto_rawDesc)))
+func file_api_example_v1_errors_proto_rawDescGZIP() []byte {
+	file_api_example_v1_errors_proto_rawDescOnce.Do(func() {
+		file_api_example_v1_errors_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_example_v1_errors_proto_rawDesc), len(file_api_example_v1_errors_proto_rawDesc)))
 	})
-	return file_api_template_v1_errors_proto_rawDescData
+	return file_api_example_v1_errors_proto_rawDescData
 }
 
-var file_api_template_v1_errors_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_template_v1_errors_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_api_template_v1_errors_proto_goTypes = []any{
-	(ResponseCode)(0),    // 0: api.template.v1.ResponseCode
-	(*MetaResponse)(nil), // 1: api.template.v1.MetaResponse
+var file_api_example_v1_errors_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_api_example_v1_errors_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_api_example_v1_errors_proto_goTypes = []any{
+	(ResponseCode)(0),    // 0: api.example.v1.ResponseCode
+	(*MetaResponse)(nil), // 1: api.example.v1.MetaResponse
 }
-var file_api_template_v1_errors_proto_depIdxs = []int32{
-	0, // 0: api.template.v1.MetaResponse.code:type_name -> api.template.v1.ResponseCode
+var file_api_example_v1_errors_proto_depIdxs = []int32{
+	0, // 0: api.example.v1.MetaResponse.code:type_name -> api.example.v1.ResponseCode
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -192,27 +192,27 @@ var file_api_template_v1_errors_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_api_template_v1_errors_proto_init() }
-func file_api_template_v1_errors_proto_init() {
-	if File_api_template_v1_errors_proto != nil {
+func init() { file_api_example_v1_errors_proto_init() }
+func file_api_example_v1_errors_proto_init() {
+	if File_api_example_v1_errors_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_template_v1_errors_proto_rawDesc), len(file_api_template_v1_errors_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_example_v1_errors_proto_rawDesc), len(file_api_example_v1_errors_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_api_template_v1_errors_proto_goTypes,
-		DependencyIndexes: file_api_template_v1_errors_proto_depIdxs,
-		EnumInfos:         file_api_template_v1_errors_proto_enumTypes,
-		MessageInfos:      file_api_template_v1_errors_proto_msgTypes,
+		GoTypes:           file_api_example_v1_errors_proto_goTypes,
+		DependencyIndexes: file_api_example_v1_errors_proto_depIdxs,
+		EnumInfos:         file_api_example_v1_errors_proto_enumTypes,
+		MessageInfos:      file_api_example_v1_errors_proto_msgTypes,
 	}.Build()
-	File_api_template_v1_errors_proto = out.File
-	file_api_template_v1_errors_proto_goTypes = nil
-	file_api_template_v1_errors_proto_depIdxs = nil
+	File_api_example_v1_errors_proto = out.File
+	file_api_example_v1_errors_proto_goTypes = nil
+	file_api_example_v1_errors_proto_depIdxs = nil
 }

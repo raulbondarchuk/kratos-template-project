@@ -2,23 +2,23 @@ package model
 
 import "time"
 
-// Templates represents the templates model
-type Templates struct {
+// Examples represents the examples model
+type Examples struct {
 	Base
-	TypeID uint   `gorm:"column:type_id;type:uint;not null"` // Type1/Type2
-	Type   Types  `gorm:"foreignKey:TypeID"`
-	Name   string `gorm:"column:name;type:varchar(255);not null;unique"` // Template 1, Template 2, etc
+	TypeExamplesID uint          `gorm:"column:type_examples_id;type:uint;not null"` // Type1/Type2
+	TypeExamples   TypesExamples `gorm:"foreignKey:TypeExamplesID"`
+	Name           string        `gorm:"column:name;type:varchar(255);not null;unique"` // Template 1, Template 2, etc
 	Others
 	UpdatedAt time.Time `gorm:"column:updated_at;type:DATETIME;not null;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"`
 }
 
 // TableName returns the name of the table for the User model
-func (Templates) TableName() string {
-	return "templates"
+func (Examples) TableName() string {
+	return "examples"
 }
 
 // Types represents the types model
-type Types struct {
+type TypesExamples struct {
 	Base
 	Name string `gorm:"column:name;type:varchar(255);not null;unique"` // Type1/Type2
 	Others
@@ -26,6 +26,6 @@ type Types struct {
 }
 
 // TableName returns the name of the table for the User model
-func (Types) TableName() string {
-	return "types"
+func (TypesExamples) TableName() string {
+	return "types_examples"
 }

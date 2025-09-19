@@ -7,13 +7,12 @@ import (
 	"service/internal/broker"
 	"service/internal/conf/v1"
 	"service/internal/data"
-	templatev1 "service/internal/feature/template/v1"
+	examplev1 "service/internal/feature/example/v1"
 	"service/internal/server"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-
 )
 
 // wireApp init kratos application.
@@ -26,7 +25,7 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 
 		// modules
 
-		templatev1.ProviderSet,
+		examplev1.ProviderSet,
 
 		// single build + distribution to servers
 		BuildAllRegistrars,
@@ -36,4 +35,3 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		newApp,
 	))
 }
-
