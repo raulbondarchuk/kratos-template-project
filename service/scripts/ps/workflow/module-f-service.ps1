@@ -1,6 +1,9 @@
 # scripts/ps/workflow/service.ps1
 [CmdletBinding()]
-param([Parameter(Mandatory = $true)] [string]$Name)
+param(
+  [Parameter(Mandatory = $true)] [string]$Name,
+  [string]$Ops = ""
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -26,6 +29,19 @@ function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 function ConvertTo-Plural    { param([string]$s) if ($s.ToLower().EndsWith('s')){$s}else{"$s"+"s"} }
 function ConvertTo-ImportAlias { param([string]$s) ($s.ToLower() -replace '[^a-z0-9]','_') }
 
+# --- parse ops ---
+$opsList = @()
+if ($Ops) { $opsList = $Ops.ToLower().Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } }
+$HasGet = $false; $HasUpsert = $false; $HasDelete = $false
+foreach($op in $opsList){
+  switch ($op) {
+    'get' { $HasGet = $true } 'find' { $HasGet = $true } 'list' { $HasGet = $true } 'read' { $HasGet = $true }
+    'upsert' { $HasUpsert = $true } 'create' { $HasUpsert = $true } 'update' { $HasUpsert = $true }
+    'delete' { $HasDelete = $true } 'del' { $HasDelete = $true } 'remove' { $HasDelete = $true }
+    default { Show-Warn "Unknown op '$op' ignored" }
+  }
+}
+
 Show-Step "Generating service layer"
 
 $base         = ConvertTo-LowerCase $Name
@@ -34,7 +50,7 @@ $pascal       = ConvertTo-PascalCase $Name
 $pluralPascal = ConvertTo-PascalCase (ConvertTo-Plural $base)
 $alias        = ConvertTo-ImportAlias $base
 
-Show-Info "Module: base='$base', pascal='$pascal', pkg='$pkgBase', alias='$alias'"
+Show-Info "Module: base='$base', pascal='$pascal', pkg='$pkgBase', alias='$alias', ops=[$Ops]"
 
 # latest api vN
 $apiBaseDir = Join-Path $ApiRoot $base
@@ -57,9 +73,9 @@ Show-Info "Service dir ready: $svcDir"
 
 $apiImport    = "service/api/$base/v$apiVersion"
 $bizImport    = "service/internal/feature/$base/v$apiVersion/biz"
-$serviceName  = "${pascal}v${apiVersion}Service"  # versioned proto service name
+$serviceName  = "${pascal}v${apiVersion}Service"
 
-# service.go
+# service.go (always)
 $p = Join-Path $svcDir "service.go"
 if (-not (Test-Path $p)) {
   Show-Info "Writing: $p"
@@ -84,10 +100,11 @@ func New${pascal}Service(uc *${pkgBase}_biz.${pascal}Usecase) *${pascal}Service 
   Show-OK "Created: service.go"
 } else { Show-Info "Skip (exists): $p" }
 
-# s_find.go
-$p = Join-Path $svcDir "s_find.go"
-if (-not (Test-Path $p)) {
-  Show-Info "Writing: $p"
+# s_find.go (GET)
+if ($HasGet) {
+  $p = Join-Path $svcDir "s_find.go"
+  if (-not (Test-Path $p)) {
+    Show-Info "Writing: $p"
 $txt = @"
 package ${pkgBase}_service
 
@@ -154,14 +171,18 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 	}, nil
 }
 "@
-  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
-  Show-OK "Created: s_find.go"
-} else { Show-Info "Skip (exists): $p" }
+    [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+    Show-OK "Created: s_find.go"
+  } else { Show-Info "Skip (exists): $p" }
+} else {
+  Show-Info "No GET op; skip s_find.go"
+}
 
-# s_upsert.go
-$p = Join-Path $svcDir "s_upsert.go"
-if (-not (Test-Path $p)) {
-  Show-Info "Writing: $p"
+# s_upsert.go (UPSERT)
+if ($HasUpsert) {
+  $p = Join-Path $svcDir "s_upsert.go"
+  if (-not (Test-Path $p)) {
+    Show-Info "Writing: $p"
 $txt = @"
 package ${pkgBase}_service
 
@@ -210,14 +231,18 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 	}, nil
 }
 "@
-  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
-  Show-OK "Created: s_upsert.go"
-} else { Show-Info "Skip (exists): $p" }
+    [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+    Show-OK "Created: s_upsert.go"
+  } else { Show-Info "Skip (exists): $p" }
+} else {
+  Show-Info "No UPSERT op; skip s_upsert.go"
+}
 
-# s_delete_by_id.go
-$p = Join-Path $svcDir "s_delete_by_id.go"
-if (-not (Test-Path $p)) {
-  Show-Info "Writing: $p"
+# s_delete_by_id.go (DELETE)
+if ($HasDelete) {
+  $p = Join-Path $svcDir "s_delete_by_id.go"
+  if (-not (Test-Path $p)) {
+    Show-Info "Writing: $p"
 $txt = @"
 package ${pkgBase}_service
 
@@ -244,8 +269,11 @@ func (s *${pascal}Service) Delete${pascal}ById(ctx context.Context, req *api_$al
 	}, nil
 }
 "@
-  [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
-  Show-OK "Created: s_delete_by_id.go"
-} else { Show-Info "Skip (exists): $p" }
+    [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
+    Show-OK "Created: s_delete_by_id.go"
+  } else { Show-Info "Skip (exists): $p" }
+} else {
+  Show-Info "No DELETE op; skip s_delete_by_id.go"
+}
 
 Show-OK ("service generated: {0}/v{1}" -f $base, $apiVersion)
