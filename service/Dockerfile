@@ -1,11 +1,12 @@
 FROM ubuntu:22.04
-WORKDIR /
-ADD alertor.linux .
-ADD .env .
-RUN mkdir configs
-WORKDIR /configs
-ADD config.yaml .
-EXPOSE 8000
-EXPOSE 9000
-WORKDIR /
-CMD ["./service.linux","-conf","/configs"]
+WORKDIR /app
+
+ARG BIN_FILE=service.linux
+COPY ${BIN_FILE} /app/service.linux
+COPY .env /app/.env
+
+RUN mkdir -p /configs
+COPY configs/config.yaml /configs/config.yaml
+
+EXPOSE 8000 9000
+CMD ["/app/service.linux","-conf","/configs"]
