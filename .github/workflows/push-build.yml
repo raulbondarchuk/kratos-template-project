@@ -87,9 +87,9 @@ jobs:
           test -f "${BIN_FILE}" || (echo "Binary ${BIN_FILE} not found"; exit 1)
           test -f Dockerfile   || (echo "Dockerfile not found"; exit 1)
 
-      - name: Docker login (private registry)
-        run: |
-          echo "${{ secrets.REGISTRY_PASS }}" | docker login "${REGISTRY}" -u "${{ secrets.REGISTRY_LOGIN }}" --password-stdin
+      # - name: Docker login (private registry)
+      #   run: |
+      #     echo "${{ secrets.REGISTRY_PASS }}" | docker login "${REGISTRY}" -u "${{ secrets.REGISTRY_LOGIN }}" --password-stdin
 
       - name: Build image
         run: docker build --build-arg BIN_FILE="${BIN_FILE}" -t "${IMAGE}" .
