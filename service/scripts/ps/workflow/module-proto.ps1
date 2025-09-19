@@ -1,7 +1,8 @@
 # scripts/ps/workflow/module-proto.ps1
 [CmdletBinding()]
 param(
-  [Parameter(Mandatory = $true)] [string]$Name
+  [Parameter(Mandatory = $true)] [string]$Name,
+  [string]$Ops = ""
 )
 
 Set-StrictMode -Version Latest
@@ -19,47 +20,42 @@ try {
 }
 
 # consts
-$ApiRoot = "./api"
+$ApiRoot   = "./api"
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 # --- helpers ---
 function ConvertTo-PascalCase {
-  [CmdletBinding()]
-  param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$InputString
-  )
+  param([Parameter(Mandatory=$true)][string]$InputString)
   $parts = ($InputString -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
   ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
 }
+function ConvertTo-LowerCase { param([Parameter(Mandatory=$true)][string]$InputString) $InputString.ToLower() }
+function ConvertTo-Plural    { param([Parameter(Mandatory=$true)][string]$InputNoun) if ($InputNoun.ToLower().EndsWith('s')){$InputNoun}else{"$InputNoun"+"s"} }
 
-function ConvertTo-LowerCase {
-  [CmdletBinding()]
-  param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$InputString
-  )
-  $InputString.ToLower()
-}
-
-function ConvertTo-Plural {
-  [CmdletBinding()]
-  param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$InputNoun
-  )
-  if ($InputNoun.ToLower().EndsWith('s')) { 
-    $InputNoun 
-  } else { 
-    "$InputNoun" + "s" 
+# --- parse ops -> flags ---
+$opsList = @()
+if ($Ops) { $opsList = $Ops.ToLower().Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ } }
+$HasGet = $false; $HasUpsert = $false; $HasDelete = $false
+foreach ($op in $opsList) {
+  switch ($op) {
+    'get'    { $HasGet = $true }
+    'find'   { $HasGet = $true }
+    'list'   { $HasGet = $true }
+    'read'   { $HasGet = $true }
+    'upsert' { $HasUpsert = $true }
+    'create' { $HasUpsert = $true }
+    'update' { $HasUpsert = $true }
+    'delete' { $HasDelete = $true }
+    'del'    { $HasDelete = $true }
+    'remove' { $HasDelete = $true }
+    default  { Show-Warn "Unknown op '$op' ignored" }
   }
 }
+$AnyOps       = $HasGet -or $HasUpsert -or $HasDelete
+$GenerateMock = -not $AnyOps   # если нет ни одной операции — добавляем мок
 
 Show-Step "Generating .proto module"
-Show-Info "Input name: $Name"
+Show-Info "Input name: $Name ; ops=[$Ops]"
 
 # --- normalize names ---
 $base         = ConvertTo-LowerCase $Name
@@ -67,9 +63,7 @@ $pascal       = ConvertTo-PascalCase $Name
 $pluralBase   = ConvertTo-LowerCase (ConvertTo-Plural $base)
 $pluralPascal = ConvertTo-PascalCase $pluralBase
 
-Show-Info "Normalized: base='$base', pascal='$pascal'"
-
-# --- detect next available version: v1, v2, v3... (first gap) ---
+# --- detect next free version ---
 Show-Step "Detecting next free API version"
 $baseDir  = Join-Path -Path $ApiRoot -ChildPath $base
 $versions = @()
@@ -77,12 +71,12 @@ if (Test-Path -LiteralPath $baseDir) {
   Get-ChildItem -LiteralPath $baseDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
     if ($_.Name -match '^v(\d+)$') { $versions += [int]$Matches[1] }
   }
-    if ($versions.Count -gt 0) {
-      $versionList = $versions | Sort-Object | ForEach-Object { "v$_" }
-      Show-Info ("Existing versions: " + ($versionList -join ", "))
-    } else {
-      Show-Info "Existing versions: none"
-    }
+  if ($versions.Count -gt 0) {
+    $versionList = $versions | Sort-Object | ForEach-Object { "v$_" }
+    Show-Info ("Existing versions: " + ($versionList -join ", "))
+  } else {
+    Show-Info "Existing versions: none"
+  }
 } else {
   Show-Warn "API base dir not found: $baseDir (will create)"
 }
@@ -90,21 +84,18 @@ $Version = 1
 while ($versions -contains $Version) { $Version++ }
 Show-Info "Chosen version: v$Version"
 
-# --- paths & meta for chosen version ---
-$pkgDir     = Join-Path -Path $baseDir -ChildPath "v$Version"
-$protoFile  = Join-Path $pkgDir "$base.proto"
-$errorsFile = Join-Path $pkgDir "errors.proto"
+# --- paths & meta ---
+$pkgDir      = Join-Path -Path $baseDir -ChildPath "v$Version"
+$protoFile   = Join-Path $pkgDir "$base.proto"
+$errorsFile  = Join-Path $pkgDir "errors.proto"
 
-$package    = "api.$base.v$Version"
-$goPkg      = "service/api/$base;$base"
-$javaOuter  = "$($pascal)ProtoV$Version"
-$javaPkg    = "dev.kratos.api.$base.$base"
+$package     = "api.$base.v$Version"
+$goPkg       = "service/api/$base;$base"
+$javaOuter   = "$($pascal)ProtoV$Version"
+$javaPkg     = "dev.kratos.api.$base.$base"
 
-# Service name must include version suffix for Swagger isolation
 $serviceName = "${pascal}v${Version}Service"
-
-# IMPORTANT: versioned route (singular)
-$route        = "/v$Version/$base"
+$route       = "/v$Version/$base"
 $errorsImport = "api/$base/v$Version/errors.proto"
 
 Show-Step "Preparing output"
@@ -121,7 +112,7 @@ if (-not (Test-Path -LiteralPath $pkgDir)) {
   Show-Info "Directory exists: $pkgDir"
 }
 
-# --- safety: should not hit because we pick a free version ---
+# --- safety ---
 if ((Test-Path $protoFile) -or (Test-Path $errorsFile)) {
   Show-ErrorAndExit "Files already exist for '$base' v$Version. Aborting."
 }
@@ -137,89 +128,134 @@ option go_package = "$goPkg";
 // Minimum set of codes. Zero is mandatory in proto3.
 enum ResponseCode {
   RESPONSE_CODE_UNSPECIFIED = 0;
-  RESPONSE_CODE_OK = 200;                    // success
-  RESPONSE_CODE_BAD_REQUEST = 400;           // bad request
-  RESPONSE_CODE_UNAUTHORIZED = 401;          // unauthorized
-  RESPONSE_CODE_FORBIDDEN = 403;             // forbidden
-  RESPONSE_CODE_NOT_FOUND = 404;             // not found
-  RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;    // method not allowed
-  RESPONSE_CODE_INTERNAL_SERVER_ERROR = 500; // server error
-  RESPONSE_CODE_NOT_IMPLEMENTED = 501;       // not implemented
-  RESPONSE_CODE_SERVICE_UNAVAILABLE = 503;   // service unavailable
+  RESPONSE_CODE_OK = 200;
+  RESPONSE_CODE_BAD_REQUEST = 400;
+  RESPONSE_CODE_UNAUTHORIZED = 401;
+  RESPONSE_CODE_FORBIDDEN = 403;
+  RESPONSE_CODE_NOT_FOUND = 404;
+  RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;
+  RESPONSE_CODE_INTERNAL_SERVER_ERROR = 500;
+  RESPONSE_CODE_NOT_IMPLEMENTED = 501;
+  RESPONSE_CODE_SERVICE_UNAVAILABLE = 503;
 }
 
-// Your meta-object: only code and message.
 message MetaResponse {
-  ResponseCode code = 1; // RESPONSE_CODE_OK or other codes
-  string message = 2;    // e.g. "ok", "ip blocked", "db error", "user not found"
+  ResponseCode code = 1;
+  string message = 2;
 }
 "@
 
-# --- <name>.proto content (minimal comments) ---
-$protoContent = @"
-syntax = "proto3";
+# --- dynamic imports ---
+$importLines = @()
+$importLines += 'import "google/protobuf/timestamp.proto";'
+if ($AnyOps -or $GenerateMock) {
+  $importLines += 'import "google/api/annotations.proto";'
+  $importLines += 'import "google/api/field_behavior.proto";'
+  $importLines += "import `"$errorsImport`";"
+}
+$importsBlock = ($importLines -join "`n")
 
-package $package;
+# --- service methods & messages ---
+$serviceMethods = @()
+$messages = @()
 
-import "$errorsImport";
-import "google/api/annotations.proto";
-import "google/api/field_behavior.proto";
-import "google/protobuf/timestamp.proto";
-
-option go_package = "$goPkg";
-option java_multiple_files = true;
-option java_outer_classname = "$javaOuter";
-option java_package = "$javaPkg";
-
-// ${serviceName}: find, upsert, delete
-service $serviceName {
+if ($HasGet) {
+  $serviceMethods += @"
   // GET ${route} - list or search by filters
-  rpc Find$pluralPascal(Find${pluralPascal}Request) returns (Find${pluralPascal}Response) {
+  rpc Find${pluralPascal}(Find${pluralPascal}Request) returns (Find${pluralPascal}Response) {
     option (google.api.http) = { get: "${route}" };
   }
+"@
 
+  $messages += @"
+message Find${pluralPascal}Request {
+  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+message Find${pluralPascal}Response {
+  repeated $pascal items = 1;
+  MetaResponse meta = 2;
+}
+"@
+}
+
+if ($HasUpsert) {
+  $serviceMethods += @"
   // POST ${route} - create or update (id=0 create, >0 update)
-  rpc Upsert$pascal(Upsert${pascal}Request) returns (Upsert${pascal}Response) {
+  rpc Upsert${pascal}(Upsert${pascal}Request) returns (Upsert${pascal}Response) {
     option (google.api.http) = {
       post: "${route}"
       body: "*"
     };
   }
+"@
 
-  // DELETE ${route}?id=123 - delete by id
-  rpc Delete${pascal}ById(Delete${pascal}ByIdRequest) returns (Delete${pascal}ByIdResponse) {
-    option (google.api.http) = { delete: "${route}" };
-  }
-}
-
-message Find${pluralPascal}Request {
-  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL]; // optional
-  string name = 2 [(google.api.field_behavior) = OPTIONAL]; // optional
-}
-
-message Find${pluralPascal}Response {
-  repeated $pascal items = 1;
-  MetaResponse meta = 2;
-}
-
+  $messages += @"
 message Upsert${pascal}Request {
-  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL]; // 0 -> create
-  string name = 2 [(google.api.field_behavior) = REQUIRED]; // required
+  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
 }
-
 message Upsert${pascal}Response {
   $pascal item = 1;
   MetaResponse meta = 2;
 }
-
-message Delete${pascal}ByIdRequest {
-  uint32 id = 1 [(google.api.field_behavior) = REQUIRED]; // required
+"@
 }
 
+if ($HasDelete) {
+  $serviceMethods += @"
+  // DELETE ${route}?id=123 - delete by id
+  rpc Delete${pascal}ById(Delete${pascal}ByIdRequest) returns (Delete${pascal}ByIdResponse) {
+    option (google.api.http) = { delete: "${route}" };
+  }
+"@
+
+  $messages += @"
+message Delete${pascal}ByIdRequest {
+  uint32 id = 1 [(google.api.field_behavior) = REQUIRED];
+}
 message Delete${pascal}ByIdResponse {
   MetaResponse meta = 1;
 }
+"@
+}
 
+# --- mock endpoint when no ops selected ---
+if ($GenerateMock) {
+  $serviceMethods += @"
+// TODO: Mock de endpoint
+  rpc Mock(MockRequest) returns (MockResponse) {
+    option (google.api.http) = { get: "${route}/mock" };
+  }
+"@
+
+  $messages += @"
+message MockRequest {}
+message MockResponse {
+  string message = 1;      // e.g. ""pong""
+  MetaResponse meta = 2;
+}
+"@
+}
+
+# --- service block ---
+$serviceBlock = ""
+if ($serviceMethods.Count -gt 0) {
+  $serviceBlock = @"
+ // ${serviceName}: generated with ops=[$Ops]
+service $serviceName {
+$($serviceMethods -join "`n")
+}
+"@
+} else {
+  # теоретически сюда не попадём, т.к. при отсутствии ops генерим мок
+  $serviceBlock = @"
+// ${serviceName}: no RPCs
+service $serviceName {}
+"@
+}
+
+$entityMessage = @"
 message $pascal {
   uint32 id = 1;
   string name = 2;
@@ -228,7 +264,32 @@ message $pascal {
 }
 "@
 
-# --- write files (UTF-8 no BOM) ---
+$messagesText = ""
+if ($messages.Count -gt 0) {
+  $messagesText = ($messages -join "`n")
+}
+
+# --- final proto content ---
+$protoContent = @"
+syntax = "proto3";
+
+package $package;
+
+$importsBlock
+
+option go_package = "$goPkg";
+option java_multiple_files = true;
+option java_outer_classname = "$javaOuter";
+option java_package = "$javaPkg";
+
+$serviceBlock
+
+$messagesText
+
+$entityMessage
+"@
+
+# --- write files ---
 Show-Step "Writing files"
 [IO.File]::WriteAllText($errorsFile, $errorsContent, $utf8NoBom)
 Show-OK "errors.proto -> $errorsFile"

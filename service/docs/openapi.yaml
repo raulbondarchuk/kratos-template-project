@@ -3,10 +3,50 @@
 
 openapi: 3.0.3
 info:
-    title: Templatev1Service API
-    description: '* API para gestión de plantillas (alertas/avisos).'
+    title: ""
     version: 0.0.1
 paths:
+    /v1/prueba:
+        get:
+            tags:
+                - Pruebav1Service
+            description: GET /v1/prueba - list or search by filters
+            operationId: Pruebav1Service_FindPruebas
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.prueba.v1.FindPruebasResponse'
+        post:
+            tags:
+                - Pruebav1Service
+            description: POST /v1/prueba - create or update (id=0 create, >0 update)
+            operationId: Pruebav1Service_UpsertPrueba
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaResponse'
     /v1/template:
         get:
             tags:
@@ -58,6 +98,54 @@ paths:
                                 $ref: '#/components/schemas/api.template.v1.DeleteTemplateByIdResponse'
 components:
     schemas:
+        api.prueba.v1.FindPruebasResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.prueba.v1.Prueba'
+                meta:
+                    $ref: '#/components/schemas/api.prueba.v1.MetaResponse'
+        api.prueba.v1.MetaResponse:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: enum
+                message:
+                    type: string
+        api.prueba.v1.Prueba:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        api.prueba.v1.UpsertPruebaRequest:
+            required:
+                - name
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+        api.prueba.v1.UpsertPruebaResponse:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/api.prueba.v1.Prueba'
+                meta:
+                    $ref: '#/components/schemas/api.prueba.v1.MetaResponse'
         api.template.v1.DeleteTemplateByIdResponse:
             type: object
             properties:
@@ -134,4 +222,7 @@ components:
                     $ref: '#/components/schemas/api.template.v1.MetaResponse'
             description: '* Resultado del upsert.'
 tags:
+    - name: Pruebav1Service
+      description: 'Pruebav1Service: generated with ops=[get,upsert]'
     - name: Templatev1Service
+      description: '* API para gestión de plantillas (alertas/avisos).'

@@ -13,6 +13,8 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+
+	pruebav1 "service/internal/feature/prueba/v1"
 )
 
 // wireApp init kratos application.
@@ -24,6 +26,7 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		broker.ProviderSet,
 
 		// modules
+		pruebav1.ProviderSet,
 
 		templatev1.ProviderSet,
 
@@ -35,3 +38,5 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		newApp,
 	))
 }
+
+
