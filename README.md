@@ -10,7 +10,7 @@
 | [📚 Flujo recomendado módulos](#-flujo-recomendado-módulos) |  |
 | [📝 Commit + versionado automático](#-commit--versionado-automático) |  |
 | [📑 Documentación OpenAPI](#-documentación-openapi) |  |
-| [🛠️ Compilar binario](#️-compilar-binario-build-project) | [Comandos principales](#-comandos-principales)<br>[Comandos de módulos](#-comandos-de-módulos) |
+| [🛠️ Compilar binario](#️-compilar-binario-build-project) | [Comandos principales](#-comandos-principales)<br>[Comandos de módulos](#-comandos-de-módulos) (Generación y Tests) |
 | [📑 Archivo config.yaml](#-archivo-configsconfigyaml) | [Bloque app](#-bloque-app)<br>[Bloque server](#-bloque-server)<br>[Bloque data](#-bloque-data) |
 | [⭕ La estructura del proyecto](#-la-estructura-del-proyecto) |  |
 
@@ -91,17 +91,38 @@ Al iniciar el proyecto y asegurarnos de que todas las configuraciones sean corre
 
 > ⓘ **Nota:** Es importante saber que, en caso de **no usar base de datos**, será necesario **comentar `data.ProviderSet`** dentro de **`cmd/service/wire.go`** para evitar **errores de wire**.
 
-Crear un módulo completo (proto + feature + repo + biz + service + wire + generación .proto y docs):
+### Crear un módulo
+
+Puedes crear un módulo completo con todas las operaciones o especificar qué operaciones necesitas:
 
 ```sh
-make module name="foo"
+make module name="foo"                    # módulo completo sin operaciones específicas
+make module name="foo" ops="get,upsert"   # módulo con operaciones GET y UPSERT
+make module name="foo" ops="delete"       # módulo solo con operación DELETE
 ```
 
-Eliminar un módulo:
+### Eliminar un módulo
 
 ```sh
-make module-delete name="foo"               # todas las versiones
-make module-delete name="foo" version="v2"  # sólo v2
+make module-delete name="foo"               # eliminar todas las versiones
+make module-delete name="foo" version="v2"  # eliminar solo la versión v2
+```
+
+### Tests de módulos
+
+Puedes generar tests automáticamente para tus módulos:
+
+```sh
+make tmodule name="foo"                   # generar tests para el módulo
+make tmodule name="foo" version="v2"      # generar tests para una versión específica
+make tmodule name="foo" version="v2" force=1  # sobrescribir tests existentes
+```
+
+Para eliminar los tests:
+
+```sh
+make tmodule-delete name="foo"            # eliminar todos los tests del módulo
+make tmodule-delete name="foo" version="v2"   # eliminar tests de una versión específica
 ```
 
 ## 📝 Commit + versionado automático
@@ -166,12 +187,24 @@ make docs      # Regenerar documentación (docs/ y docs/openapi)
 #### 🔧 Comandos de módulos
 
 ```sh
+# Comandos de generación de módulos
+make module name="foo"                    # Generar módulo completo
+make module name="foo" ops="get,upsert,delete"   # Generar módulo con operaciones GET, UPSERT y DELETE 
+
+# Comandos individuales de generación
 make module-proto name="foo"    # Generar sólo .proto
 make module-feature name="foo"  # Generar sólo feature
 make module-repo name="foo"     # Generar sólo repo
 make module-biz name="foo"      # Generar sólo biz
 make module-service name="foo"  # Generar sólo service
 make module-wire name="foo"     # Generar sólo wire
+
+# Comandos de pruebas de módulos
+make tmodule name="foo"                   # Generar tests para el módulo (la última versión)
+make tmodule name="foo" version="v2"      # Generar tests para versión específica
+make tmodule name="foo" version="v2" force=1  # Sobrescribir tests existentes
+make tmodule-delete name="foo"            # Eliminar todos los tests del módulo
+make tmodule-delete name="foo" version="v2"   # Eliminar tests de versión específica
 ```
 
 ## 📑 Archivo `./configs/config.yaml`
