@@ -10,6 +10,21 @@ import (
 	"github.com/go-kratos/kratos/v2/transport"
 )
 
+/*
+// Get file from multipart context
+
+	m, ok := multipart.FromContext(ctx)
+	if !ok || m.Content == nil {
+		return &pb.UpsertExcelResponse{
+			ProcessedRows: 0,
+			Meta: &pb.MetaResponse{
+				Code:    pb.ResponseCode_RESPONSE_CODE_BAD_REQUEST,
+				Message: "File content is required",
+			},
+		}, nil
+	}
+*/
+
 type Multipart struct {
 	File    multipart.File
 	Header  *multipart.FileHeader
