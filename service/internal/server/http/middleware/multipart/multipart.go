@@ -11,24 +11,39 @@ import (
 )
 
 /*
-// Get file from multipart context
-
+// Get files from multipart context
 	m, ok := multipart.FromContext(ctx)
-	if !ok || m.Content == nil {
+	if !ok || len(m.Files) == 0 {
 		return &pb.UpsertExcelResponse{
 			ProcessedRows: 0,
 			Meta: &pb.MetaResponse{
 				Code:    pb.ResponseCode_RESPONSE_CODE_BAD_REQUEST,
-				Message: "File content is required",
+				Message: "No files were uploaded",
+			},
+		}, nil
+	}
+
+	// Get files with key "file"
+	files, ok := m.Files["file"]
+	if !ok || len(files) == 0 {
+		return &pb.UpsertExcelResponse{
+			ProcessedRows: 0,
+			Meta: &pb.MetaResponse{
+				Code:    pb.ResponseCode_RESPONSE_CODE_BAD_REQUEST,
+				Message: "Field 'file' is required",
 			},
 		}, nil
 	}
 */
 
-type Multipart struct {
+type FileData struct {
 	File    multipart.File
 	Header  *multipart.FileHeader
 	Content []byte
+}
+
+type Multipart struct {
+	Files map[string][]*FileData // key - form field name, value - array of files
 }
 
 type multipartKey struct{}
@@ -59,23 +74,45 @@ func Server(maxMemory int64) func(http.Handler) http.Handler {
 					}
 				}()
 
-				file, header, err := r.FormFile("file")
-				if err != nil {
-					http.Error(w, fmt.Sprintf("failed to get file: %v", err), http.StatusBadRequest)
-					return
-				}
-				defer file.Close()
-
-				content, err := io.ReadAll(file)
-				if err != nil {
-					http.Error(w, fmt.Sprintf("failed to read file: %v", err), http.StatusInternalServerError)
-					return
-				}
-
 				m := &Multipart{
-					File:    file,
-					Header:  header,
-					Content: content,
+					Files: make(map[string][]*FileData),
+				}
+
+				// Process all files from the form
+				for field, headers := range r.MultipartForm.File {
+					files := make([]*FileData, 0, len(headers))
+
+					for _, header := range headers {
+						file, err := header.Open()
+						if err != nil {
+							http.Error(w, fmt.Sprintf("failed to open file %s: %v", header.Filename, err), http.StatusBadRequest)
+							return
+						}
+
+						content, err := io.ReadAll(file)
+						if err != nil {
+							file.Close()
+							http.Error(w, fmt.Sprintf("failed to read file %s: %v", header.Filename, err), http.StatusInternalServerError)
+							return
+						}
+						file.Close() // Close immediately after reading
+
+						files = append(files, &FileData{
+							File:    file,
+							Header:  header,
+							Content: content,
+						})
+					}
+
+					if len(files) > 0 {
+						m.Files[field] = files
+					}
+				}
+
+				// Check that at least one file was uploaded
+				if len(m.Files) == 0 {
+					http.Error(w, "no files were uploaded", http.StatusBadRequest)
+					return
 				}
 
 				ctx := NewContext(r.Context(), m)
