@@ -9,13 +9,13 @@ package main
 import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
-	"service/internal/broker"
 	"service/internal/conf/v1"
 	"service/internal/data"
 	"service/internal/feature/example/v1"
 	"service/internal/feature/example/v1/biz"
 	"service/internal/feature/example/v1/repo"
 	"service/internal/feature/example/v1/service"
+	"service/internal/out/broker"
 	"service/internal/server/grpc"
 	"service/internal/server/http"
 )

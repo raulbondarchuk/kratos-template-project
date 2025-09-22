@@ -4,10 +4,10 @@
 package main
 
 import (
-	"service/internal/broker"
 	"service/internal/conf/v1"
 	"service/internal/data"
 	examplev1 "service/internal/feature/example/v1"
+	"service/internal/out/broker"
 	"service/internal/server"
 
 	"github.com/go-kratos/kratos/v2"
