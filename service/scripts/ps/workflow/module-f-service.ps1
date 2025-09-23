@@ -72,8 +72,8 @@ $null = New-Item -ItemType Directory -Force -Path $svcDir
 Show-Info "Service dir ready: $svcDir"
 
 $apiImport     = "service/api/$base/v$apiVersion"
-$commonImport  = "service/api/common/v1"
 $bizImport     = "service/internal/feature/$base/v$apiVersion/biz"
+$metaImport    = "service/internal/server/http/meta"
 $serviceName   = "${pascal}v${apiVersion}Service"
 
 # ---------- service.go (always)
@@ -112,9 +112,9 @@ package ${pkgBase}_service
 import (
 	"context"
 
-	common      "$commonImport"
-	api_$alias  "$apiImport"
+	api_$alias   "$apiImport"
 	${pkgBase}_biz "$bizImport"
+	srvmeta      "$metaImport"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
@@ -125,42 +125,31 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 	var namePtr *string
 
 	if req.Id != nil && *req.Id != 0 {
-		tmp := uint(*req.Id)
-		idPtr = &tmp
+	  v := uint(*req.Id)
+	  idPtr = &v
 	}
 	if req.Name != nil && *req.Name != "" {
-		tmp := *req.Name
-		namePtr = &tmp
+	  v := *req.Name
+	  namePtr = &v
 	}
 
 	bizRes, err := s.uc.Find${pluralPascal}(ctx, idPtr, namePtr)
 	if err != nil {
 		return &api_$alias.Find${pluralPascal}Response{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: "failed to find ${base}",
-				Details: map[string]string{"error": err.Error()},
-			},
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to find ${base}"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 
 	if len(bizRes) == 0 {
 		return &api_$alias.Find${pluralPascal}Response{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_NO_CONTENT,
-				Message: "no items",
-			},
+			Meta: srvmeta.MetaNoContent("no items"),
 		}, nil
 	}
 
 	dto, err := generic.ToDTOSliceGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](bizRes)
 	if err != nil {
 		return &api_$alias.Find${pluralPascal}Response{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: "failed to marshal dto",
-				Details: map[string]string{"error": err.Error()},
-			},
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to marshal dto"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 
@@ -171,10 +160,7 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 
 	return &api_$alias.Find${pluralPascal}Response{
 		Items: generic.ToPointerSliceGeneric(dto),
-		Meta: &common.MetaResponse{
-			Code:    common.ResponseCode_RESPONSE_CODE_OK,
-			Message: "OK",
-		},
+		Meta:  srvmeta.MetaOK("OK"),
 	}, nil
 }
 "@
@@ -196,9 +182,9 @@ package ${pkgBase}_service
 import (
 	"context"
 
-	common      "$commonImport"
-	api_$alias  "$apiImport"
+	api_$alias   "$apiImport"
 	${pkgBase}_biz "$bizImport"
+	srvmeta      "$metaImport"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
@@ -211,22 +197,14 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 	res, err := s.uc.Upsert${pascal}(ctx, in)
 	if err != nil {
 		return &api_$alias.Upsert${pascal}Response{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: "failed to upsert ${base}",
-				Details: map[string]string{"error": err.Error()},
-			},
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to upsert ${base}"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 
 	dto, err := generic.ToDTOGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](*res)
 	if err != nil {
 		return &api_$alias.Upsert${pascal}Response{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: "failed to marshal dto",
-				Details: map[string]string{"error": err.Error()},
-			},
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to marshal dto"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 	dto.CreatedAt = converter.ConvertToGoogleTimestamp(res.CreatedAt)
@@ -234,10 +212,7 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 
 	return &api_$alias.Upsert${pascal}Response{
 		Item: &dto,
-		Meta: &common.MetaResponse{
-			Code:    common.ResponseCode_RESPONSE_CODE_OK,
-			Message: "OK",
-		},
+		Meta: srvmeta.MetaOK("OK"),
 	}, nil
 }
 "@
@@ -259,25 +234,18 @@ package ${pkgBase}_service
 import (
 	"context"
 
-	common     "$commonImport"
 	api_$alias "$apiImport"
+	srvmeta    "$metaImport"
 )
 
 func (s *${pascal}Service) Delete${pascal}ById(ctx context.Context, req *api_$alias.Delete${pascal}ByIdRequest) (*api_$alias.Delete${pascal}ByIdResponse, error) {
 	if err := s.uc.Delete${pascal}ById(ctx, uint(req.GetId())); err != nil {
 		return &api_$alias.Delete${pascal}ByIdResponse{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: "failed to delete ${base}",
-				Details: map[string]string{"error": err.Error()},
-			},
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to delete ${base}"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 	return &api_$alias.Delete${pascal}ByIdResponse{
-		Meta: &common.MetaResponse{
-			Code:    common.ResponseCode_RESPONSE_CODE_OK,
-			Message: "OK",
-		},
+		Meta: srvmeta.MetaOK("OK"),
 	}, nil
 }
 "@

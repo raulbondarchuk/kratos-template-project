@@ -52,7 +52,7 @@ foreach ($op in $opsList) {
   }
 }
 $AnyOps       = $HasGet -or $HasUpsert -or $HasDelete
-$GenerateMock = -not $AnyOps   # если нет ни одной операции — добавляем мок
+$GenerateMock = -not $AnyOps   # if no ops, add mock
 
 Show-Step "Generating .proto module"
 Show-Info "Input name: $Name ; ops=[$Ops]"
@@ -118,14 +118,14 @@ if (Test-Path $protoFile) {
 # --- dynamic imports ---
 $importLines = @()
 $importLines += 'import "google/protobuf/timestamp.proto";'
-$importLines += 'import "api/common/v1/common.proto";'        # <<< общий Meta
+$importLines += 'import "api/common/v1/common.proto";'        # <<< common Meta
 if ($AnyOps -or $GenerateMock) {
   $importLines += 'import "google/api/annotations.proto";'
   $importLines += 'import "google/api/field_behavior.proto";'
 }
 $importsBlock = ($importLines -join "`n")
 
-# fq тип Meta
+# fq type Meta
 $MetaFQ = "api.common.v1.MetaResponse"
 
 # --- service methods & messages ---
@@ -142,11 +142,11 @@ if ($HasGet) {
 
   $messages += @"
 message Find${pluralPascal}Request {
-  // oneof можно добавить при желании строгости; пока просто опциональные поля
+  // oneof can be added if desired strictness; for now just optional fields
   optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
   optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // optional пагинация (раскомментируй при нужде)
+  // optional pagination (uncomment if needed)
   // optional uint32 limit  = 10;
   // optional uint32 offset = 11;
 }

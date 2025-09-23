@@ -37,7 +37,7 @@
         "parameters": [
           {
             "name": "id",
-            "description": "oneof Ð¼Ð¾Ð¶Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¿Ñ€Ð¸ Ð¶ÐµÐ»Ð°Ð½Ð¸Ð¸ ÑÑ‚Ñ€Ð¾Ð³Ð¾ÑÑ‚Ð¸; Ð¿Ð¾ÐºÐ° Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð¿Ð¾Ð»Ñ",
+            "description": "oneof can be added if desired strictness; for now just optional fields",
             "in": "query",
             "required": false,
             "type": "integer",

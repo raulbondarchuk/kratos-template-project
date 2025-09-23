@@ -28,11 +28,11 @@ service Pruebav1Service {
 }
 
 message FindPruebasRequest {
-  // oneof Ð¼Ð¾Ð¶Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¿Ñ€Ð¸ Ð¶ÐµÐ»Ð°Ð½Ð¸Ð¸ ÑÑ‚Ñ€Ð¾Ð³Ð¾ÑÑ‚Ð¸; Ð¿Ð¾ÐºÐ° Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð¿Ð¾Ð»Ñ
+  // oneof can be added if desired strictness; for now just optional fields
   optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
   optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // optional Ð¿Ð°Ð³Ð¸Ð½Ð°Ñ†Ð¸Ñ (Ñ€Ð°ÑÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð¸Ñ€ÑƒÐ¹ Ð¿Ñ€Ð¸ Ð½ÑƒÐ¶Ð´Ðµ)
+  // optional pagination (uncomment if needed)
   // optional uint32 limit  = 10;
   // optional uint32 offset = 11;
 }

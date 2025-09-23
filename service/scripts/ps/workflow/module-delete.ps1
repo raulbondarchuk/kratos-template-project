@@ -115,7 +115,7 @@ if (@($versionsToDelete).Count -gt 0) {
 # --- helper: multiline regex replace with count ---
 function Update-MultilineText {
   param([string]$Text, [string]$Pattern, [string]$With, [string]$What)
-  # используем inline-флаг (?m) внутри $Pattern
+  # use inline-flag (?m) inside $Pattern
   $re   = New-Object System.Text.RegularExpressions.Regex($Pattern)
   $cnt  = ($re.Matches($Text)).Count
   if ($cnt -gt 0) { Show-OK ("Removed {0} occurrence(s): {1}" -f $cnt, $What) }
@@ -162,7 +162,7 @@ if (-not (Test-Path -LiteralPath $RegistersAgg)) {
     $txt = Update-MultilineText -Text $txt -Pattern $patItemGRPC  -With '' -What "slice items: ${base}v* GRPC"
   }
 
-  # схлопываем лишние пустые строки
+  # collapse extra empty lines
   $txt = [regex]::Replace($txt, "(\r?\n){3,}", "`r`n`r`n")
   [IO.File]::WriteAllText($RegistersAgg, $txt, $utf8NoBom)
   Show-OK "Updated: $RegistersAgg"

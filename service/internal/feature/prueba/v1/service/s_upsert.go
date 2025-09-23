@@ -3,9 +3,9 @@ package prueba_service
 import (
 	"context"
 
-	common      "service/api/common/v1"
-	api_prueba  "service/api/prueba/v1"
+	api_prueba   "service/api/prueba/v1"
 	prueba_biz "service/internal/feature/prueba/v1/biz"
+	srvmeta      "service/internal/server/http/meta"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
@@ -18,22 +18,14 @@ func (s *PruebaService) UpsertPrueba(ctx context.Context, req *api_prueba.Upsert
 	res, err := s.uc.UpsertPrueba(ctx, in)
 	if err != nil {
 		return &api_prueba.UpsertPruebaResponse{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: "failed to upsert prueba",
-				Details: map[string]string{"error": err.Error()},
-			},
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to upsert prueba"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 
 	dto, err := generic.ToDTOGeneric[prueba_biz.Prueba, api_prueba.Prueba](*res)
 	if err != nil {
 		return &api_prueba.UpsertPruebaResponse{
-			Meta: &common.MetaResponse{
-				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: "failed to marshal dto",
-				Details: map[string]string{"error": err.Error()},
-			},
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to marshal dto"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 	dto.CreatedAt = converter.ConvertToGoogleTimestamp(res.CreatedAt)
@@ -41,9 +33,6 @@ func (s *PruebaService) UpsertPrueba(ctx context.Context, req *api_prueba.Upsert
 
 	return &api_prueba.UpsertPruebaResponse{
 		Item: &dto,
-		Meta: &common.MetaResponse{
-			Code:    common.ResponseCode_RESPONSE_CODE_OK,
-			Message: "OK",
-		},
+		Meta: srvmeta.MetaOK("OK"),
 	}, nil
 }

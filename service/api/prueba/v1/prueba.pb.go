@@ -26,7 +26,7 @@ const (
 
 type FindPruebasRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// oneof Ð¼Ð¾Ð¶Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¿Ñ€Ð¸ Ð¶ÐµÐ»Ð°Ð½Ð¸Ð¸ ÑÑ‚Ñ€Ð¾Ð³Ð¾ÑÑ‚Ð¸; Ð¿Ð¾ÐºÐ° Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð¿Ð¾Ð»Ñ
+	// oneof can be added if desired strictness; for now just optional fields
 	Id            *uint32 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Name          *string `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields

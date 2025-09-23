@@ -16,7 +16,7 @@ paths:
             parameters:
                 - name: id
                   in: query
-                  description: "oneof Ð¼Ð¾Ð¶Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¿Ñ€Ð¸ Ð¶ÐµÐ»Ð°Ð½Ð¸Ð¸ Ñ\x81Ñ‚Ñ€Ð¾Ð³Ð¾Ñ\x81Ñ‚Ð¸; Ð¿Ð¾ÐºÐ° Ð¿Ñ€Ð¾Ñ\x81Ñ‚Ð¾ Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð¿Ð¾Ð»Ñ\x8F"
+                  description: oneof can be added if desired strictness; for now just optional fields
                   schema:
                     type: integer
                     format: uint32

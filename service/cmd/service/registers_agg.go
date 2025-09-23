@@ -5,6 +5,7 @@ import (
 
 	server_grpc "service/internal/server/grpc"
 	server_http "service/internal/server/http"
+
 	pruebav1 "service/internal/feature/prueba/v1"
 )
 
@@ -43,4 +44,5 @@ func BuildAllRegistrars(
 
 func ProvideHTTPRegistrers(all AllRegistrers) []server_http.HTTPRegister { return all.HTTP }
 func ProvideGRPCRegistrers(all AllRegistrers) []server_grpc.GRPCRegister { return all.GRPC }
+
 
