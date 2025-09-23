@@ -3,16 +3,16 @@
 
 openapi: 3.0.3
 info:
-    title: Pruebav1Service API
-    description: 'Pruebav1Service: generated with ops=[get,upsert]'
+    title: Examplev1Service API
+    description: 'Examplev1Service: generated with ops=[get,upsert,delete]'
     version: 0.0.1
 paths:
-    /v1/prueba:
+    /v1/example:
         get:
             tags:
-                - Pruebav1Service
-            description: 'GET /v1/prueba - list or search by filters (query: id OR name)'
-            operationId: Pruebav1Service_FindPruebas
+                - Examplev1Service
+            description: 'GET /v1/example - list or search by filters (query: id OR name)'
+            operationId: Examplev1Service_FindExamples
             parameters:
                 - name: id
                   in: query
@@ -30,17 +30,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.prueba.v1.FindPruebasResponse'
+                                $ref: '#/components/schemas/api.example.v1.FindExamplesResponse'
         post:
             tags:
-                - Pruebav1Service
-            description: POST /v1/prueba - create or update (id empty/0 => create, >0 => update)
-            operationId: Pruebav1Service_UpsertPrueba
+                - Examplev1Service
+            description: POST /v1/example - create or update (id empty/0 => create, >0 => update)
+            operationId: Examplev1Service_UpsertExample
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaRequest'
+                            $ref: '#/components/schemas/api.example.v1.UpsertExampleRequest'
                 required: true
             responses:
                 "200":
@@ -48,7 +48,25 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.prueba.v1.UpsertPruebaResponse'
+                                $ref: '#/components/schemas/api.example.v1.UpsertExampleResponse'
+        delete:
+            tags:
+                - Examplev1Service
+            description: DELETE /v1/example?id=123 - delete by id (query param)
+            operationId: Examplev1Service_DeleteExampleById
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.example.v1.DeleteExampleByIdResponse'
 components:
     schemas:
         api.common.v1.MetaResponse:
@@ -64,16 +82,12 @@ components:
                     additionalProperties:
                         type: string
                     description: 'Optional: technical details/field-value for debug in DEV'
-        api.prueba.v1.FindPruebasResponse:
+        api.example.v1.DeleteExampleByIdResponse:
             type: object
             properties:
-                items:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.prueba.v1.Prueba'
                 meta:
                     $ref: '#/components/schemas/api.common.v1.MetaResponse'
-        api.prueba.v1.Prueba:
+        api.example.v1.Example:
             type: object
             properties:
                 id:
@@ -87,7 +101,16 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
-        api.prueba.v1.UpsertPruebaRequest:
+        api.example.v1.FindExamplesResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.example.v1.Example'
+                meta:
+                    $ref: '#/components/schemas/api.common.v1.MetaResponse'
+        api.example.v1.UpsertExampleRequest:
             required:
                 - name
             type: object
@@ -97,12 +120,12 @@ components:
                     format: uint32
                 name:
                     type: string
-        api.prueba.v1.UpsertPruebaResponse:
+        api.example.v1.UpsertExampleResponse:
             type: object
             properties:
                 item:
-                    $ref: '#/components/schemas/api.prueba.v1.Prueba'
+                    $ref: '#/components/schemas/api.example.v1.Example'
                 meta:
                     $ref: '#/components/schemas/api.common.v1.MetaResponse'
 tags:
-    - name: Pruebav1Service
+    - name: Examplev1Service

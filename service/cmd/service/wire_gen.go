@@ -11,10 +11,10 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"service/internal/conf/v1"
 	"service/internal/data"
-	"service/internal/feature/prueba/v1"
-	"service/internal/feature/prueba/v1/biz"
-	"service/internal/feature/prueba/v1/repo"
-	"service/internal/feature/prueba/v1/service"
+	"service/internal/feature/example/v1"
+	"service/internal/feature/example/v1/biz"
+	"service/internal/feature/example/v1/repo"
+	"service/internal/feature/example/v1/service"
 	"service/internal/out/broker"
 	"service/internal/server/grpc"
 	"service/internal/server/http"
@@ -32,11 +32,11 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 	if err != nil {
 		return nil, nil, err
 	}
-	pruebaRepo := prueba_repo.NewPruebaRepo(dataData, logger)
-	pruebaUsecase := prueba_biz.NewPruebaUsecase(pruebaRepo, logger)
-	pruebaService := prueba_service.NewPruebaService(pruebaUsecase)
-	httpRegister := prueba.NewPruebaHTTPRegistrer(pruebaService)
-	grpcRegister := prueba.NewPruebaGRPCRegistrer(pruebaService)
+	exampleRepo := example_repo.NewExampleRepo(dataData, logger)
+	exampleUsecase := example_biz.NewExampleUsecase(exampleRepo, logger)
+	exampleService := example_service.NewExampleService(exampleUsecase)
+	httpRegister := example.NewExampleHTTPRegistrer(exampleService)
+	grpcRegister := example.NewExampleGRPCRegistrer(exampleService)
 	allRegistrers := BuildAllRegistrars(httpRegister, grpcRegister)
 	v := ProvideGRPCRegistrers(allRegistrers)
 	server := server_grpc.NewGRPCServer(serverConf, v, logger)

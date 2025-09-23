@@ -1,16 +1,16 @@
-package prueba_service
+package example_service
 
 import (
 	"context"
 
-	api_prueba   "service/api/prueba/v1"
-	prueba_biz "service/internal/feature/prueba/v1/biz"
+	api_example   "service/api/example/v1"
+	example_biz "service/internal/feature/example/v1/biz"
 	srvmeta      "service/internal/server/http/meta"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
-func (s *PruebaService) FindPruebas(ctx context.Context, req *api_prueba.FindPruebasRequest) (*api_prueba.FindPruebasResponse, error) {
+func (s *ExampleService) FindExamples(ctx context.Context, req *api_example.FindExamplesRequest) (*api_example.FindExamplesResponse, error) {
 	// presence-aware (optional fields)
 	var idPtr *uint
 	var namePtr *string
@@ -24,22 +24,22 @@ func (s *PruebaService) FindPruebas(ctx context.Context, req *api_prueba.FindPru
 	  namePtr = &v
 	}
 
-	bizRes, err := s.uc.FindPruebas(ctx, idPtr, namePtr)
+	bizRes, err := s.uc.FindExamples(ctx, idPtr, namePtr)
 	if err != nil {
-		return &api_prueba.FindPruebasResponse{
-			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to find prueba"), map[string]string{"error": err.Error()}),
+		return &api_example.FindExamplesResponse{
+			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to find example"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
 
 	if len(bizRes) == 0 {
-		return &api_prueba.FindPruebasResponse{
+		return &api_example.FindExamplesResponse{
 			Meta: srvmeta.MetaNoContent("no items"),
 		}, nil
 	}
 
-	dto, err := generic.ToDTOSliceGeneric[prueba_biz.Prueba, api_prueba.Prueba](bizRes)
+	dto, err := generic.ToDTOSliceGeneric[example_biz.Example, api_example.Example](bizRes)
 	if err != nil {
-		return &api_prueba.FindPruebasResponse{
+		return &api_example.FindExamplesResponse{
 			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to marshal dto"), map[string]string{"error": err.Error()}),
 		}, nil
 	}
@@ -49,7 +49,7 @@ func (s *PruebaService) FindPruebas(ctx context.Context, req *api_prueba.FindPru
 		dto[i].UpdatedAt = converter.ConvertToGoogleTimestamp(bizRes[i].UpdatedAt)
 	}
 
-	return &api_prueba.FindPruebasResponse{
+	return &api_example.FindExamplesResponse{
 		Items: generic.ToPointerSliceGeneric(dto),
 		Meta:  srvmeta.MetaOK("OK"),
 	}, nil

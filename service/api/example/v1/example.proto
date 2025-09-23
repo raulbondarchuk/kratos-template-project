@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package api.example.v1;
+
+import "google/protobuf/timestamp.proto";
+import "api/common/v1/common.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "service/api/example;example";
+option java_multiple_files = true;
+option java_outer_classname = "ExampleProtoV1";
+option java_package = "dev.kratos.api.example.example";
+
+// Examplev1Service: generated with ops=[get,upsert,delete]
+service Examplev1Service {
+  // GET /v1/example - list or search by filters (query: id OR name)
+  rpc FindExamples(FindExamplesRequest) returns (FindExamplesResponse) {
+    option (google.api.http) = { get: "/v1/example" };
+  }
+  // POST /v1/example - create or update (id empty/0 => create, >0 => update)
+  rpc UpsertExample(UpsertExampleRequest) returns (UpsertExampleResponse) {
+    option (google.api.http) = {
+      post: "/v1/example"
+      body: "*"
+    };
+  }
+  // DELETE /v1/example?id=123 - delete by id (query param)
+  rpc DeleteExampleById(DeleteExampleByIdRequest) returns (DeleteExampleByIdResponse) {
+    option (google.api.http) = { delete: "/v1/example" };
+  }
+}
+
+message FindExamplesRequest {
+  // oneof can be added if desired strictness; for now just optional fields
+  optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
+  optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // optional pagination (uncomment if needed)
+  // optional uint32 limit  = 10;
+  // optional uint32 offset = 11;
+}
+message FindExamplesResponse {
+  repeated Example items = 1;
+  api.common.v1.MetaResponse meta = 2;
+}
+message UpsertExampleRequest {
+  optional uint32 id   = 1; // 0 or unset => create; >0 => update
+  string name          = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message UpsertExampleResponse {
+  Example item = 1;
+  api.common.v1.MetaResponse meta = 2;
+}
+message DeleteExampleByIdRequest {
+  uint32 id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+message DeleteExampleByIdResponse {
+  api.common.v1.MetaResponse meta = 1;
+}
+
+message Example {
+  uint32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}

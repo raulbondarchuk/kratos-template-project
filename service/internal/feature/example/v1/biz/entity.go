@@ -1,8 +1,8 @@
-package prueba_biz
+package example_biz
 
 import "time"
 
-type Prueba struct {
+type Example struct {
 	ID        uint
 	Name      string
 	CreatedAt time.Time
