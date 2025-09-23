@@ -63,6 +63,11 @@ $pascal       = ConvertTo-PascalCase $Name
 $pluralBase   = ConvertTo-LowerCase (ConvertTo-Plural $base)
 $pluralPascal = ConvertTo-PascalCase $pluralBase
 
+# === guard: forbid 'common' module creation ===
+if ($base -eq 'common') {
+  Show-ErrorAndExit "Module 'common' is reserved for common types and cannot be created/overridden by the script."
+}
+
 # --- detect next free version ---
 Show-Step "Detecting next free API version"
 $baseDir  = Join-Path -Path $ApiRoot -ChildPath $base
