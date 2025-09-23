@@ -4,8 +4,8 @@ import (
 	"context"
 
 	api_example "service/api/example/v1"
-	reason "service/internal/middleware/http_reason"
-	httperr "service/internal/server/http/middleware/errors"
+	httperr    "service/internal/server/http/middleware/errors"
+	reason     "service/internal/middleware/http_reason"
 )
 
 func (s *ExampleService) DeleteExampleById(ctx context.Context, req *api_example.DeleteExampleByIdRequest) (*api_example.DeleteExampleByIdResponse, error) {

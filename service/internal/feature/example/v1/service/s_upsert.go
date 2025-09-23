@@ -25,8 +25,8 @@ func (s *ExampleService) UpsertExample(ctx context.Context, req *api_example.Ups
 	if err != nil {
 		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
-	dto.CreatedAt = converter.ConvertToGoogleTimestamp(res.CreatedAt)
-	dto.UpdatedAt = converter.ConvertToGoogleTimestamp(res.UpdatedAt)
+	dto.CreatedAt = generic.ConvertToGoogleTimestamp(res.CreatedAt)
+	dto.UpdatedAt = generic.ConvertToGoogleTimestamp(res.UpdatedAt)
 
 	return &api_example.UpsertExampleResponse{
 		Item: &dto,

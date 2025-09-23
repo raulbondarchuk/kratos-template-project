@@ -116,7 +116,6 @@ import (
 	${pkgBase}_biz "$bizImport"
 	httperr      "$errorsImport"
 	reason       "$reasonsImport"
-	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
@@ -143,8 +142,8 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
 	for i := range bizRes {
-		dto[i].CreatedAt = converter.ConvertToGoogleTimestamp(bizRes[i].CreatedAt)
-		dto[i].UpdatedAt = converter.ConvertToGoogleTimestamp(bizRes[i].UpdatedAt)
+		dto[i].CreatedAt = generic.ConvertToGoogleTimestamp(bizRes[i].CreatedAt)
+		dto[i].UpdatedAt = generic.ConvertToGoogleTimestamp(bizRes[i].UpdatedAt)
 	}
 
 	return &api_$alias.Find${pluralPascal}Response{
@@ -175,7 +174,6 @@ import (
 	${pkgBase}_biz "$bizImport"
 	httperr      "$errorsImport"
 	reason       "$reasonsImport"
-	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
@@ -193,8 +191,8 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 	if err != nil {
 		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
-	dto.CreatedAt = converter.ConvertToGoogleTimestamp(res.CreatedAt)
-	dto.UpdatedAt = converter.ConvertToGoogleTimestamp(res.UpdatedAt)
+	dto.CreatedAt = generic.ConvertToGoogleTimestamp(res.CreatedAt)
+	dto.UpdatedAt = generic.ConvertToGoogleTimestamp(res.UpdatedAt)
 
 	return &api_$alias.Upsert${pascal}Response{
 		Item: &dto,

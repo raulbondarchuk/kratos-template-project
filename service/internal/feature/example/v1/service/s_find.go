@@ -34,8 +34,8 @@ func (s *ExampleService) FindExamples(ctx context.Context, req *api_example.Find
 		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
 	for i := range bizRes {
-		dto[i].CreatedAt = converter.ConvertToGoogleTimestamp(bizRes[i].CreatedAt)
-		dto[i].UpdatedAt = converter.ConvertToGoogleTimestamp(bizRes[i].UpdatedAt)
+		dto[i].CreatedAt = generic.ConvertToGoogleTimestamp(bizRes[i].CreatedAt)
+		dto[i].UpdatedAt = generic.ConvertToGoogleTimestamp(bizRes[i].UpdatedAt)
 	}
 
 	return &api_example.FindExamplesResponse{
