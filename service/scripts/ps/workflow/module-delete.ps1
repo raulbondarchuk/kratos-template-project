@@ -26,11 +26,6 @@ try { . (Join-Path $PSScriptRoot 'utils.ps1') } catch {
 function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 $base = ConvertTo-LowerCase $Name
 
-# === guard: forbid 'common' module deletion ===
-if ($base -eq 'common') {
-  Show-ErrorAndExit "Module 'common' is reserved and cannot be deleted."
-}
-
 # --- discover versions present ---
 $featBase = Join-Path $FeatureRoot $base
 $apiBase  = Join-Path $ApiRoot $base
