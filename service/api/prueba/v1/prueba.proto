@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package api.prueba.v1;
+
+import "google/protobuf/timestamp.proto";
+import "api/common/v1/common.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "service/api/prueba;prueba";
+option java_multiple_files = true;
+option java_outer_classname = "PruebaProtoV1";
+option java_package = "dev.kratos.api.prueba.prueba";
+
+// Pruebav1Service: generated with ops=[get,upsert]
+service Pruebav1Service {
+  // GET /v1/prueba - list or search by filters (query: id OR name)
+  rpc FindPruebas(FindPruebasRequest) returns (FindPruebasResponse) {
+    option (google.api.http) = { get: "/v1/prueba" };
+  }
+  // POST /v1/prueba - create or update (id empty/0 => create, >0 => update)
+  rpc UpsertPrueba(UpsertPruebaRequest) returns (UpsertPruebaResponse) {
+    option (google.api.http) = {
+      post: "/v1/prueba"
+      body: "*"
+    };
+  }
+}
+
+message FindPruebasRequest {
+  // oneof Ð¼Ð¾Ð¶Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¿Ñ€Ð¸ Ð¶ÐµÐ»Ð°Ð½Ð¸Ð¸ ÑÑ‚Ñ€Ð¾Ð³Ð¾ÑÑ‚Ð¸; Ð¿Ð¾ÐºÐ° Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¾Ð¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð¿Ð¾Ð»Ñ
+  optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
+  optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // optional Ð¿Ð°Ð³Ð¸Ð½Ð°Ñ†Ð¸Ñ (Ñ€Ð°ÑÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð¸Ñ€ÑƒÐ¹ Ð¿Ñ€Ð¸ Ð½ÑƒÐ¶Ð´Ðµ)
+  // optional uint32 limit  = 10;
+  // optional uint32 offset = 11;
+}
+message FindPruebasResponse {
+  repeated Prueba items = 1;
+  api.common.v1.MetaResponse meta = 2;
+}
+message UpsertPruebaRequest {
+  optional uint32 id   = 1; // 0 or unset => create; >0 => update
+  string name          = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message UpsertPruebaResponse {
+  Prueba item = 1;
+  api.common.v1.MetaResponse meta = 2;
+}
+
+message Prueba {
+  uint32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}

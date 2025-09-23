@@ -71,11 +71,12 @@ $svcDir = Join-Path $featureRootV "service"
 $null = New-Item -ItemType Directory -Force -Path $svcDir
 Show-Info "Service dir ready: $svcDir"
 
-$apiImport    = "service/api/$base/v$apiVersion"
-$bizImport    = "service/internal/feature/$base/v$apiVersion/biz"
-$serviceName  = "${pascal}v${apiVersion}Service"
+$apiImport     = "service/api/$base/v$apiVersion"
+$commonImport  = "service/api/common/v1"
+$bizImport     = "service/internal/feature/$base/v$apiVersion/biz"
+$serviceName   = "${pascal}v${apiVersion}Service"
 
-# service.go (always)
+# ---------- service.go (always)
 $p = Join-Path $svcDir "service.go"
 if (-not (Test-Path $p)) {
   Show-Info "Writing: $p"
@@ -100,7 +101,7 @@ func New${pascal}Service(uc *${pkgBase}_biz.${pascal}Usecase) *${pascal}Service 
   Show-OK "Created: service.go"
 } else { Show-Info "Skip (exists): $p" }
 
-# s_find.go (GET)
+# ---------- s_find.go (GET)
 if ($HasGet) {
   $p = Join-Path $svcDir "s_find.go"
   if (-not (Test-Path $p)) {
@@ -111,37 +112,42 @@ package ${pkgBase}_service
 import (
 	"context"
 
-	api_$alias "$apiImport"
+	common      "$commonImport"
+	api_$alias  "$apiImport"
 	${pkgBase}_biz "$bizImport"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
 func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$alias.Find${pluralPascal}Request) (*api_$alias.Find${pluralPascal}Response, error) {
+	// presence-aware (optional fields)
 	var idPtr *uint
 	var namePtr *string
-	if req.Id != 0 {
-		tmp := uint(req.Id)
+
+	if req.Id != nil && *req.Id != 0 {
+		tmp := uint(*req.Id)
 		idPtr = &tmp
 	}
-	if req.Name != "" {
-		tmp := req.Name
+	if req.Name != nil && *req.Name != "" {
+		tmp := *req.Name
 		namePtr = &tmp
 	}
 
 	bizRes, err := s.uc.Find${pluralPascal}(ctx, idPtr, namePtr)
 	if err != nil {
 		return &api_$alias.Find${pluralPascal}Response{
-			Meta: &api_$alias.MetaResponse{
-				Code:    api_$alias.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: err.Error(),
+			Meta: &common.MetaResponse{
+				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
+				Message: "failed to find ${base}",
+				Details: map[string]string{"error": err.Error()},
 			},
 		}, nil
 	}
+
 	if len(bizRes) == 0 {
 		return &api_$alias.Find${pluralPascal}Response{
-			Meta: &api_$alias.MetaResponse{
-				Code:    api_$alias.ResponseCode_RESPONSE_CODE_OK,
+			Meta: &common.MetaResponse{
+				Code:    common.ResponseCode_RESPONSE_CODE_NO_CONTENT,
 				Message: "no items",
 			},
 		}, nil
@@ -150,9 +156,10 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 	dto, err := generic.ToDTOSliceGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](bizRes)
 	if err != nil {
 		return &api_$alias.Find${pluralPascal}Response{
-			Meta: &api_$alias.MetaResponse{
-				Code:    api_$alias.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: err.Error(),
+			Meta: &common.MetaResponse{
+				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
+				Message: "failed to marshal dto",
+				Details: map[string]string{"error": err.Error()},
 			},
 		}, nil
 	}
@@ -164,8 +171,8 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 
 	return &api_$alias.Find${pluralPascal}Response{
 		Items: generic.ToPointerSliceGeneric(dto),
-		Meta: &api_$alias.MetaResponse{
-			Code:    api_$alias.ResponseCode_RESPONSE_CODE_OK,
+		Meta: &common.MetaResponse{
+			Code:    common.ResponseCode_RESPONSE_CODE_OK,
 			Message: "OK",
 		},
 	}, nil
@@ -178,7 +185,7 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
   Show-Info "No GET op; skip s_find.go"
 }
 
-# s_upsert.go (UPSERT)
+# ---------- s_upsert.go (UPSERT)
 if ($HasUpsert) {
   $p = Join-Path $svcDir "s_upsert.go"
   if (-not (Test-Path $p)) {
@@ -189,7 +196,8 @@ package ${pkgBase}_service
 import (
 	"context"
 
-	api_$alias "$apiImport"
+	common      "$commonImport"
+	api_$alias  "$apiImport"
 	${pkgBase}_biz "$bizImport"
 	"service/pkg/converter"
 	"service/pkg/generic"
@@ -197,15 +205,16 @@ import (
 
 func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.Upsert${pascal}Request) (*api_$alias.Upsert${pascal}Response, error) {
 	in := &${pkgBase}_biz.${pascal}{
-		ID:   uint(req.Id),
-		Name: req.Name,
+		ID:   uint(req.GetId()),
+		Name: req.GetName(),
 	}
 	res, err := s.uc.Upsert${pascal}(ctx, in)
 	if err != nil {
 		return &api_$alias.Upsert${pascal}Response{
-			Meta: &api_$alias.MetaResponse{
-				Code:    api_$alias.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: err.Error(),
+			Meta: &common.MetaResponse{
+				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
+				Message: "failed to upsert ${base}",
+				Details: map[string]string{"error": err.Error()},
 			},
 		}, nil
 	}
@@ -213,9 +222,10 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 	dto, err := generic.ToDTOGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](*res)
 	if err != nil {
 		return &api_$alias.Upsert${pascal}Response{
-			Meta: &api_$alias.MetaResponse{
-				Code:    api_$alias.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: err.Error(),
+			Meta: &common.MetaResponse{
+				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
+				Message: "failed to marshal dto",
+				Details: map[string]string{"error": err.Error()},
 			},
 		}, nil
 	}
@@ -224,8 +234,8 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 
 	return &api_$alias.Upsert${pascal}Response{
 		Item: &dto,
-		Meta: &api_$alias.MetaResponse{
-			Code:    api_$alias.ResponseCode_RESPONSE_CODE_OK,
+		Meta: &common.MetaResponse{
+			Code:    common.ResponseCode_RESPONSE_CODE_OK,
 			Message: "OK",
 		},
 	}, nil
@@ -238,7 +248,7 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
   Show-Info "No UPSERT op; skip s_upsert.go"
 }
 
-# s_delete_by_id.go (DELETE)
+# ---------- s_delete_by_id.go (DELETE)
 if ($HasDelete) {
   $p = Join-Path $svcDir "s_delete_by_id.go"
   if (-not (Test-Path $p)) {
@@ -249,21 +259,23 @@ package ${pkgBase}_service
 import (
 	"context"
 
+	common     "$commonImport"
 	api_$alias "$apiImport"
 )
 
 func (s *${pascal}Service) Delete${pascal}ById(ctx context.Context, req *api_$alias.Delete${pascal}ByIdRequest) (*api_$alias.Delete${pascal}ByIdResponse, error) {
-	if err := s.uc.Delete${pascal}ById(ctx, uint(req.Id)); err != nil {
+	if err := s.uc.Delete${pascal}ById(ctx, uint(req.GetId())); err != nil {
 		return &api_$alias.Delete${pascal}ByIdResponse{
-			Meta: &api_$alias.MetaResponse{
-				Code:    api_$alias.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
-				Message: err.Error(),
+			Meta: &common.MetaResponse{
+				Code:    common.ResponseCode_RESPONSE_CODE_INTERNAL_SERVER_ERROR,
+				Message: "failed to delete ${base}",
+				Details: map[string]string{"error": err.Error()},
 			},
 		}, nil
 	}
 	return &api_$alias.Delete${pascal}ByIdResponse{
-		Meta: &api_$alias.MetaResponse{
-			Code:    api_$alias.ResponseCode_RESPONSE_CODE_OK,
+		Meta: &common.MetaResponse{
+			Code:    common.ResponseCode_RESPONSE_CODE_OK,
 			Message: "OK",
 		},
 	}, nil

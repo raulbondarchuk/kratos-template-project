@@ -87,7 +87,6 @@ Show-Info "Chosen version: v$Version"
 # --- paths & meta ---
 $pkgDir      = Join-Path -Path $baseDir -ChildPath "v$Version"
 $protoFile   = Join-Path $pkgDir "$base.proto"
-$errorsFile  = Join-Path $pkgDir "errors.proto"
 
 $package     = "api.$base.v$Version"
 $goPkg       = "service/api/$base;$base"
@@ -96,7 +95,6 @@ $javaPkg     = "dev.kratos.api.$base.$base"
 
 $serviceName = "${pascal}v${Version}Service"
 $route       = "/v$Version/$base"
-$errorsImport = "api/$base/v$Version/errors.proto"
 
 Show-Step "Preparing output"
 Show-Info "Package: $package"
@@ -113,47 +111,22 @@ if (-not (Test-Path -LiteralPath $pkgDir)) {
 }
 
 # --- safety ---
-if ((Test-Path $protoFile) -or (Test-Path $errorsFile)) {
-  Show-ErrorAndExit "Files already exist for '$base' v$Version. Aborting."
+if (Test-Path $protoFile) {
+  Show-ErrorAndExit "File already exists for '$base' v$Version. Aborting."
 }
-
-# --- errors.proto content ---
-$errorsContent = @"
-syntax = "proto3";
-
-package $package;
-
-option go_package = "$goPkg";
-
-// Minimum set of codes. Zero is mandatory in proto3.
-enum ResponseCode {
-  RESPONSE_CODE_UNSPECIFIED = 0;
-  RESPONSE_CODE_OK = 200;
-  RESPONSE_CODE_BAD_REQUEST = 400;
-  RESPONSE_CODE_UNAUTHORIZED = 401;
-  RESPONSE_CODE_FORBIDDEN = 403;
-  RESPONSE_CODE_NOT_FOUND = 404;
-  RESPONSE_CODE_METHOD_NOT_ALLOWED = 405;
-  RESPONSE_CODE_INTERNAL_SERVER_ERROR = 500;
-  RESPONSE_CODE_NOT_IMPLEMENTED = 501;
-  RESPONSE_CODE_SERVICE_UNAVAILABLE = 503;
-}
-
-message MetaResponse {
-  ResponseCode code = 1;
-  string message = 2;
-}
-"@
 
 # --- dynamic imports ---
 $importLines = @()
 $importLines += 'import "google/protobuf/timestamp.proto";'
+$importLines += 'import "api/common/v1/common.proto";'        # <<< общий Meta
 if ($AnyOps -or $GenerateMock) {
   $importLines += 'import "google/api/annotations.proto";'
   $importLines += 'import "google/api/field_behavior.proto";'
-  $importLines += "import `"$errorsImport`";"
 }
 $importsBlock = ($importLines -join "`n")
+
+# fq тип Meta
+$MetaFQ = "api.common.v1.MetaResponse"
 
 # --- service methods & messages ---
 $serviceMethods = @()
@@ -161,7 +134,7 @@ $messages = @()
 
 if ($HasGet) {
   $serviceMethods += @"
-  // GET ${route} - list or search by filters
+  // GET ${route} - list or search by filters (query: id OR name)
   rpc Find${pluralPascal}(Find${pluralPascal}Request) returns (Find${pluralPascal}Response) {
     option (google.api.http) = { get: "${route}" };
   }
@@ -169,19 +142,24 @@ if ($HasGet) {
 
   $messages += @"
 message Find${pluralPascal}Request {
-  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
-  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+  // oneof можно добавить при желании строгости; пока просто опциональные поля
+  optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
+  optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // optional пагинация (раскомментируй при нужде)
+  // optional uint32 limit  = 10;
+  // optional uint32 offset = 11;
 }
 message Find${pluralPascal}Response {
   repeated $pascal items = 1;
-  MetaResponse meta = 2;
+  $MetaFQ meta = 2;
 }
 "@
 }
 
 if ($HasUpsert) {
   $serviceMethods += @"
-  // POST ${route} - create or update (id=0 create, >0 update)
+  // POST ${route} - create or update (id empty/0 => create, >0 => update)
   rpc Upsert${pascal}(Upsert${pascal}Request) returns (Upsert${pascal}Response) {
     option (google.api.http) = {
       post: "${route}"
@@ -192,19 +170,19 @@ if ($HasUpsert) {
 
   $messages += @"
 message Upsert${pascal}Request {
-  uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
-  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  optional uint32 id   = 1; // 0 or unset => create; >0 => update
+  string name          = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message Upsert${pascal}Response {
   $pascal item = 1;
-  MetaResponse meta = 2;
+  $MetaFQ meta = 2;
 }
 "@
 }
 
 if ($HasDelete) {
   $serviceMethods += @"
-  // DELETE ${route}?id=123 - delete by id
+  // DELETE ${route}?id=123 - delete by id (query param)
   rpc Delete${pascal}ById(Delete${pascal}ByIdRequest) returns (Delete${pascal}ByIdResponse) {
     option (google.api.http) = { delete: "${route}" };
   }
@@ -215,7 +193,7 @@ message Delete${pascal}ByIdRequest {
   uint32 id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 message Delete${pascal}ByIdResponse {
-  MetaResponse meta = 1;
+  $MetaFQ meta = 1;
 }
 "@
 }
@@ -223,7 +201,7 @@ message Delete${pascal}ByIdResponse {
 # --- mock endpoint when no ops selected ---
 if ($GenerateMock) {
   $serviceMethods += @"
-// TODO: Mock de endpoint
+// Mock endpoint (no ops selected)
   rpc Mock(MockRequest) returns (MockResponse) {
     option (google.api.http) = { get: "${route}/mock" };
   }
@@ -233,7 +211,7 @@ if ($GenerateMock) {
 message MockRequest {}
 message MockResponse {
   string message = 1;      // e.g. ""pong""
-  MetaResponse meta = 2;
+  $MetaFQ meta   = 2;
 }
 "@
 }
@@ -242,13 +220,12 @@ message MockResponse {
 $serviceBlock = ""
 if ($serviceMethods.Count -gt 0) {
   $serviceBlock = @"
- // ${serviceName}: generated with ops=[$Ops]
+// ${serviceName}: generated with ops=[$Ops]
 service $serviceName {
 $($serviceMethods -join "`n")
 }
 "@
 } else {
-  # теоретически сюда не попадём, т.к. при отсутствии ops генерим мок
   $serviceBlock = @"
 // ${serviceName}: no RPCs
 service $serviceName {}
@@ -289,13 +266,10 @@ $messagesText
 $entityMessage
 "@
 
-# --- write files ---
+# --- write file ---
 Show-Step "Writing files"
-[IO.File]::WriteAllText($errorsFile, $errorsContent, $utf8NoBom)
-Show-OK "errors.proto -> $errorsFile"
-
 [IO.File]::WriteAllText($protoFile,  $protoContent,  $utf8NoBom)
-Show-OK "$base.proto   -> $protoFile"
+Show-OK "$base.proto -> $protoFile"
 
 Show-Step "Done"
 Show-OK ("Created {0}/v{1}" -f $base, $Version)
