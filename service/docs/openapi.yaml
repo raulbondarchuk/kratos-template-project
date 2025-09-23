@@ -16,7 +16,6 @@ paths:
             parameters:
                 - name: id
                   in: query
-                  description: oneof can be added if desired strictness; for now just optional fields
                   schema:
                     type: integer
                     format: uint32
@@ -69,24 +68,9 @@ paths:
                                 $ref: '#/components/schemas/api.example.v1.DeleteExampleByIdResponse'
 components:
     schemas:
-        api.common.v1.MetaResponse:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    format: enum
-                message:
-                    type: string
-                details:
-                    type: object
-                    additionalProperties:
-                        type: string
-                    description: 'Optional: technical details/field-value for debug in DEV'
         api.example.v1.DeleteExampleByIdResponse:
             type: object
-            properties:
-                meta:
-                    $ref: '#/components/schemas/api.common.v1.MetaResponse'
+            properties: {}
         api.example.v1.Example:
             type: object
             properties:
@@ -108,8 +92,9 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.example.v1.Example'
-                meta:
-                    $ref: '#/components/schemas/api.common.v1.MetaResponse'
+                total:
+                    type: integer
+                    format: uint32
         api.example.v1.UpsertExampleRequest:
             required:
                 - name
@@ -125,7 +110,5 @@ components:
             properties:
                 item:
                     $ref: '#/components/schemas/api.example.v1.Example'
-                meta:
-                    $ref: '#/components/schemas/api.common.v1.MetaResponse'
 tags:
     - name: Examplev1Service

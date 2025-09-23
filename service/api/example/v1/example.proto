@@ -3,7 +3,6 @@ syntax = "proto3";
 package api.example.v1;
 
 import "google/protobuf/timestamp.proto";
-import "api/common/v1/common.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -32,32 +31,24 @@ service Examplev1Service {
 }
 
 message FindExamplesRequest {
-  // oneof can be added if desired strictness; for now just optional fields
   optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
   optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
-
-  // optional pagination (uncomment if needed)
-  // optional uint32 limit  = 10;
-  // optional uint32 offset = 11;
 }
 message FindExamplesResponse {
   repeated Example items = 1;
-  api.common.v1.MetaResponse meta = 2;
+  uint32 total = 2;
 }
 message UpsertExampleRequest {
-  optional uint32 id   = 1; // 0 or unset => create; >0 => update
-  string name          = 2 [(google.api.field_behavior) = REQUIRED];
+  optional uint32 id = 1; // 0 or unset => create; >0 => update
+  string name        = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message UpsertExampleResponse {
   Example item = 1;
-  api.common.v1.MetaResponse meta = 2;
 }
 message DeleteExampleByIdRequest {
   uint32 id = 1 [(google.api.field_behavior) = REQUIRED];
 }
-message DeleteExampleByIdResponse {
-  api.common.v1.MetaResponse meta = 1;
-}
+message DeleteExampleByIdResponse {}
 
 message Example {
   uint32 id = 1;

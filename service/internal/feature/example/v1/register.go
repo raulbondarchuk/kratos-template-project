@@ -14,7 +14,7 @@ type GRPCRegister func(*grpc.Server)
 
 // NOTE: versioned service interfaces from proto: Examplev1Service...
 var _ api_example.Examplev1ServiceHTTPServer = (*example_service.ExampleService)(nil)
-var _ api_example.Examplev1ServiceServer = (*example_service.ExampleService)(nil)
+var _ api_example.Examplev1ServiceServer     = (*example_service.ExampleService)(nil)
 
 func NewExampleHTTPRegistrer(s api_example.Examplev1ServiceHTTPServer) HTTPRegister {
 	return func(srv *http.Server) {

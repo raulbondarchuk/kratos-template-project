@@ -8,7 +8,6 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# --- utils (logs) ---
 try {
   . (Join-Path $PSScriptRoot 'utils.ps1')
 } catch {
@@ -19,11 +18,9 @@ try {
   function Show-ErrorAndExit { param([string]$Message) Write-Host "  [ERROR] $Message" -ForegroundColor Red; exit 1 }
 }
 
-# consts
 $ApiRoot   = "./api"
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
-# --- helpers ---
 function ConvertTo-PascalCase {
   param([Parameter(Mandatory=$true)][string]$InputString)
   $parts = ($InputString -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
@@ -52,23 +49,16 @@ foreach ($op in $opsList) {
   }
 }
 $AnyOps       = $HasGet -or $HasUpsert -or $HasDelete
-$GenerateMock = -not $AnyOps   # if no ops, add mock
+$GenerateMock = -not $AnyOps
 
 Show-Step "Generating .proto module"
 Show-Info "Input name: $Name ; ops=[$Ops]"
 
-# --- normalize names ---
 $base         = ConvertTo-LowerCase $Name
 $pascal       = ConvertTo-PascalCase $Name
 $pluralBase   = ConvertTo-LowerCase (ConvertTo-Plural $base)
 $pluralPascal = ConvertTo-PascalCase $pluralBase
 
-# === guard: forbid 'common' module creation ===
-if ($base -eq 'common') {
-  Show-ErrorAndExit "Module 'common' is reserved for common types and cannot be created/overridden by the script."
-}
-
-# --- detect next free version ---
 Show-Step "Detecting next free API version"
 $baseDir  = Join-Path -Path $ApiRoot -ChildPath $base
 $versions = @()
@@ -89,7 +79,6 @@ $Version = 1
 while ($versions -contains $Version) { $Version++ }
 Show-Info "Chosen version: v$Version"
 
-# --- paths & meta ---
 $pkgDir      = Join-Path -Path $baseDir -ChildPath "v$Version"
 $protoFile   = Join-Path $pkgDir "$base.proto"
 
@@ -107,7 +96,6 @@ Show-Info "Service: $serviceName"
 Show-Info "Route:   $route"
 Show-Info "Out dir: $pkgDir"
 
-# --- create folders ---
 if (-not (Test-Path -LiteralPath $pkgDir)) {
   New-Item -ItemType Directory -Path $pkgDir -Force | Out-Null
   Show-Info "Created directory: $pkgDir"
@@ -115,23 +103,18 @@ if (-not (Test-Path -LiteralPath $pkgDir)) {
   Show-Info "Directory exists: $pkgDir"
 }
 
-# --- safety ---
 if (Test-Path $protoFile) {
   Show-ErrorAndExit "File already exists for '$base' v$Version. Aborting."
 }
 
-# --- dynamic imports ---
+# --- imports ---
 $importLines = @()
 $importLines += 'import "google/protobuf/timestamp.proto";'
-$importLines += 'import "api/common/v1/common.proto";'        # <<< common Meta
 if ($AnyOps -or $GenerateMock) {
   $importLines += 'import "google/api/annotations.proto";'
   $importLines += 'import "google/api/field_behavior.proto";'
 }
 $importsBlock = ($importLines -join "`n")
-
-# fq type Meta
-$MetaFQ = "api.common.v1.MetaResponse"
 
 # --- service methods & messages ---
 $serviceMethods = @()
@@ -147,17 +130,12 @@ if ($HasGet) {
 
   $messages += @"
 message Find${pluralPascal}Request {
-  // oneof can be added if desired strictness; for now just optional fields
   optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
   optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
-
-  // optional pagination (uncomment if needed)
-  // optional uint32 limit  = 10;
-  // optional uint32 offset = 11;
 }
 message Find${pluralPascal}Response {
   repeated $pascal items = 1;
-  $MetaFQ meta = 2;
+  uint32 total = 2;
 }
 "@
 }
@@ -175,12 +153,11 @@ if ($HasUpsert) {
 
   $messages += @"
 message Upsert${pascal}Request {
-  optional uint32 id   = 1; // 0 or unset => create; >0 => update
-  string name          = 2 [(google.api.field_behavior) = REQUIRED];
+  optional uint32 id = 1; // 0 or unset => create; >0 => update
+  string name        = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message Upsert${pascal}Response {
   $pascal item = 1;
-  $MetaFQ meta = 2;
 }
 "@
 }
@@ -197,13 +174,10 @@ if ($HasDelete) {
 message Delete${pascal}ByIdRequest {
   uint32 id = 1 [(google.api.field_behavior) = REQUIRED];
 }
-message Delete${pascal}ByIdResponse {
-  $MetaFQ meta = 1;
-}
+message Delete${pascal}ByIdResponse {}
 "@
 }
 
-# --- mock endpoint when no ops selected ---
 if ($GenerateMock) {
   $serviceMethods += @"
 // Mock endpoint (no ops selected)
@@ -215,13 +189,11 @@ if ($GenerateMock) {
   $messages += @"
 message MockRequest {}
 message MockResponse {
-  string message = 1;      // e.g. ""pong""
-  $MetaFQ meta   = 2;
+  string message = 1; // e.g. ""pong""
 }
 "@
 }
 
-# --- service block ---
 $serviceBlock = ""
 if ($serviceMethods.Count -gt 0) {
   $serviceBlock = @"
@@ -251,7 +223,6 @@ if ($messages.Count -gt 0) {
   $messagesText = ($messages -join "`n")
 }
 
-# --- final proto content ---
 $protoContent = @"
 syntax = "proto3";
 
@@ -271,7 +242,6 @@ $messagesText
 $entityMessage
 "@
 
-# --- write file ---
 Show-Step "Writing files"
 [IO.File]::WriteAllText($protoFile,  $protoContent,  $utf8NoBom)
 Show-OK "$base.proto -> $protoFile"

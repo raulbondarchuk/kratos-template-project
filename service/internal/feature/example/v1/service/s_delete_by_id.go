@@ -4,16 +4,14 @@ import (
 	"context"
 
 	api_example "service/api/example/v1"
-	srvmeta    "service/internal/server/http/meta"
+	reason "service/internal/middleware/http_reason"
+	httperr "service/internal/server/http/middleware/errors"
 )
 
 func (s *ExampleService) DeleteExampleById(ctx context.Context, req *api_example.DeleteExampleByIdRequest) (*api_example.DeleteExampleByIdResponse, error) {
 	if err := s.uc.DeleteExampleById(ctx, uint(req.GetId())); err != nil {
-		return &api_example.DeleteExampleByIdResponse{
-			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to delete example"), map[string]string{"error": err.Error()}),
-		}, nil
+		// if desired, you can differentiate NotFound/Conflict and etc.
+		return nil, httperr.Internal(reason.ReasonDatabase, err.Error(), nil)
 	}
-	return &api_example.DeleteExampleByIdResponse{
-		Meta: srvmeta.MetaOK("OK"),
-	}, nil
+	return &api_example.DeleteExampleByIdResponse{}, nil
 }

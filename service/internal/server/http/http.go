@@ -3,7 +3,8 @@ package server_http
 
 import (
 	"service/internal/conf/v1"
-	"service/internal/middleware/requestlog"
+	"service/internal/server/http/middleware/multipart"
+	"service/internal/server/http/middleware/requestlog"
 	"service/internal/server/http/openapi/scalar"
 	"service/internal/server/http/openapi/swagger"
 	"service/internal/server/http/sys"
@@ -19,7 +20,10 @@ func NewHTTPServer(
 	logger log.Logger,
 ) *http.Server {
 	var opts = []http.ServerOption{
-		http.Middleware(recovery.Recovery()),
+		http.Middleware(
+			recovery.Recovery(),
+		),
+		http.Filter(multipart.Server(32 << 20)), // 32MB max memory for file uploads
 		http.Filter(requestlog.RequestLogFilter()),
 	}
 	if c.Http.Network != "" {

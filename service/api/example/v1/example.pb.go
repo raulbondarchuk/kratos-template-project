@@ -12,7 +12,6 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
-	v1 "service/api/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 )
@@ -25,10 +24,9 @@ const (
 )
 
 type FindExamplesRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// oneof can be added if desired strictness; for now just optional fields
-	Id            *uint32 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
-	Name          *string `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -80,7 +78,7 @@ func (x *FindExamplesRequest) GetName() string {
 type FindExamplesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*Example             `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
-	Meta          *v1.MetaResponse       `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`
+	Total         uint32                 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -122,11 +120,11 @@ func (x *FindExamplesResponse) GetItems() []*Example {
 	return nil
 }
 
-func (x *FindExamplesResponse) GetMeta() *v1.MetaResponse {
+func (x *FindExamplesResponse) GetTotal() uint32 {
 	if x != nil {
-		return x.Meta
+		return x.Total
 	}
-	return nil
+	return 0
 }
 
 type UpsertExampleRequest struct {
@@ -184,7 +182,6 @@ func (x *UpsertExampleRequest) GetName() string {
 type UpsertExampleResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Item          *Example               `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
-	Meta          *v1.MetaResponse       `protobuf:"bytes,2,opt,name=meta,proto3" json:"meta,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -222,13 +219,6 @@ func (*UpsertExampleResponse) Descriptor() ([]byte, []int) {
 func (x *UpsertExampleResponse) GetItem() *Example {
 	if x != nil {
 		return x.Item
-	}
-	return nil
-}
-
-func (x *UpsertExampleResponse) GetMeta() *v1.MetaResponse {
-	if x != nil {
-		return x.Meta
 	}
 	return nil
 }
@@ -279,7 +269,6 @@ func (x *DeleteExampleByIdRequest) GetId() uint32 {
 
 type DeleteExampleByIdResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Meta          *v1.MetaResponse       `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -312,13 +301,6 @@ func (x *DeleteExampleByIdResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DeleteExampleByIdResponse.ProtoReflect.Descriptor instead.
 func (*DeleteExampleByIdResponse) Descriptor() ([]byte, []int) {
 	return file_api_example_v1_example_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *DeleteExampleByIdResponse) GetMeta() *v1.MetaResponse {
-	if x != nil {
-		return x.Meta
-	}
-	return nil
 }
 
 type Example struct {
@@ -393,26 +375,24 @@ var File_api_example_v1_example_proto protoreflect.FileDescriptor
 
 const file_api_example_v1_example_proto_rawDesc = "" +
 	"\n" +
-	"\x1capi/example/v1/example.proto\x12\x0eapi.example.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1aapi/common/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"]\n" +
+	"\x1capi/example/v1/example.proto\x12\x0eapi.example.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"]\n" +
 	"\x13FindExamplesRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x01H\x00R\x02id\x88\x01\x01\x12\x1c\n" +
 	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x01H\x01R\x04name\x88\x01\x01B\x05\n" +
 	"\x03_idB\a\n" +
-	"\x05_name\"v\n" +
+	"\x05_name\"[\n" +
 	"\x14FindExamplesResponse\x12-\n" +
-	"\x05items\x18\x01 \x03(\v2\x17.api.example.v1.ExampleR\x05items\x12/\n" +
-	"\x04meta\x18\x02 \x01(\v2\x1b.api.common.v1.MetaResponseR\x04meta\"K\n" +
+	"\x05items\x18\x01 \x03(\v2\x17.api.example.v1.ExampleR\x05items\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\rR\x05total\"K\n" +
 	"\x14UpsertExampleRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x02R\x04nameB\x05\n" +
-	"\x03_id\"u\n" +
+	"\x03_id\"D\n" +
 	"\x15UpsertExampleResponse\x12+\n" +
-	"\x04item\x18\x01 \x01(\v2\x17.api.example.v1.ExampleR\x04item\x12/\n" +
-	"\x04meta\x18\x02 \x01(\v2\x1b.api.common.v1.MetaResponseR\x04meta\"/\n" +
+	"\x04item\x18\x01 \x01(\v2\x17.api.example.v1.ExampleR\x04item\"/\n" +
 	"\x18DeleteExampleByIdRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\"L\n" +
-	"\x19DeleteExampleByIdResponse\x12/\n" +
-	"\x04meta\x18\x01 \x01(\v2\x1b.api.common.v1.MetaResponseR\x04meta\"\xa3\x01\n" +
+	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\"\x1b\n" +
+	"\x19DeleteExampleByIdResponse\"\xa3\x01\n" +
 	"\aExample\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
@@ -447,28 +427,24 @@ var file_api_example_v1_example_proto_goTypes = []any{
 	(*DeleteExampleByIdRequest)(nil),  // 4: api.example.v1.DeleteExampleByIdRequest
 	(*DeleteExampleByIdResponse)(nil), // 5: api.example.v1.DeleteExampleByIdResponse
 	(*Example)(nil),                   // 6: api.example.v1.Example
-	(*v1.MetaResponse)(nil),           // 7: api.common.v1.MetaResponse
-	(*timestamppb.Timestamp)(nil),     // 8: google.protobuf.Timestamp
+	(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
 }
 var file_api_example_v1_example_proto_depIdxs = []int32{
-	6,  // 0: api.example.v1.FindExamplesResponse.items:type_name -> api.example.v1.Example
-	7,  // 1: api.example.v1.FindExamplesResponse.meta:type_name -> api.common.v1.MetaResponse
-	6,  // 2: api.example.v1.UpsertExampleResponse.item:type_name -> api.example.v1.Example
-	7,  // 3: api.example.v1.UpsertExampleResponse.meta:type_name -> api.common.v1.MetaResponse
-	7,  // 4: api.example.v1.DeleteExampleByIdResponse.meta:type_name -> api.common.v1.MetaResponse
-	8,  // 5: api.example.v1.Example.created_at:type_name -> google.protobuf.Timestamp
-	8,  // 6: api.example.v1.Example.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 7: api.example.v1.Examplev1Service.FindExamples:input_type -> api.example.v1.FindExamplesRequest
-	2,  // 8: api.example.v1.Examplev1Service.UpsertExample:input_type -> api.example.v1.UpsertExampleRequest
-	4,  // 9: api.example.v1.Examplev1Service.DeleteExampleById:input_type -> api.example.v1.DeleteExampleByIdRequest
-	1,  // 10: api.example.v1.Examplev1Service.FindExamples:output_type -> api.example.v1.FindExamplesResponse
-	3,  // 11: api.example.v1.Examplev1Service.UpsertExample:output_type -> api.example.v1.UpsertExampleResponse
-	5,  // 12: api.example.v1.Examplev1Service.DeleteExampleById:output_type -> api.example.v1.DeleteExampleByIdResponse
-	10, // [10:13] is the sub-list for method output_type
-	7,  // [7:10] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	6, // 0: api.example.v1.FindExamplesResponse.items:type_name -> api.example.v1.Example
+	6, // 1: api.example.v1.UpsertExampleResponse.item:type_name -> api.example.v1.Example
+	7, // 2: api.example.v1.Example.created_at:type_name -> google.protobuf.Timestamp
+	7, // 3: api.example.v1.Example.updated_at:type_name -> google.protobuf.Timestamp
+	0, // 4: api.example.v1.Examplev1Service.FindExamples:input_type -> api.example.v1.FindExamplesRequest
+	2, // 5: api.example.v1.Examplev1Service.UpsertExample:input_type -> api.example.v1.UpsertExampleRequest
+	4, // 6: api.example.v1.Examplev1Service.DeleteExampleById:input_type -> api.example.v1.DeleteExampleByIdRequest
+	1, // 7: api.example.v1.Examplev1Service.FindExamples:output_type -> api.example.v1.FindExamplesResponse
+	3, // 8: api.example.v1.Examplev1Service.UpsertExample:output_type -> api.example.v1.UpsertExampleResponse
+	5, // 9: api.example.v1.Examplev1Service.DeleteExampleById:output_type -> api.example.v1.DeleteExampleByIdResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_example_v1_example_proto_init() }

@@ -37,3 +37,4 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 	))
 }
 
+

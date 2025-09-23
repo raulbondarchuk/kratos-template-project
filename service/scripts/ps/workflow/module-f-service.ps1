@@ -12,7 +12,6 @@ $ApiRoot     = "./api"
 $FeatureRoot = "./internal/feature"
 $utf8NoBom   = New-Object System.Text.UTF8Encoding($false)
 
-# --- utils (logs) ---
 try { . (Join-Path $PSScriptRoot 'utils.ps1') } catch {
   function Show-Step { param([string]$Message) Write-Host "`n==> $Message" -ForegroundColor Cyan }
   function Show-Info { param([string]$Message) Write-Host "$Message" -ForegroundColor DarkGray }
@@ -73,7 +72,8 @@ Show-Info "Service dir ready: $svcDir"
 
 $apiImport     = "service/api/$base/v$apiVersion"
 $bizImport     = "service/internal/feature/$base/v$apiVersion/biz"
-$metaImport    = "service/internal/server/http/meta"
+$errorsImport  = "service/internal/server/http/middleware/errors"
+$reasonsImport = "service/internal/middleware/http_reason"
 $serviceName   = "${pascal}v${apiVersion}Service"
 
 # ---------- service.go (always)
@@ -114,45 +114,34 @@ import (
 
 	api_$alias   "$apiImport"
 	${pkgBase}_biz "$bizImport"
-	srvmeta      "$metaImport"
+	httperr      "$errorsImport"
+	reason       "$reasonsImport"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
 func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$alias.Find${pluralPascal}Request) (*api_$alias.Find${pluralPascal}Response, error) {
-	// presence-aware (optional fields)
 	var idPtr *uint
 	var namePtr *string
 
 	if req.Id != nil && *req.Id != 0 {
-	  v := uint(*req.Id)
-	  idPtr = &v
+		v := uint(*req.Id)
+		idPtr = &v
 	}
 	if req.Name != nil && *req.Name != "" {
-	  v := *req.Name
-	  namePtr = &v
+		v := *req.Name
+		namePtr = &v
 	}
 
 	bizRes, err := s.uc.Find${pluralPascal}(ctx, idPtr, namePtr)
 	if err != nil {
-		return &api_$alias.Find${pluralPascal}Response{
-			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to find ${base}"), map[string]string{"error": err.Error()}),
-		}, nil
-	}
-
-	if len(bizRes) == 0 {
-		return &api_$alias.Find${pluralPascal}Response{
-			Meta: srvmeta.MetaNoContent("no items"),
-		}, nil
+		return nil, httperr.Internal(reason.ReasonDatabase, err.Error(), nil)
 	}
 
 	dto, err := generic.ToDTOSliceGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](bizRes)
 	if err != nil {
-		return &api_$alias.Find${pluralPascal}Response{
-			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to marshal dto"), map[string]string{"error": err.Error()}),
-		}, nil
+		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
-
 	for i := range bizRes {
 		dto[i].CreatedAt = converter.ConvertToGoogleTimestamp(bizRes[i].CreatedAt)
 		dto[i].UpdatedAt = converter.ConvertToGoogleTimestamp(bizRes[i].UpdatedAt)
@@ -160,7 +149,7 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 
 	return &api_$alias.Find${pluralPascal}Response{
 		Items: generic.ToPointerSliceGeneric(dto),
-		Meta:  srvmeta.MetaOK("OK"),
+		Total: uint32(len(dto)),
 	}, nil
 }
 "@
@@ -184,7 +173,8 @@ import (
 
 	api_$alias   "$apiImport"
 	${pkgBase}_biz "$bizImport"
-	srvmeta      "$metaImport"
+	httperr      "$errorsImport"
+	reason       "$reasonsImport"
 	"service/pkg/converter"
 	"service/pkg/generic"
 )
@@ -196,23 +186,18 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 	}
 	res, err := s.uc.Upsert${pascal}(ctx, in)
 	if err != nil {
-		return &api_$alias.Upsert${pascal}Response{
-			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to upsert ${base}"), map[string]string{"error": err.Error()}),
-		}, nil
+		return nil, httperr.Internal(reason.ReasonDatabase, err.Error(), nil)
 	}
 
 	dto, err := generic.ToDTOGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](*res)
 	if err != nil {
-		return &api_$alias.Upsert${pascal}Response{
-			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to marshal dto"), map[string]string{"error": err.Error()}),
-		}, nil
+		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
 	dto.CreatedAt = converter.ConvertToGoogleTimestamp(res.CreatedAt)
 	dto.UpdatedAt = converter.ConvertToGoogleTimestamp(res.UpdatedAt)
 
 	return &api_$alias.Upsert${pascal}Response{
 		Item: &dto,
-		Meta: srvmeta.MetaOK("OK"),
 	}, nil
 }
 "@
@@ -235,18 +220,16 @@ import (
 	"context"
 
 	api_$alias "$apiImport"
-	srvmeta    "$metaImport"
+	httperr    "$errorsImport"
+	reason     "$reasonsImport"
 )
 
 func (s *${pascal}Service) Delete${pascal}ById(ctx context.Context, req *api_$alias.Delete${pascal}ByIdRequest) (*api_$alias.Delete${pascal}ByIdResponse, error) {
 	if err := s.uc.Delete${pascal}ById(ctx, uint(req.GetId())); err != nil {
-		return &api_$alias.Delete${pascal}ByIdResponse{
-			Meta: srvmeta.WithDetails(srvmeta.MetaInternal("failed to delete ${base}"), map[string]string{"error": err.Error()}),
-		}, nil
+		// if desired, you can differentiate NotFound/Conflict and etc.
+		return nil, httperr.Internal(reason.ReasonDatabase, err.Error(), nil)
 	}
-	return &api_$alias.Delete${pascal}ByIdResponse{
-		Meta: srvmeta.MetaOK("OK"),
-	}, nil
+	return &api_$alias.Delete${pascal}ByIdResponse{}, nil
 }
 "@
     [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
