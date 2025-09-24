@@ -22,8 +22,9 @@ func NewHTTPServer(
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			multipart.Middleware(32<<20), // 32MB max memory for file uploads
 		),
-		http.Filter(multipart.Server(32 << 20)), // 32MB max memory for file uploads
+		// http.Filter(multipart.Server(32 << 20)),
 		http.Filter(requestlog.RequestLogFilter()),
 	}
 	if c.Http.Network != "" {

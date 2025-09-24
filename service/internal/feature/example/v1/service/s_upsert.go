@@ -7,7 +7,6 @@ import (
 	example_biz "service/internal/feature/example/v1/biz"
 	httperr      "service/internal/server/http/middleware/errors"
 	reason       "service/internal/middleware/http_reason"
-	"service/pkg/converter"
 	"service/pkg/generic"
 )
 
