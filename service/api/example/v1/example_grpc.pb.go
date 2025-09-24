@@ -19,23 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Examplev1Service_FindExamples_FullMethodName      = "/api.example.v1.Examplev1Service/FindExamples"
-	Examplev1Service_UpsertExample_FullMethodName     = "/api.example.v1.Examplev1Service/UpsertExample"
-	Examplev1Service_DeleteExampleById_FullMethodName = "/api.example.v1.Examplev1Service/DeleteExampleById"
+	Examplev1Service_Mock_FullMethodName = "/api.example.v1.Examplev1Service/Mock"
 )
 
 // Examplev1ServiceClient is the client API for Examplev1Service service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Examplev1Service: generated with ops=[get,upsert,delete]
+// Examplev1Service: generated with ops=[]
 type Examplev1ServiceClient interface {
-	// GET /v1/example - list or search by filters (query: id OR name)
-	FindExamples(ctx context.Context, in *FindExamplesRequest, opts ...grpc.CallOption) (*FindExamplesResponse, error)
-	// POST /v1/example - create or update (id empty/0 => create, >0 => update)
-	UpsertExample(ctx context.Context, in *UpsertExampleRequest, opts ...grpc.CallOption) (*UpsertExampleResponse, error)
-	// DELETE /v1/example?id=123 - delete by id (query param)
-	DeleteExampleById(ctx context.Context, in *DeleteExampleByIdRequest, opts ...grpc.CallOption) (*DeleteExampleByIdResponse, error)
+	// Mock endpoint (no ops selected)
+	Mock(ctx context.Context, in *MockRequest, opts ...grpc.CallOption) (*MockResponse, error)
 }
 
 type examplev1ServiceClient struct {
@@ -46,30 +40,10 @@ func NewExamplev1ServiceClient(cc grpc.ClientConnInterface) Examplev1ServiceClie
 	return &examplev1ServiceClient{cc}
 }
 
-func (c *examplev1ServiceClient) FindExamples(ctx context.Context, in *FindExamplesRequest, opts ...grpc.CallOption) (*FindExamplesResponse, error) {
+func (c *examplev1ServiceClient) Mock(ctx context.Context, in *MockRequest, opts ...grpc.CallOption) (*MockResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FindExamplesResponse)
-	err := c.cc.Invoke(ctx, Examplev1Service_FindExamples_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *examplev1ServiceClient) UpsertExample(ctx context.Context, in *UpsertExampleRequest, opts ...grpc.CallOption) (*UpsertExampleResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpsertExampleResponse)
-	err := c.cc.Invoke(ctx, Examplev1Service_UpsertExample_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *examplev1ServiceClient) DeleteExampleById(ctx context.Context, in *DeleteExampleByIdRequest, opts ...grpc.CallOption) (*DeleteExampleByIdResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteExampleByIdResponse)
-	err := c.cc.Invoke(ctx, Examplev1Service_DeleteExampleById_FullMethodName, in, out, cOpts...)
+	out := new(MockResponse)
+	err := c.cc.Invoke(ctx, Examplev1Service_Mock_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,14 +54,10 @@ func (c *examplev1ServiceClient) DeleteExampleById(ctx context.Context, in *Dele
 // All implementations must embed UnimplementedExamplev1ServiceServer
 // for forward compatibility.
 //
-// Examplev1Service: generated with ops=[get,upsert,delete]
+// Examplev1Service: generated with ops=[]
 type Examplev1ServiceServer interface {
-	// GET /v1/example - list or search by filters (query: id OR name)
-	FindExamples(context.Context, *FindExamplesRequest) (*FindExamplesResponse, error)
-	// POST /v1/example - create or update (id empty/0 => create, >0 => update)
-	UpsertExample(context.Context, *UpsertExampleRequest) (*UpsertExampleResponse, error)
-	// DELETE /v1/example?id=123 - delete by id (query param)
-	DeleteExampleById(context.Context, *DeleteExampleByIdRequest) (*DeleteExampleByIdResponse, error)
+	// Mock endpoint (no ops selected)
+	Mock(context.Context, *MockRequest) (*MockResponse, error)
 	mustEmbedUnimplementedExamplev1ServiceServer()
 }
 
@@ -98,14 +68,8 @@ type Examplev1ServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedExamplev1ServiceServer struct{}
 
-func (UnimplementedExamplev1ServiceServer) FindExamples(context.Context, *FindExamplesRequest) (*FindExamplesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindExamples not implemented")
-}
-func (UnimplementedExamplev1ServiceServer) UpsertExample(context.Context, *UpsertExampleRequest) (*UpsertExampleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpsertExample not implemented")
-}
-func (UnimplementedExamplev1ServiceServer) DeleteExampleById(context.Context, *DeleteExampleByIdRequest) (*DeleteExampleByIdResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteExampleById not implemented")
+func (UnimplementedExamplev1ServiceServer) Mock(context.Context, *MockRequest) (*MockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Mock not implemented")
 }
 func (UnimplementedExamplev1ServiceServer) mustEmbedUnimplementedExamplev1ServiceServer() {}
 func (UnimplementedExamplev1ServiceServer) testEmbeddedByValue()                          {}
@@ -128,56 +92,20 @@ func RegisterExamplev1ServiceServer(s grpc.ServiceRegistrar, srv Examplev1Servic
 	s.RegisterService(&Examplev1Service_ServiceDesc, srv)
 }
 
-func _Examplev1Service_FindExamples_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindExamplesRequest)
+func _Examplev1Service_Mock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MockRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(Examplev1ServiceServer).FindExamples(ctx, in)
+		return srv.(Examplev1ServiceServer).Mock(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Examplev1Service_FindExamples_FullMethodName,
+		FullMethod: Examplev1Service_Mock_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(Examplev1ServiceServer).FindExamples(ctx, req.(*FindExamplesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Examplev1Service_UpsertExample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpsertExampleRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(Examplev1ServiceServer).UpsertExample(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Examplev1Service_UpsertExample_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(Examplev1ServiceServer).UpsertExample(ctx, req.(*UpsertExampleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Examplev1Service_DeleteExampleById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteExampleByIdRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(Examplev1ServiceServer).DeleteExampleById(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Examplev1Service_DeleteExampleById_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(Examplev1ServiceServer).DeleteExampleById(ctx, req.(*DeleteExampleByIdRequest))
+		return srv.(Examplev1ServiceServer).Mock(ctx, req.(*MockRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -190,16 +118,8 @@ var Examplev1Service_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*Examplev1ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "FindExamples",
-			Handler:    _Examplev1Service_FindExamples_Handler,
-		},
-		{
-			MethodName: "UpsertExample",
-			Handler:    _Examplev1Service_UpsertExample_Handler,
-		},
-		{
-			MethodName: "DeleteExampleById",
-			Handler:    _Examplev1Service_DeleteExampleById_Handler,
+			MethodName: "Mock",
+			Handler:    _Examplev1Service_Mock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

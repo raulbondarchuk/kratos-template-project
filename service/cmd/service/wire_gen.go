@@ -34,7 +34,8 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 	}
 	exampleRepo := example_repo.NewExampleRepo(dataData, logger)
 	exampleUsecase := example_biz.NewExampleUsecase(exampleRepo, logger)
-	exampleService := example_service.NewExampleService(exampleUsecase)
+	transaction := data.NewTransaction(dataData)
+	exampleService := example_service.NewExampleService(exampleUsecase, transaction)
 	httpRegister := example.NewExampleHTTPRegistrer(exampleService)
 	grpcRegister := example.NewExampleGRPCRegistrer(exampleService)
 	allRegistrers := BuildAllRegistrars(httpRegister, grpcRegister)

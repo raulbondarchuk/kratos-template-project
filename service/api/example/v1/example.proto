@@ -11,44 +11,18 @@ option java_multiple_files = true;
 option java_outer_classname = "ExampleProtoV1";
 option java_package = "dev.kratos.api.example.example";
 
-// Examplev1Service: generated with ops=[get,upsert,delete]
+// Examplev1Service: generated with ops=[]
 service Examplev1Service {
-  // GET /v1/example - list or search by filters (query: id OR name)
-  rpc FindExamples(FindExamplesRequest) returns (FindExamplesResponse) {
-    option (google.api.http) = { get: "/v1/example" };
-  }
-  // POST /v1/example - create or update (id empty/0 => create, >0 => update)
-  rpc UpsertExample(UpsertExampleRequest) returns (UpsertExampleResponse) {
-    option (google.api.http) = {
-      post: "/v1/example"
-      body: "*"
-    };
-  }
-  // DELETE /v1/example?id=123 - delete by id (query param)
-  rpc DeleteExampleById(DeleteExampleByIdRequest) returns (DeleteExampleByIdResponse) {
-    option (google.api.http) = { delete: "/v1/example" };
+// Mock endpoint (no ops selected)
+  rpc Mock(MockRequest) returns (MockResponse) {
+    option (google.api.http) = { get: "/v1/example/mock" };
   }
 }
 
-message FindExamplesRequest {
-  optional uint32 id   = 1 [(google.api.field_behavior) = OPTIONAL];
-  optional string name = 2 [(google.api.field_behavior) = OPTIONAL];
+message MockRequest {}
+message MockResponse {
+  string message = 1; // e.g. ""pong""
 }
-message FindExamplesResponse {
-  repeated Example items = 1;
-  uint32 total = 2;
-}
-message UpsertExampleRequest {
-  optional uint32 id = 1; // 0 or unset => create; >0 => update
-  string name        = 2 [(google.api.field_behavior) = REQUIRED];
-}
-message UpsertExampleResponse {
-  Example item = 1;
-}
-message DeleteExampleByIdRequest {
-  uint32 id = 1 [(google.api.field_behavior) = REQUIRED];
-}
-message DeleteExampleByIdResponse {}
 
 message Example {
   uint32 id = 1;

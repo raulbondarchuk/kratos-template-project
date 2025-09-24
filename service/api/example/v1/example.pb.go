@@ -23,28 +23,26 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type FindExamplesRequest struct {
+type MockRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
-	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FindExamplesRequest) Reset() {
-	*x = FindExamplesRequest{}
+func (x *MockRequest) Reset() {
+	*x = MockRequest{}
 	mi := &file_api_example_v1_example_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FindExamplesRequest) String() string {
+func (x *MockRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FindExamplesRequest) ProtoMessage() {}
+func (*MockRequest) ProtoMessage() {}
 
-func (x *FindExamplesRequest) ProtoReflect() protoreflect.Message {
+func (x *MockRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_example_v1_example_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -56,47 +54,32 @@ func (x *FindExamplesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FindExamplesRequest.ProtoReflect.Descriptor instead.
-func (*FindExamplesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use MockRequest.ProtoReflect.Descriptor instead.
+func (*MockRequest) Descriptor() ([]byte, []int) {
 	return file_api_example_v1_example_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *FindExamplesRequest) GetId() uint32 {
-	if x != nil && x.Id != nil {
-		return *x.Id
-	}
-	return 0
-}
-
-func (x *FindExamplesRequest) GetName() string {
-	if x != nil && x.Name != nil {
-		return *x.Name
-	}
-	return ""
-}
-
-type FindExamplesResponse struct {
+type MockResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Items         []*Example             `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
-	Total         uint32                 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"` // e.g. ""pong""
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FindExamplesResponse) Reset() {
-	*x = FindExamplesResponse{}
+func (x *MockResponse) Reset() {
+	*x = MockResponse{}
 	mi := &file_api_example_v1_example_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FindExamplesResponse) String() string {
+func (x *MockResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FindExamplesResponse) ProtoMessage() {}
+func (*MockResponse) ProtoMessage() {}
 
-func (x *FindExamplesResponse) ProtoReflect() protoreflect.Message {
+func (x *MockResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_example_v1_example_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -108,199 +91,16 @@ func (x *FindExamplesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FindExamplesResponse.ProtoReflect.Descriptor instead.
-func (*FindExamplesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use MockResponse.ProtoReflect.Descriptor instead.
+func (*MockResponse) Descriptor() ([]byte, []int) {
 	return file_api_example_v1_example_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *FindExamplesResponse) GetItems() []*Example {
+func (x *MockResponse) GetMessage() string {
 	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
-func (x *FindExamplesResponse) GetTotal() uint32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
-type UpsertExampleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint32                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"` // 0 or unset => create; >0 => update
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpsertExampleRequest) Reset() {
-	*x = UpsertExampleRequest{}
-	mi := &file_api_example_v1_example_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpsertExampleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpsertExampleRequest) ProtoMessage() {}
-
-func (x *UpsertExampleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_example_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpsertExampleRequest.ProtoReflect.Descriptor instead.
-func (*UpsertExampleRequest) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_example_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *UpsertExampleRequest) GetId() uint32 {
-	if x != nil && x.Id != nil {
-		return *x.Id
-	}
-	return 0
-}
-
-func (x *UpsertExampleRequest) GetName() string {
-	if x != nil {
-		return x.Name
+		return x.Message
 	}
 	return ""
-}
-
-type UpsertExampleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *Example               `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpsertExampleResponse) Reset() {
-	*x = UpsertExampleResponse{}
-	mi := &file_api_example_v1_example_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpsertExampleResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpsertExampleResponse) ProtoMessage() {}
-
-func (x *UpsertExampleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_example_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpsertExampleResponse.ProtoReflect.Descriptor instead.
-func (*UpsertExampleResponse) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_example_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *UpsertExampleResponse) GetItem() *Example {
-	if x != nil {
-		return x.Item
-	}
-	return nil
-}
-
-type DeleteExampleByIdRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteExampleByIdRequest) Reset() {
-	*x = DeleteExampleByIdRequest{}
-	mi := &file_api_example_v1_example_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteExampleByIdRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteExampleByIdRequest) ProtoMessage() {}
-
-func (x *DeleteExampleByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_example_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteExampleByIdRequest.ProtoReflect.Descriptor instead.
-func (*DeleteExampleByIdRequest) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_example_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *DeleteExampleByIdRequest) GetId() uint32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-type DeleteExampleByIdResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteExampleByIdResponse) Reset() {
-	*x = DeleteExampleByIdResponse{}
-	mi := &file_api_example_v1_example_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteExampleByIdResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteExampleByIdResponse) ProtoMessage() {}
-
-func (x *DeleteExampleByIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_example_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteExampleByIdResponse.ProtoReflect.Descriptor instead.
-func (*DeleteExampleByIdResponse) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_example_proto_rawDescGZIP(), []int{5}
 }
 
 type Example struct {
@@ -315,7 +115,7 @@ type Example struct {
 
 func (x *Example) Reset() {
 	*x = Example{}
-	mi := &file_api_example_v1_example_proto_msgTypes[6]
+	mi := &file_api_example_v1_example_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -327,7 +127,7 @@ func (x *Example) String() string {
 func (*Example) ProtoMessage() {}
 
 func (x *Example) ProtoReflect() protoreflect.Message {
-	mi := &file_api_example_v1_example_proto_msgTypes[6]
+	mi := &file_api_example_v1_example_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -340,7 +140,7 @@ func (x *Example) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Example.ProtoReflect.Descriptor instead.
 func (*Example) Descriptor() ([]byte, []int) {
-	return file_api_example_v1_example_proto_rawDescGZIP(), []int{6}
+	return file_api_example_v1_example_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Example) GetId() uint32 {
@@ -375,35 +175,19 @@ var File_api_example_v1_example_proto protoreflect.FileDescriptor
 
 const file_api_example_v1_example_proto_rawDesc = "" +
 	"\n" +
-	"\x1capi/example/v1/example.proto\x12\x0eapi.example.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"]\n" +
-	"\x13FindExamplesRequest\x12\x18\n" +
-	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x01H\x00R\x02id\x88\x01\x01\x12\x1c\n" +
-	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x01H\x01R\x04name\x88\x01\x01B\x05\n" +
-	"\x03_idB\a\n" +
-	"\x05_name\"[\n" +
-	"\x14FindExamplesResponse\x12-\n" +
-	"\x05items\x18\x01 \x03(\v2\x17.api.example.v1.ExampleR\x05items\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\rR\x05total\"K\n" +
-	"\x14UpsertExampleRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\rH\x00R\x02id\x88\x01\x01\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x02R\x04nameB\x05\n" +
-	"\x03_id\"D\n" +
-	"\x15UpsertExampleResponse\x12+\n" +
-	"\x04item\x18\x01 \x01(\v2\x17.api.example.v1.ExampleR\x04item\"/\n" +
-	"\x18DeleteExampleByIdRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\rB\x03\xe0A\x02R\x02id\"\x1b\n" +
-	"\x19DeleteExampleByIdResponse\"\xa3\x01\n" +
+	"\x1capi/example/v1/example.proto\x12\x0eapi.example.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\r\n" +
+	"\vMockRequest\"(\n" +
+	"\fMockResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xa3\x01\n" +
 	"\aExample\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
 	"\n" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xf7\x02\n" +
-	"\x10Examplev1Service\x12n\n" +
-	"\fFindExamples\x12#.api.example.v1.FindExamplesRequest\x1a$.api.example.v1.FindExamplesResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/v1/example\x12t\n" +
-	"\rUpsertExample\x12$.api.example.v1.UpsertExampleRequest\x1a%.api.example.v1.UpsertExampleResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\"\v/v1/example\x12}\n" +
-	"\x11DeleteExampleById\x12(.api.example.v1.DeleteExampleByIdRequest\x1a).api.example.v1.DeleteExampleByIdResponse\"\x13\x82\xd3\xe4\x93\x02\r*\v/v1/exampleBO\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2o\n" +
+	"\x10Examplev1Service\x12[\n" +
+	"\x04Mock\x12\x1b.api.example.v1.MockRequest\x1a\x1c.api.example.v1.MockResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/example/mockBO\n" +
 	"\x1edev.kratos.api.example.exampleB\x0eExampleProtoV1P\x01Z\x1bservice/api/example;exampleb\x06proto3"
 
 var (
@@ -418,33 +202,23 @@ func file_api_example_v1_example_proto_rawDescGZIP() []byte {
 	return file_api_example_v1_example_proto_rawDescData
 }
 
-var file_api_example_v1_example_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_example_v1_example_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_api_example_v1_example_proto_goTypes = []any{
-	(*FindExamplesRequest)(nil),       // 0: api.example.v1.FindExamplesRequest
-	(*FindExamplesResponse)(nil),      // 1: api.example.v1.FindExamplesResponse
-	(*UpsertExampleRequest)(nil),      // 2: api.example.v1.UpsertExampleRequest
-	(*UpsertExampleResponse)(nil),     // 3: api.example.v1.UpsertExampleResponse
-	(*DeleteExampleByIdRequest)(nil),  // 4: api.example.v1.DeleteExampleByIdRequest
-	(*DeleteExampleByIdResponse)(nil), // 5: api.example.v1.DeleteExampleByIdResponse
-	(*Example)(nil),                   // 6: api.example.v1.Example
-	(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
+	(*MockRequest)(nil),           // 0: api.example.v1.MockRequest
+	(*MockResponse)(nil),          // 1: api.example.v1.MockResponse
+	(*Example)(nil),               // 2: api.example.v1.Example
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_api_example_v1_example_proto_depIdxs = []int32{
-	6, // 0: api.example.v1.FindExamplesResponse.items:type_name -> api.example.v1.Example
-	6, // 1: api.example.v1.UpsertExampleResponse.item:type_name -> api.example.v1.Example
-	7, // 2: api.example.v1.Example.created_at:type_name -> google.protobuf.Timestamp
-	7, // 3: api.example.v1.Example.updated_at:type_name -> google.protobuf.Timestamp
-	0, // 4: api.example.v1.Examplev1Service.FindExamples:input_type -> api.example.v1.FindExamplesRequest
-	2, // 5: api.example.v1.Examplev1Service.UpsertExample:input_type -> api.example.v1.UpsertExampleRequest
-	4, // 6: api.example.v1.Examplev1Service.DeleteExampleById:input_type -> api.example.v1.DeleteExampleByIdRequest
-	1, // 7: api.example.v1.Examplev1Service.FindExamples:output_type -> api.example.v1.FindExamplesResponse
-	3, // 8: api.example.v1.Examplev1Service.UpsertExample:output_type -> api.example.v1.UpsertExampleResponse
-	5, // 9: api.example.v1.Examplev1Service.DeleteExampleById:output_type -> api.example.v1.DeleteExampleByIdResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 0: api.example.v1.Example.created_at:type_name -> google.protobuf.Timestamp
+	3, // 1: api.example.v1.Example.updated_at:type_name -> google.protobuf.Timestamp
+	0, // 2: api.example.v1.Examplev1Service.Mock:input_type -> api.example.v1.MockRequest
+	1, // 3: api.example.v1.Examplev1Service.Mock:output_type -> api.example.v1.MockResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_example_v1_example_proto_init() }
@@ -452,15 +226,13 @@ func file_api_example_v1_example_proto_init() {
 	if File_api_example_v1_example_proto != nil {
 		return
 	}
-	file_api_example_v1_example_proto_msgTypes[0].OneofWrappers = []any{}
-	file_api_example_v1_example_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_example_v1_example_proto_rawDesc), len(file_api_example_v1_example_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

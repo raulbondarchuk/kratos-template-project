@@ -19,93 +19,40 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationExamplev1ServiceDeleteExampleById = "/api.example.v1.Examplev1Service/DeleteExampleById"
-const OperationExamplev1ServiceFindExamples = "/api.example.v1.Examplev1Service/FindExamples"
-const OperationExamplev1ServiceUpsertExample = "/api.example.v1.Examplev1Service/UpsertExample"
+const OperationExamplev1ServiceMock = "/api.example.v1.Examplev1Service/Mock"
 
 type Examplev1ServiceHTTPServer interface {
-	// DeleteExampleById DELETE /v1/example?id=123 - delete by id (query param)
-	DeleteExampleById(context.Context, *DeleteExampleByIdRequest) (*DeleteExampleByIdResponse, error)
-	// FindExamples GET /v1/example - list or search by filters (query: id OR name)
-	FindExamples(context.Context, *FindExamplesRequest) (*FindExamplesResponse, error)
-	// UpsertExample POST /v1/example - create or update (id empty/0 => create, >0 => update)
-	UpsertExample(context.Context, *UpsertExampleRequest) (*UpsertExampleResponse, error)
+	// Mock Mock endpoint (no ops selected)
+	Mock(context.Context, *MockRequest) (*MockResponse, error)
 }
 
 func RegisterExamplev1ServiceHTTPServer(s *http.Server, srv Examplev1ServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/v1/example", _Examplev1Service_FindExamples0_HTTP_Handler(srv))
-	r.POST("/v1/example", _Examplev1Service_UpsertExample0_HTTP_Handler(srv))
-	r.DELETE("/v1/example", _Examplev1Service_DeleteExampleById0_HTTP_Handler(srv))
+	r.GET("/v1/example/mock", _Examplev1Service_Mock0_HTTP_Handler(srv))
 }
 
-func _Examplev1Service_FindExamples0_HTTP_Handler(srv Examplev1ServiceHTTPServer) func(ctx http.Context) error {
+func _Examplev1Service_Mock0_HTTP_Handler(srv Examplev1ServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in FindExamplesRequest
+		var in MockRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationExamplev1ServiceFindExamples)
+		http.SetOperation(ctx, OperationExamplev1ServiceMock)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.FindExamples(ctx, req.(*FindExamplesRequest))
+			return srv.Mock(ctx, req.(*MockRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*FindExamplesResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _Examplev1Service_UpsertExample0_HTTP_Handler(srv Examplev1ServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in UpsertExampleRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationExamplev1ServiceUpsertExample)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpsertExample(ctx, req.(*UpsertExampleRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*UpsertExampleResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _Examplev1Service_DeleteExampleById0_HTTP_Handler(srv Examplev1ServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteExampleByIdRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationExamplev1ServiceDeleteExampleById)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteExampleById(ctx, req.(*DeleteExampleByIdRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*DeleteExampleByIdResponse)
+		reply := out.(*MockResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type Examplev1ServiceHTTPClient interface {
-	// DeleteExampleById DELETE /v1/example?id=123 - delete by id (query param)
-	DeleteExampleById(ctx context.Context, req *DeleteExampleByIdRequest, opts ...http.CallOption) (rsp *DeleteExampleByIdResponse, err error)
-	// FindExamples GET /v1/example - list or search by filters (query: id OR name)
-	FindExamples(ctx context.Context, req *FindExamplesRequest, opts ...http.CallOption) (rsp *FindExamplesResponse, err error)
-	// UpsertExample POST /v1/example - create or update (id empty/0 => create, >0 => update)
-	UpsertExample(ctx context.Context, req *UpsertExampleRequest, opts ...http.CallOption) (rsp *UpsertExampleResponse, err error)
+	// Mock Mock endpoint (no ops selected)
+	Mock(ctx context.Context, req *MockRequest, opts ...http.CallOption) (rsp *MockResponse, err error)
 }
 
 type Examplev1ServiceHTTPClientImpl struct {
@@ -116,42 +63,14 @@ func NewExamplev1ServiceHTTPClient(client *http.Client) Examplev1ServiceHTTPClie
 	return &Examplev1ServiceHTTPClientImpl{client}
 }
 
-// DeleteExampleById DELETE /v1/example?id=123 - delete by id (query param)
-func (c *Examplev1ServiceHTTPClientImpl) DeleteExampleById(ctx context.Context, in *DeleteExampleByIdRequest, opts ...http.CallOption) (*DeleteExampleByIdResponse, error) {
-	var out DeleteExampleByIdResponse
-	pattern := "/v1/example"
+// Mock Mock endpoint (no ops selected)
+func (c *Examplev1ServiceHTTPClientImpl) Mock(ctx context.Context, in *MockRequest, opts ...http.CallOption) (*MockResponse, error) {
+	var out MockResponse
+	pattern := "/v1/example/mock"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationExamplev1ServiceDeleteExampleById))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// FindExamples GET /v1/example - list or search by filters (query: id OR name)
-func (c *Examplev1ServiceHTTPClientImpl) FindExamples(ctx context.Context, in *FindExamplesRequest, opts ...http.CallOption) (*FindExamplesResponse, error) {
-	var out FindExamplesResponse
-	pattern := "/v1/example"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationExamplev1ServiceFindExamples))
+	opts = append(opts, http.Operation(OperationExamplev1ServiceMock))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// UpsertExample POST /v1/example - create or update (id empty/0 => create, >0 => update)
-func (c *Examplev1ServiceHTTPClientImpl) UpsertExample(ctx context.Context, in *UpsertExampleRequest, opts ...http.CallOption) (*UpsertExampleResponse, error) {
-	var out UpsertExampleResponse
-	pattern := "/v1/example"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationExamplev1ServiceUpsertExample))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

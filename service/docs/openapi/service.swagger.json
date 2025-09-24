@@ -16,15 +16,15 @@
     "application/json"
   ],
   "paths": {
-    "/v1/example": {
+    "/v1/example/mock": {
       "get": {
-        "summary": "GET /v1/example - list or search by filters (query: id OR name)",
-        "operationId": "Examplev1Service_FindExamples",
+        "summary": "Mock endpoint (no ops selected)",
+        "operationId": "Examplev1Service_Mock",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1FindExamplesResponse"
+              "$ref": "#/definitions/v1MockResponse"
             }
           },
           "default": {
@@ -34,82 +34,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Examplev1Service"
-        ]
-      },
-      "delete": {
-        "summary": "DELETE /v1/example?id=123 - delete by id (query param)",
-        "operationId": "Examplev1Service_DeleteExampleById",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeleteExampleByIdResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "Examplev1Service"
-        ]
-      },
-      "post": {
-        "summary": "POST /v1/example - create or update (id empty/0 =\u003e create, \u003e0 =\u003e update)",
-        "operationId": "Examplev1Service_UpsertExample",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpsertExampleResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1UpsertExampleRequest"
-            }
-          }
-        ],
         "tags": [
           "Examplev1Service"
         ]
@@ -145,66 +69,12 @@
         }
       }
     },
-    "v1DeleteExampleByIdResponse": {
-      "type": "object"
-    },
-    "v1Example": {
+    "v1MockResponse": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "createdAt": {
+        "message": {
           "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "v1FindExamplesResponse": {
-      "type": "object",
-      "properties": {
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Example"
-          }
-        },
-        "total": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "v1UpsertExampleRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64",
-          "title": "0 or unset =\u003e create; \u003e0 =\u003e update"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "v1UpsertExampleResponse": {
-      "type": "object",
-      "properties": {
-        "item": {
-          "$ref": "#/definitions/v1Example"
+          "title": "e.g. \"\"pong\"\""
         }
       }
     }

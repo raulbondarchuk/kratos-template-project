@@ -72,8 +72,11 @@ Show-Info "Service dir ready: $svcDir"
 
 $apiImport     = "service/api/$base/v$apiVersion"
 $bizImport     = "service/internal/feature/$base/v$apiVersion/biz"
+$dataImport    = "service/internal/data"
 $errorsImport  = "service/internal/server/http/middleware/errors"
 $reasonsImport = "service/internal/middleware/http_reason"
+$convImport    = "service/pkg/converter"
+$genericImport = "service/pkg/generic"
 $serviceName   = "${pascal}v${apiVersion}Service"
 
 # ---------- service.go (always)
@@ -86,15 +89,17 @@ package ${pkgBase}_service
 import (
 	api_$alias "$apiImport"
 	${pkgBase}_biz "$bizImport"
+	appdata     "$dataImport"
 )
 
 type ${pascal}Service struct {
 	api_$alias.Unimplemented${serviceName}Server
 	uc *${pkgBase}_biz.${pascal}Usecase
+	tx appdata.Transaction
 }
 
-func New${pascal}Service(uc *${pkgBase}_biz.${pascal}Usecase) *${pascal}Service {
-	return &${pascal}Service{uc: uc}
+func New${pascal}Service(uc *${pkgBase}_biz.${pascal}Usecase, tx appdata.Transaction) *${pascal}Service {
+	return &${pascal}Service{uc: uc, tx: tx}
 }
 "@
   [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
@@ -112,11 +117,12 @@ package ${pkgBase}_service
 import (
 	"context"
 
-	api_$alias   "$apiImport"
+	api_$alias    "$apiImport"
 	${pkgBase}_biz "$bizImport"
-	httperr      "$errorsImport"
-	reason       "$reasonsImport"
-	"service/pkg/generic"
+	httperr       "$errorsImport"
+	reason        "$reasonsImport"
+	$genericImport
+	$convImport
 )
 
 func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$alias.Find${pluralPascal}Request) (*api_$alias.Find${pluralPascal}Response, error) {
@@ -132,18 +138,18 @@ func (s *${pascal}Service) Find${pluralPascal}(ctx context.Context, req *api_$al
 		namePtr = &v
 	}
 
-	bizRes, err := s.uc.Find${pluralPascal}(ctx, idPtr, namePtr)
+	res, err := s.uc.Find${pluralPascal}(ctx, idPtr, namePtr)
 	if err != nil {
 		return nil, httperr.Internal(reason.ReasonDatabase, err.Error(), nil)
 	}
 
-	dto, err := generic.ToDTOSliceGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](bizRes)
+	dto, err := generic.ToDTOSliceGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](res)
 	if err != nil {
 		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
-	for i := range bizRes {
-		dto[i].CreatedAt = generic.ConvertToGoogleTimestamp(bizRes[i].CreatedAt)
-		dto[i].UpdatedAt = generic.ConvertToGoogleTimestamp(bizRes[i].UpdatedAt)
+	for i := range res {
+		dto[i].CreatedAt = converter.ConvertToGoogleTimestamp(res[i].CreatedAt)
+		dto[i].UpdatedAt = converter.ConvertToGoogleTimestamp(res[i].UpdatedAt)
 	}
 
 	return &api_$alias.Find${pluralPascal}Response{
@@ -170,11 +176,12 @@ package ${pkgBase}_service
 import (
 	"context"
 
-	api_$alias   "$apiImport"
+	api_$alias    "$apiImport"
 	${pkgBase}_biz "$bizImport"
-	httperr      "$errorsImport"
-	reason       "$reasonsImport"
-	"service/pkg/generic"
+	httperr       "$errorsImport"
+	reason        "$reasonsImport"
+	$genericImport
+	$convImport
 )
 
 func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.Upsert${pascal}Request) (*api_$alias.Upsert${pascal}Response, error) {
@@ -182,21 +189,27 @@ func (s *${pascal}Service) Upsert${pascal}(ctx context.Context, req *api_$alias.
 		ID:   uint(req.GetId()),
 		Name: req.GetName(),
 	}
-	res, err := s.uc.Upsert${pascal}(ctx, in)
-	if err != nil {
+
+	var out *${pkgBase}_biz.${pascal}
+	if err := s.tx.ExecTx(ctx, func(ctx context.Context) error {
+		r, err := s.uc.Upsert${pascal}(ctx, in)
+		if err != nil {
+			return err
+		}
+		out = r
+		return nil
+	}); err != nil {
 		return nil, httperr.Internal(reason.ReasonDatabase, err.Error(), nil)
 	}
 
-	dto, err := generic.ToDTOGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](*res)
+	dto, err := generic.ToDTOGeneric[${pkgBase}_biz.${pascal}, api_$alias.${pascal}](*out)
 	if err != nil {
 		return nil, httperr.Internal(reason.ReasonGeneric, err.Error(), nil)
 	}
-	dto.CreatedAt = generic.ConvertToGoogleTimestamp(res.CreatedAt)
-	dto.UpdatedAt = generic.ConvertToGoogleTimestamp(res.UpdatedAt)
+	dto.CreatedAt = converter.ConvertToGoogleTimestamp(out.CreatedAt)
+	dto.UpdatedAt = converter.ConvertToGoogleTimestamp(out.UpdatedAt)
 
-	return &api_$alias.Upsert${pascal}Response{
-		Item: &dto,
-	}, nil
+	return &api_$alias.Upsert${pascal}Response{ Item: &dto }, nil
 }
 "@
     [IO.File]::WriteAllText($p, $txt, $utf8NoBom)
@@ -223,8 +236,9 @@ import (
 )
 
 func (s *${pascal}Service) Delete${pascal}ById(ctx context.Context, req *api_$alias.Delete${pascal}ByIdRequest) (*api_$alias.Delete${pascal}ByIdResponse, error) {
-	if err := s.uc.Delete${pascal}ById(ctx, uint(req.GetId())); err != nil {
-		// if desired, you can differentiate NotFound/Conflict and etc.
+	if err := s.tx.ExecTx(ctx, func(ctx context.Context) error {
+		return s.uc.Delete${pascal}ById(ctx, uint(req.GetId()))
+	}); err != nil {
 		return nil, httperr.Internal(reason.ReasonDatabase, err.Error(), nil)
 	}
 	return &api_$alias.Delete${pascal}ByIdResponse{}, nil
