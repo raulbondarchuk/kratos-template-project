@@ -13,7 +13,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type Data struct{ DB *gorm.DB }
+type Data struct {
+	db *gorm.DB
+}
 
 func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 	h := log.NewHelper(logger)
@@ -86,7 +88,7 @@ func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 	sqlDB, _ := db.DB()
 	cleanup := func() { _ = sqlDB.Close() }
 
-	return &Data{DB: db}, cleanup, nil
+	return &Data{db: db}, cleanup, nil
 }
 
 type driverError string
