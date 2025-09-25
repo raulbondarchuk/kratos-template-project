@@ -4,10 +4,10 @@ package server_http
 import (
 	"service/internal/conf/v1"
 	"service/internal/server/http/middleware/multipart"
-	"service/internal/server/http/middleware/requestlog"
 	"service/internal/server/http/openapi/scalar"
 	"service/internal/server/http/openapi/swagger"
 	"service/internal/server/http/sys"
+	"service/internal/server/utils/requestlog"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -25,7 +25,7 @@ func NewHTTPServer(
 			multipart.Middleware(32<<20), // 32MB max memory for file uploads
 		),
 		// http.Filter(multipart.Server(32 << 20)),
-		http.Filter(requestlog.RequestLogFilter()),
+		http.Filter(requestlog.HTTPLogMiddleware()),
 	}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
