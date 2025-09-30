@@ -1,11 +1,12 @@
-package response_token
+package headers
 
 import (
 	"context"
 
+	grpc_std "google.golang.org/grpc"
+
 	"github.com/go-kratos/kratos/v2/transport"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
-	grpc_std "google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -18,7 +19,7 @@ func SetTokens(ctx context.Context, accessToken, refreshToken string) {
 				hdr := htr.ReplyHeader()
 				hdr.Set("Authorization", "Bearer "+accessToken)
 				if refreshToken != "" {
-					hdr.Set("Refresh", refreshToken)
+					hdr.Set("Refresh", "Bearer "+refreshToken)
 				}
 				hdr.Add("Access-Control-Expose-Headers", "Authorization, Refresh")
 			}
@@ -28,7 +29,7 @@ func SetTokens(ctx context.Context, accessToken, refreshToken string) {
 				"authorization", "Bearer "+accessToken,
 			)
 			if refreshToken != "" {
-				md.Append("refresh", refreshToken)
+				md.Append("refresh", "Bearer "+refreshToken)
 			}
 			// Send in headers
 			_ = grpc_std.SetHeader(ctx, md)
@@ -36,4 +37,31 @@ func SetTokens(ctx context.Context, accessToken, refreshToken string) {
 			_ = grpc_std.SetTrailer(ctx, md)
 		}
 	}
+}
+
+func GetAccessTokenFromHeader(ctx context.Context) string {
+	if tr, ok := transport.FromServerContext(ctx); ok {
+		if htr, ok := tr.(*khttp.Transport); ok && htr.Request() != nil {
+			return htr.Request().Header.Get("Authorization")
+		}
+	}
+	return ""
+}
+
+func GetRefreshTokenFromHeader(ctx context.Context) string {
+	if tr, ok := transport.FromServerContext(ctx); ok {
+		if htr, ok := tr.(*khttp.Transport); ok && htr.Request() != nil {
+			return htr.Request().Header.Get("Authorization")
+		}
+	}
+	return ""
+}
+
+func GetSecretFromHeader(ctx context.Context) string {
+	if tr, ok := transport.FromServerContext(ctx); ok {
+		if htr, ok := tr.(*khttp.Transport); ok && htr.Request() != nil {
+			return htr.Request().Header.Get("X-Secret-Access")
+		}
+	}
+	return ""
 }

@@ -13,11 +13,11 @@ import (
 	mylog "service/pkg/logger"
 )
 
-// getClientIP извлекает IP адрес клиента из разных типов запросов
+// getClientIP get client IP from different types of requests
 func getClientIP(ctx context.Context, r *http.Request) string {
-	// Для HTTP запросов
+	// For HTTP requests
 	if r != nil {
-		// X-Forwarded-For: берем первый IP
+		// X-Forwarded-For: get first IP
 		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 			if i := strings.IndexByte(xff, ','); i >= 0 {
 				return strings.TrimSpace(xff[:i])
@@ -36,7 +36,7 @@ func getClientIP(ctx context.Context, r *http.Request) string {
 		return r.RemoteAddr
 	}
 
-	// Для gRPC запросов
+	// For gRPC requests
 	if p, ok := peer.FromContext(ctx); ok {
 		if p.Addr != nil {
 			return p.Addr.String()
@@ -45,7 +45,7 @@ func getClientIP(ctx context.Context, r *http.Request) string {
 	return "unknown"
 }
 
-// logRequest логирует информацию о запросе
+// logRequest log request information
 func logRequest(method, path string, fields map[string]interface{}) {
 	mylog.Route(method, path, fields)
 }
@@ -72,7 +72,7 @@ func (w *statusWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
-// HTTPLogMiddleware создает HTTP middleware для логирования запросов
+// HTTPLogMiddleware create HTTP middleware for logging requests
 func HTTPLogMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -97,15 +97,15 @@ func HTTPLogMiddleware() func(http.Handler) http.Handler {
 
 // gRPC interceptors
 
-// UnaryLogInterceptor создает unary interceptor для логирования gRPC запросов
+// UnaryLogInterceptor create unary interceptor for logging gRPC requests
 func UnaryLogInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		start := time.Now()
 
-		// Выполняем запрос
+		// Execute request
 		resp, err = handler(ctx, req)
 
-		// Определяем статус
+		// Define status
 		status := "OK"
 		if err != nil {
 			status = err.Error()
@@ -125,15 +125,15 @@ func UnaryLogInterceptor() grpc.UnaryServerInterceptor {
 	}
 }
 
-// StreamLogInterceptor создает stream interceptor для логирования gRPC стримов
+// StreamLogInterceptor create stream interceptor for logging gRPC streams
 func StreamLogInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		start := time.Now()
 
-		// Выполняем обработку стрима
+		// Execute stream processing
 		err := handler(srv, ss)
 
-		// Определяем статус
+		// Define status
 		status := "OK"
 		if err != nil {
 			status = err.Error()

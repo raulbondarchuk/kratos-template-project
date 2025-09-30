@@ -11,6 +11,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"service/internal/conf/v1"
 	"service/internal/data"
+	"service/internal/feature"
 	"service/internal/feature/example/v1"
 	"service/internal/feature/example/v1/biz"
 	"service/internal/feature/example/v1/repo"
@@ -42,7 +43,8 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 	v := ProvideGRPCRegistrers(allRegistrers)
 	server := server_grpc.NewGRPCServer(serverConf, v, logger)
 	v2 := ProvideHTTPRegistrers(allRegistrers)
-	httpServer := server_http.NewHTTPServer(serverConf, v2, logger)
+	v3 := feature.ProvideAuthGroups()
+	httpServer := server_http.NewHTTPServer(serverConf, v2, v3, logger)
 	brokerBroker := broker.NewBroker(logger)
 	kratosApp := newApp(logger, app, server, httpServer, brokerBroker, dataConf)
 	return kratosApp, func() {

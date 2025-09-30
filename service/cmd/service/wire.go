@@ -7,6 +7,7 @@ import (
 	"service/internal/conf/v1"
 
 	"service/internal/data"
+	"service/internal/feature"
 	"service/internal/out/broker"
 	"service/internal/server"
 
@@ -24,6 +25,7 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		server.ProviderSet,
 		data.ProviderSet,
 		broker.ProviderSet,
+		feature.ProviderAuthSet, // auth groups
 
 		// modules
 		examplev1.ProviderSet,
@@ -36,5 +38,3 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		newApp,
 	))
 }
-
-

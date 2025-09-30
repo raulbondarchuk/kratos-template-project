@@ -7,6 +7,8 @@ import (
 	"service/internal/server/http/openapi/scalar"
 	"service/internal/server/http/openapi/swagger"
 	"service/internal/server/http/sys"
+	"service/internal/server/middleware/auth/authz"
+	"service/internal/server/middleware/auth/authz/endpoint"
 	"service/internal/server/utils/requestlog"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -14,17 +16,21 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
+// HTTPRegistrar is a function that registers routes on the server.
+type HTTPRegister func(*http.Server)
+
 func NewHTTPServer(
 	c *conf.Server,
 	registrers []HTTPRegister,
+	authGroups []endpoint.ServiceGroup,
 	logger log.Logger,
 ) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
-			multipart.Middleware(32<<20), // 32MB max memory for file uploads
+			authz.ProviderSet(authGroups), // add auth middleware for roles
+			multipart.Middleware(32<<20),  // 32MB max memory for file uploads
 		),
-		// http.Filter(multipart.Server(32 << 20)),
 		http.Filter(requestlog.HTTPLogMiddleware()),
 	}
 	if c.Http.Network != "" {
