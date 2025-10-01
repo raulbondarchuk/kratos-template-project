@@ -7,9 +7,6 @@
   "tags": [
     {
       "name": "Examplev1Service"
-    },
-    {
-      "name": "Example1v1Service"
     }
   ],
   "consumes": [
@@ -27,7 +24,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiexamplev1MockResponse"
+              "$ref": "#/definitions/v1MockResponse"
             }
           },
           "default": {
@@ -41,50 +38,9 @@
           "Examplev1Service"
         ]
       }
-    },
-    "/v1/example1/mock": {
-      "get": {
-        "summary": "Mock endpoint (no ops selected)",
-        "operationId": "Example1v1Service_Mock",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/apiexample1v1MockResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "Example1v1Service"
-        ]
-      }
     }
   },
   "definitions": {
-    "apiexample1v1MockResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string",
-          "title": "e.g. \"\"pong\"\""
-        }
-      }
-    },
-    "apiexamplev1MockResponse": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string",
-          "title": "e.g. \"\"pong\"\""
-        }
-      }
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -110,6 +66,15 @@
             "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "v1MockResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "e.g. \"\"pong\"\""
         }
       }
     }

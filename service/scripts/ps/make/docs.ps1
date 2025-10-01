@@ -7,8 +7,10 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot/utils.ps1"
 
 # Check if there are any .proto files in api directory
-$protoFiles = Get-ChildItem -Path "api" -Recurse -Filter "*.proto" -ErrorAction SilentlyContinue
-if (-not $protoFiles) {
+$protoFiles = @(Get-ChildItem -Path "api" -Recurse -Filter "*.proto" -ErrorAction SilentlyContinue)
+$protoCount = $protoFiles.Count
+
+if ($protoCount -eq 0) {
   Show-Info "No .proto files found in api directory. Nothing to generate."
   exit 0
 }
@@ -18,7 +20,7 @@ if (-not (Get-Command buf -ErrorAction SilentlyContinue)) {
 }
 
 Show-Step "Rebuilding ALL API documentation"
-Show-Info ("Found {0} .proto files in api directory" -f $protoFiles.Count)
+Show-Info ("Found {0} .proto files in api directory" -f $protoCount)
 
 # Select template: first buf.gen.docs.yaml, then buf.gen.yaml
 $tplCandidates = @("buf.gen.docs.yaml", "buf.gen.yaml")
