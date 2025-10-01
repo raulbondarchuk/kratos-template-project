@@ -21,8 +21,15 @@ try { . (Join-Path $PSScriptRoot 'utils.ps1') } catch {
 }
 
 function ConvertTo-PascalCase { param([string]$s)
+  # Special handling for names ending with numbers
+  if ($s -match '^([a-zA-Z]+)(\d+)$') {
+    $text = $Matches[1]
+    $number = $Matches[2]
+    return $text.Substring(0,1).ToUpper() + $text.Substring(1).ToLower() + $number
+  }
+  # Regular pascal case for other names
   $parts = ($s -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
-  ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
+  return ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
 }
 function ConvertTo-LowerCase { param([string]$s) $s.ToLower() }
 function ConvertTo-Plural    { param([string]$s) if ($s.ToLower().EndsWith('s')){$s}else{"$s"+"s"} }
@@ -77,7 +84,9 @@ $errorsImport  = "service/internal/server/http/middleware/errors"
 $reasonsImport = "service/internal/middleware/http_reason"
 $convImport    = "service/pkg/converter"
 $genericImport = "service/pkg/generic"
-$serviceName   = "${pascal}v${apiVersion}Service"
+# For protoc-generated names, we need to handle version differently based on name
+$versionPrefix = if ($Name -match '^\D+\d+$') { "V" } else { "v" }
+$serviceName   = "${pascal}${versionPrefix}${apiVersion}Service"
 
 # ---------- service.go (always)
 $p = Join-Path $svcDir "service.go"

@@ -21,6 +21,13 @@ try { . (Join-Path $PSScriptRoot 'utils.ps1') } catch {
 }
 
 function ConvertTo-PascalCase { param([string]$s)
+  # Special handling for names ending with numbers
+  if ($s -match '^([a-zA-Z]+)(\d+)$') {
+    $text = $Matches[1]
+    $number = $Matches[2]
+    return $text.Substring(0,1).ToUpper() + $text.Substring(1).ToLower() + $number
+  }
+  # Regular pascal case for other names
   $parts = ($s -replace '[^A-Za-z0-9]+',' ') -split '\s+' | Where-Object { $_ }
   ($parts | ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }) -join ''
 }
@@ -33,7 +40,9 @@ $base   = ConvertTo-LowerCase $Name            # e.g. "prueba"
 $pascal = ConvertTo-PascalCase $Name           # "Prueba"
 $pkg    = ($base -replace '[^a-z0-9]','_')
 $alias  = ConvertTo-ImportAlias $base
-Show-Info "Module: base='$base', pascal='$pascal', pkg='$pkg', alias='$alias'"
+# For protoc-generated names, we need to handle version differently based on name
+$script:versionPrefix = if ($Name -match '^\D+\d+$') { "V" } else { "v" }
+Show-Info "Module: base='$base', pascal='$pascal', pkg='$pkg', alias='$alias', version-prefix='$versionPrefix'"
 
 # --- latest API version (vN) ---
 $apiBaseDir = Join-Path $ApiRoot $base
@@ -86,19 +95,19 @@ import (
 type HTTPRegister func(*http.Server)
 type GRPCRegister func(*grpc.Server)
 
-// NOTE: versioned service interfaces from proto: ${pascal}v${apiV}Service...
-var _ api_$alias.${pascal}v${apiV}ServiceHTTPServer = (*${pkg}_service.${pascal}Service)(nil)
-var _ api_$alias.${pascal}v${apiV}ServiceServer     = (*${pkg}_service.${pascal}Service)(nil)
+// NOTE: versioned service interfaces from proto: ${pascal}${versionPrefix}${apiV}Service...
+var _ api_$alias.${pascal}${versionPrefix}${apiV}ServiceHTTPServer = (*${pkg}_service.${pascal}Service)(nil)
+var _ api_$alias.${pascal}${versionPrefix}${apiV}ServiceServer     = (*${pkg}_service.${pascal}Service)(nil)
 
-func New${pascal}HTTPRegistrer(s api_$alias.${pascal}v${apiV}ServiceHTTPServer) HTTPRegister {
+func New${pascal}HTTPRegistrer(s api_$alias.${pascal}${versionPrefix}${apiV}ServiceHTTPServer) HTTPRegister {
 	return func(srv *http.Server) {
-		api_$alias.Register${pascal}v${apiV}ServiceHTTPServer(srv, s)
+		api_$alias.Register${pascal}${versionPrefix}${apiV}ServiceHTTPServer(srv, s)
 	}
 }
 
-func New${pascal}GRPCRegistrer(s api_$alias.${pascal}v${apiV}ServiceServer) GRPCRegister {
+func New${pascal}GRPCRegistrer(s api_$alias.${pascal}${versionPrefix}${apiV}ServiceServer) GRPCRegister {
 	return func(srv *grpc.Server) {
-		api_$alias.Register${pascal}v${apiV}ServiceServer(srv, s)
+		api_$alias.Register${pascal}${versionPrefix}${apiV}ServiceServer(srv, s)
 	}
 }
 "@
@@ -179,8 +188,8 @@ var ProviderSet = wire.NewSet(
 	${pkg}_service.New${pascal}Service,
 
 	// map generated service interfaces (versioned) to our implementation
-	wire.Bind(new(api_$alias.${pascal}v${apiV}ServiceHTTPServer), new(*${pkg}_service.${pascal}Service)),
-	wire.Bind(new(api_$alias.${pascal}v${apiV}ServiceServer),     new(*${pkg}_service.${pascal}Service)),
+	wire.Bind(new(api_$alias.${pascal}${versionPrefix}${apiV}ServiceHTTPServer), new(*${pkg}_service.${pascal}Service)),
+	wire.Bind(new(api_$alias.${pascal}${versionPrefix}${apiV}ServiceServer),     new(*${pkg}_service.${pascal}Service)),
 
 	// module-local registrars
 	New${pascal}HTTPRegistrer,
