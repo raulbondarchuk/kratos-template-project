@@ -9,6 +9,7 @@ $ErrorActionPreference = 'Stop'
 
 $ApiRoot     = "./api"
 $FeatureRoot = "./internal/feature"
+$RoutesFile  = "./internal/feature/routes.go"
 $utf8NoBom   = New-Object System.Text.UTF8Encoding($false)
 
 # --- utils (logs) ---
@@ -202,4 +203,85 @@ var ProviderSet = wire.NewSet(
   Show-Info "Skip (exists): $wirePath"
 }
 
-Show-OK ("feature module generated: {0}/v{1}  (register.go, wire.go, roles.go)" -f $base, $apiV)
+# --- update routes.go ---
+if (-not (Test-Path -LiteralPath $RoutesFile)) {
+  Show-Warn "File not found: $RoutesFile (creating new one)"
+  $baseAlias = "${base}_v${apiV}"
+  $routesGo = @"
+package feature
+
+import (
+	"service/internal/server/middleware/auth/authz/endpoint"
+	${baseAlias} "service/internal/feature/${base}/v${apiV}"
+	${baseAlias}_service "service/internal/feature/${base}/v${apiV}/service"
+
+	"github.com/google/wire"
+)
+
+// ProvideAuthGroups get all groups of services who requires authentication and authorization
+func ProvideAuthGroups(
+	${base}V${apiV}Svc *${baseAlias}_service.${pascal}Service,
+	// Add other services there
+) []endpoint.ServiceGroup {
+	return []endpoint.ServiceGroup{
+		// more groups here
+		${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc),
+	}
+}
+
+var ProviderAuthSet = wire.NewSet(ProvideAuthGroups)
+"@
+  [IO.File]::WriteAllText($RoutesFile, $routesGo, $utf8NoBom)
+  Show-OK "Created: $RoutesFile"
+} else {
+  Show-Step "Updating routes in $RoutesFile"
+  $txt = Get-Content -LiteralPath $RoutesFile -Raw -Encoding UTF8
+
+  # Check if imports section exists
+  if (-not ($txt -match '(?m)^import\s*\(\s*$')) {
+    Show-ErrorAndExit "Invalid routes.go format: import section not found"
+  }
+
+  # Add imports if not exist
+  $baseAlias = "${base}_v${apiV}"
+  $importBase = "${baseAlias} ""service/internal/feature/${base}/v${apiV}"""
+  $importService = "${baseAlias}_service ""service/internal/feature/${base}/v${apiV}/service"""
+  
+  if (-not ($txt -match [regex]::Escape($importBase))) {
+    $txt = $txt -replace '(?m)(^import\s*\(\s*$)', "`$1`n`t$importBase"
+  }
+  if (-not ($txt -match [regex]::Escape($importService))) {
+    $txt = $txt -replace '(?m)(^import\s*\(\s*$)', "`$1`n`t$importService"
+  }
+
+  # Add parameter if not exists
+  $paramLine = "${base}V${apiV}Svc *${baseAlias}_service.${pascal}Service,"
+  if (-not ($txt -match [regex]::Escape($paramLine))) {
+    $txt = $txt -replace '(?m)(^func\s+ProvideAuthGroups\s*\()([^\)]*)\)', "`$1`n`t$paramLine`$2)"
+  }
+
+  # Add group if not exists
+  if (-not ($txt -match [regex]::Escape("${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc)"))) {
+    # Check if there are any existing endpoints (ignoring comments)
+    if ($txt -match '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{\s*(?://[^\n]*\n\s*)*\}') {
+      # Empty group (only comments) - add as first item
+      $txt = $txt -replace '(?m)(return\s+\[\]endpoint\.ServiceGroup\s*\{\s*(?://[^\n]*\n\s*)*)\}', "`$1`t`t${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc),`n`t}"
+    } elseif ($txt -match '(?m)(return\s+\[\]endpoint\.ServiceGroup\s*\{[^\}]*?)((?:\s*//[^\n]*)*\s*)\}') {
+      # Has other items - add with comma
+      $current = $Matches[0]
+      $prefix = $Matches[1]
+      $suffix = $Matches[2]
+      
+      # Remove trailing comma from the last item if exists
+      $prefix = $prefix -replace ',\s*$', ''
+      # Add new item with comma
+      $txt = $txt -replace [regex]::Escape($current), "${prefix},`n`t`t${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc),${suffix}}"
+    }
+  }
+
+  # Save changes
+  [IO.File]::WriteAllText($RoutesFile, $txt, $utf8NoBom)
+  Show-OK "Updated: $RoutesFile"
+}
+
+Show-OK ("feature module generated: {0}/v{1}  (register.go, wire.go, roles.go, routes.go)" -f $base, $apiV)

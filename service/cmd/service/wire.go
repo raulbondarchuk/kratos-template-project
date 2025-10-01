@@ -16,7 +16,6 @@ import (
 	"github.com/google/wire"
 
 	examplev1 "service/internal/feature/example/v1"
-
 )
 
 // wireApp init kratos application.
@@ -29,7 +28,6 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		feature.ProviderAuthSet, // auth groups
 
 		// modules
-
 		examplev1.ProviderSet,
 
 		// single build + distribution to servers
@@ -40,4 +38,5 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		newApp,
 	))
 }
+
 

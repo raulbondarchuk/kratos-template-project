@@ -12,6 +12,7 @@ $ApiRoot      = "./api"
 $FeatureRoot  = "./internal/feature"
 $RegistersAgg = "./cmd/service/registers_agg.go"
 $MainWire     = "./cmd/service/wire.go"
+$RoutesFile   = "./internal/feature/routes.go"
 $utf8NoBom    = New-Object System.Text.UTF8Encoding($false)
 
 # --- logs ---
@@ -197,6 +198,81 @@ if (-not (Test-Path -LiteralPath $MainWire)) {
   $txt = [regex]::Replace($txt, "(\r?\n){3,}", "`r`n`r`n")
   [IO.File]::WriteAllText($MainWire, $txt, $utf8NoBom)
   Show-OK "Updated: $MainWire"
+}
+
+# --- 5) clean internal/feature/routes.go ---
+if (-not (Test-Path -LiteralPath $RoutesFile)) {
+  Show-Warn "File not found: $RoutesFile (skip)."
+} else {
+  Show-Step "Cleaning routes in $RoutesFile"
+  $txt = Get-Content -LiteralPath $RoutesFile -Raw -Encoding UTF8
+
+  # Patterns for matching routes entries
+  if ($Version -and $Version -match '^v(\d+)$') {
+    $v = $Matches[1]
+    # For specific version
+    $patImport = '(?m)^\s*' + [regex]::Escape($base) + '_v' + $v + '\s+"service/internal/feature/' + [regex]::Escape($base) + '/v' + $v + '"\s*$'
+    $patSvcImport = '(?m)^\s*' + [regex]::Escape($base) + '_v' + $v + '_service\s+"service/internal/feature/' + [regex]::Escape($base) + '/v' + $v + '/service"\s*$'
+    $patParam = '(?m)^\s*' + [regex]::Escape($base) + 'V' + $v + 'Svc\s+\*' + [regex]::Escape($base) + '_v' + $v + '_service\.[A-Za-z0-9]+Service\s*,\s*$'
+    $patGroup = '(?m)^\s*' + [regex]::Escape($base) + '_v' + $v + '\.GetServiceEndpoints\(' + [regex]::Escape($base) + 'V' + $v + 'Svc\)\s*,?\s*$'
+  } else {
+    # For all versions
+    $patImport = '(?m)^\s*' + [regex]::Escape($base) + '_v\d+\s+"service/internal/feature/' + [regex]::Escape($base) + '/v\d+"\s*$'
+    $patSvcImport = '(?m)^\s*' + [regex]::Escape($base) + '_v\d+_service\s+"service/internal/feature/' + [regex]::Escape($base) + '/v\d+/service"\s*$'
+    $patParam = '(?m)^\s*' + [regex]::Escape($base) + 'V\d+Svc\s+\*' + [regex]::Escape($base) + '_v\d+_service\.[A-Za-z0-9]+Service\s*,\s*$'
+    $patGroup = '(?m)^\s*' + [regex]::Escape($base) + '_v\d+\.GetServiceEndpoints\(' + [regex]::Escape($base) + 'V\d+Svc\)\s*,?\s*$'
+  }
+
+  # Remove all matches
+  $txt = Update-MultilineText -Text $txt -Pattern $patImport    -With '' -What "routes import: $base"
+  $txt = Update-MultilineText -Text $txt -Pattern $patSvcImport -With '' -What "routes service import: ${base}_service"
+  $txt = Update-MultilineText -Text $txt -Pattern $patParam     -With '' -What "routes param: ${base}Svc"
+  $txt = Update-MultilineText -Text $txt -Pattern $patGroup     -With '' -What "routes group: ${base}.GetServiceEndpoints"
+
+  # Fix formatting after removals
+  # First clean up any empty lines between items
+  $txt = $txt -replace '(?m)(\t\t[^\n\r]+),\s*\n\s*\n\s*(\t\t)', "`$1,`n`$2"
+  
+  # Then handle the endpoint list formatting
+  if ($txt -match '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{([^\}]+)\}') {
+    $body = $Matches[1]
+    # If only comments remain
+    if ($body -match '^\s*(?://[^\n]*\n\s*)*$') {
+      $txt = $txt -replace '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{[^\}]+\}', 'return []endpoint.ServiceGroup{}'
+    } else {
+      # Clean up the body: ensure comma after each item except the last one
+      $items = @()
+      $comments = @()
+      foreach ($line in ($body -split "`n")) {
+        if ($line -match '^\s*//') {
+          $comments += $line
+        } elseif ($line -match '\S') {
+          # Remove any existing comma
+          $line = $line -replace ',\s*$', ''
+          $items += $line
+        }
+      }
+      
+      # Rebuild the body with proper formatting
+      $newBody = "`n"
+      if ($comments.Count -gt 0) {
+        $newBody += ($comments -join "`n") + "`n"
+      }
+      for ($i = 0; $i -lt $items.Count; $i++) {
+        $item = $items[$i].TrimEnd()
+        # Always add comma after each item
+        $newBody += "${item},`n"
+      }
+      $newBody += "`t"
+      
+      $txt = $txt -replace '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{[^\}]+\}', "return []endpoint.ServiceGroup{$newBody}"
+    }
+  }
+
+  # collapse extra empty lines
+  $txt = [regex]::Replace($txt, "(\r?\n){3,}", "`r`n`r`n")
+  [IO.File]::WriteAllText($RoutesFile, $txt, $utf8NoBom)
+  Show-OK "Updated: $RoutesFile"
 }
 
 # --- done ---
