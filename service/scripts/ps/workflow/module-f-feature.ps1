@@ -207,30 +207,29 @@ var ProviderSet = wire.NewSet(
 if (-not (Test-Path -LiteralPath $RoutesFile)) {
   Show-Warn "File not found: $RoutesFile (creating new one)"
   $baseAlias = "${base}_v${apiV}"
-  $routesGo = @"
-package feature
+  $routesGo = "package feature
 
 import (
-	"service/internal/server/middleware/auth/authz/endpoint"
-	${baseAlias} "service/internal/feature/${base}/v${apiV}"
-	${baseAlias}_service "service/internal/feature/${base}/v${apiV}/service"
+	""service/internal/server/middleware/auth/authz/endpoint""
+	${baseAlias} ""service/internal/feature/${base}/v${apiV}""
+	${baseAlias}_service ""service/internal/feature/${base}/v${apiV}/service""
 
-	"github.com/google/wire"
+	""github.com/google/wire""
 )
 
 // ProvideAuthGroups get all groups of services who requires authentication and authorization
 func ProvideAuthGroups(
 	${base}V${apiV}Svc *${baseAlias}_service.${pascal}Service,
+
 	// Add other services there
 ) []endpoint.ServiceGroup {
 	return []endpoint.ServiceGroup{
-		// more groups here
 		${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc),
 	}
 }
 
 var ProviderAuthSet = wire.NewSet(ProvideAuthGroups)
-"@
+".Replace('""', '"')
   [IO.File]::WriteAllText($RoutesFile, $routesGo, $utf8NoBom)
   Show-OK "Created: $RoutesFile"
 } else {
@@ -265,7 +264,7 @@ var ProviderAuthSet = wire.NewSet(ProvideAuthGroups)
     # Check if there are any existing endpoints (ignoring comments)
     if ($txt -match '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{\s*(?://[^\n]*\n\s*)*\}') {
       # Empty group (only comments) - add as first item
-      $txt = $txt -replace '(?m)(return\s+\[\]endpoint\.ServiceGroup\s*\{\s*(?://[^\n]*\n\s*)*)\}', "`$1`t`t${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc),`n`t}"
+      $txt = $txt -replace '(?m)(return\s+\[\]endpoint\.ServiceGroup\s*\{\s*(?://[^\n]*\n\s*)*)\}', "`$1`n`t`t${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc),`n`t}"
     } elseif ($txt -match '(?m)(return\s+\[\]endpoint\.ServiceGroup\s*\{[^\}]*?)((?:\s*//[^\n]*)*\s*)\}') {
       # Has other items - add with comma
       $current = $Matches[0]
@@ -277,11 +276,15 @@ var ProviderAuthSet = wire.NewSet(ProvideAuthGroups)
       # Add new item with comma
       $txt = $txt -replace [regex]::Escape($current), "${prefix},`n`t`t${baseAlias}.GetServiceEndpoints(${base}V${apiV}Svc),${suffix}}"
     }
+    
+    # Fix any double tabs that might have been created
+    $txt = $txt -replace '\t\t\t', "`t`t"
+  }
   }
 
   # Save changes
   [IO.File]::WriteAllText($RoutesFile, $txt, $utf8NoBom)
-  Show-OK "Updated: $RoutesFile"
-}
+  Show-OK "Updated: $RoutesFile" 
+
 
 Show-OK ("feature module generated: {0}/v{1}  (register.go, wire.go, roles.go, routes.go)" -f $base, $apiV)

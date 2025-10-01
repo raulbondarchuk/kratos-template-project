@@ -214,13 +214,15 @@ if (-not (Test-Path -LiteralPath $RoutesFile)) {
     $patImport = '(?m)^\s*' + [regex]::Escape($base) + '_v' + $v + '\s+"service/internal/feature/' + [regex]::Escape($base) + '/v' + $v + '"\s*$'
     $patSvcImport = '(?m)^\s*' + [regex]::Escape($base) + '_v' + $v + '_service\s+"service/internal/feature/' + [regex]::Escape($base) + '/v' + $v + '/service"\s*$'
     $patParam = '(?m)^\s*' + [regex]::Escape($base) + 'V' + $v + 'Svc\s+\*' + [regex]::Escape($base) + '_v' + $v + '_service\.[A-Za-z0-9]+Service\s*,\s*$'
-    $patGroup = '(?m)^\s*' + [regex]::Escape($base) + '_v' + $v + '\.GetServiceEndpoints\(' + [regex]::Escape($base) + 'V' + $v + 'Svc\)\s*,?\s*$'
+    # Match group line with possible comments and whitespace
+    $patGroup = '(?m)^\s*(?://[^\n]*\n\s*)*' + [regex]::Escape($base) + '_v' + $v + '\.GetServiceEndpoints\(' + [regex]::Escape($base) + 'V' + $v + 'Svc\)\s*,?\s*$'
   } else {
     # For all versions
     $patImport = '(?m)^\s*' + [regex]::Escape($base) + '_v\d+\s+"service/internal/feature/' + [regex]::Escape($base) + '/v\d+"\s*$'
     $patSvcImport = '(?m)^\s*' + [regex]::Escape($base) + '_v\d+_service\s+"service/internal/feature/' + [regex]::Escape($base) + '/v\d+/service"\s*$'
     $patParam = '(?m)^\s*' + [regex]::Escape($base) + 'V\d+Svc\s+\*' + [regex]::Escape($base) + '_v\d+_service\.[A-Za-z0-9]+Service\s*,\s*$'
-    $patGroup = '(?m)^\s*' + [regex]::Escape($base) + '_v\d+\.GetServiceEndpoints\(' + [regex]::Escape($base) + 'V\d+Svc\)\s*,?\s*$'
+    # Match group line with possible comments and whitespace
+    $patGroup = '(?m)^\s*(?://[^\n]*\n\s*)*' + [regex]::Escape($base) + '_v\d+\.GetServiceEndpoints\(' + [regex]::Escape($base) + 'V\d+Svc\)\s*,?\s*$'
   }
 
   # Remove all matches
@@ -236,32 +238,39 @@ if (-not (Test-Path -LiteralPath $RoutesFile)) {
   # Then handle the endpoint list formatting
   if ($txt -match '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{([^\}]+)\}') {
     $body = $Matches[1]
-    # If only comments remain
-    if ($body -match '^\s*(?://[^\n]*\n\s*)*$') {
-      $txt = $txt -replace '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{[^\}]+\}', 'return []endpoint.ServiceGroup{}'
-    } else {
-      # Clean up the body: ensure comma after each item except the last one
-      $items = @()
-      $comments = @()
-      foreach ($line in ($body -split "`n")) {
-        if ($line -match '^\s*//') {
-          $comments += $line
-        } elseif ($line -match '\S') {
-          # Remove any existing comma
-          $line = $line -replace ',\s*$', ''
+    # Remove any remaining groups for this module (in case they weren't caught by the first pass)
+    $body = $body -replace '(?m)^\s*(?://[^\n]*\n\s*)*' + [regex]::Escape($base) + '_v\d+\.GetServiceEndpoints\([^)]+\)\s*,?\s*$', ''
+    
+    # Clean up the body: collect remaining items and comments
+    $items = @()
+    $comments = @()
+    foreach ($line in ($body -split "`n")) {
+      if ($line -match '^\s*//') {
+        $comments += $line
+      } elseif ($line -match '\S') {
+        # Remove trailing commas and whitespace
+        $line = $line.TrimEnd()
+        $line = $line -replace ',\s*$', ''
+        if ($line -and -not $line.EndsWith('}')) {
           $items += $line
         }
       }
-      
+    }
+    
+    if ($items.Count -eq 0) {
+      # If no items left, return empty group
+      $txt = $txt -replace '(?m)return\s+\[\]endpoint\.ServiceGroup\s*\{[^\}]+\}', 'return []endpoint.ServiceGroup{}'
+    } else {
       # Rebuild the body with proper formatting
       $newBody = "`n"
       if ($comments.Count -gt 0) {
         $newBody += ($comments -join "`n") + "`n"
       }
-      for ($i = 0; $i -lt $items.Count; $i++) {
-        $item = $items[$i].TrimEnd()
-        # Always add comma after each item
-        $newBody += "${item},`n"
+      # Remove any trailing commas from items
+      $items = $items | ForEach-Object { $_.TrimEnd(',') }
+      
+      foreach ($item in $items) {
+        $newBody += "`t`t$item,`n"
       }
       $newBody += "`t"
       
