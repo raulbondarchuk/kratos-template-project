@@ -38,9 +38,9 @@ if (Test-Path "docs/openapi") {
   Show-Info   "Removed: docs/openapi"
 }
 
-# --- Careful cleaning docs (preserve openapi_embed.go and others) ---
+# --- Careful cleaning docs (preserve openapi_embed.go logo.png and others) ---
 if (Test-Path "docs") {
-  $preserve = @("openapi_embed.go", ".gitkeep")
+  $preserve = @("openapi_embed.go", ".gitkeep", "logo.png")
   $extsGenerated = @(".json", ".yaml", ".yml")
 
   Show-Info "Cleaning generated files in docs (preserve: $($preserve -join ', '))"

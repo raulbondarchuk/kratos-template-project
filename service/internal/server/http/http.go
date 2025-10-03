@@ -4,7 +4,6 @@ package server_http
 import (
 	"service/internal/conf/v1"
 	"service/internal/server/http/middleware/multipart"
-	"service/internal/server/http/openapi/scalar"
 	"service/internal/server/http/openapi/swagger"
 	"service/internal/server/http/sys"
 	"service/internal/server/middleware/auth/authz"
@@ -52,7 +51,6 @@ func NewHTTPServer(
 
 	// Documentation and system endpoints
 	swagger.AttachEmbeddedSwaggerUI(srv)
-	scalar.AttachScalarDocs(srv)
 	sys.LoadSystemEndpoints(srv)
 
 	return srv
