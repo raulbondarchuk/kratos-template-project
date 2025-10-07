@@ -1,10 +1,7 @@
 // const.go
 package swagger
 
-import (
-	"io/fs"
-	"strings"
-)
+import "io/fs"
 
 const (
 	defaultLoginURL = "http://10.70.20.90:8134/v1/login"
@@ -22,12 +19,12 @@ type Config struct {
 	CookiePath    string
 	RequiredRoles []string
 	ProjectPrefix string
-	FixedScheme   string // "http" | "https" | ""
+
+	ServiceName string
 }
 
 func (c *Config) normalize() {
 	c.Base = cleanBase(c.Base)
-
 	if c.CookieName == "" {
 		c.CookieName = "swagger_session"
 	}
@@ -44,12 +41,5 @@ func (c *Config) normalize() {
 	if c.RequiredRoles == nil {
 		c.RequiredRoles = defaultRequiredRoles
 	}
-
 	c.ProjectPrefix = cleanBase(c.ProjectPrefix)
-
-	s := strings.ToLower(strings.TrimSpace(c.FixedScheme))
-	if s != "http" && s != "https" {
-		s = ""
-	}
-	c.FixedScheme = s
 }

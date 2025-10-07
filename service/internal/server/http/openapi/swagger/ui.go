@@ -7,7 +7,7 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>API Docs</title>
+  <title>{{if .ServiceName}}{{.ServiceName}} — {{end}}API Docs</title>
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css"/>
   <style>
     :root{
@@ -21,6 +21,8 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
       --chip-bg:#ecfdf5; --chip-br:#a7f3d0; --chip-fg:#065f46;
 
       --link-bg:#f1f5ff; --link-br:#dbe4ff; --link-fg:#1e3a8a; --link-bg-h:#e6edff;
+
+      --proj-bg:#f8fafc;   --proj-br:#e2e8f0;  --proj-fg:#0f172a; --proj-sub:#64748b;
     }
     html,body{margin:0}
     .app-header{
@@ -31,24 +33,30 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
       flex-wrap:wrap;
       font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
     }
-    .brand{display:flex; align-items:center; gap:10px}
+    .brand{display:flex; align-items:center; gap:12px}
     .brand img{height:28px}
+
+    .proj-badge{
+      display:inline-flex; align-items:center; gap:8px; height:var(--h);
+      padding:0 14px; border-radius:12px; background:var(--proj-bg);
+      border:1px solid var(--proj-br); box-shadow:0 6px 16px rgba(15,23,42,.04);
+      max-width:28vw; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+    }
+    .proj-name{font-weight:800; color:var(--proj-fg); letter-spacing:.02em}
+    .proj-sub{font-weight:700; color:var(--proj-sub); opacity:.9}
+
     .controls{margin-left:auto; display:flex; align-items:center; gap:10px; justify-content:flex-end; flex:1 1 auto; min-width:320px; flex-wrap:wrap;}
 
     .scheme-chip{
       display:inline-flex; align-items:center; justify-content:center;
-      height:var(--h); padding:0 18px;
-      border-radius:14px; border:1px solid var(--chip-br);
-      background:var(--chip-bg); color:var(--chip-fg);
-      font-weight:700; letter-spacing:.02em; text-transform:uppercase;
+      height:var(--h); padding:0 18px; border-radius:14px; border:1px solid var(--chip-br);
+      background:var(--chip-bg); color:var(--chip-fg); font-weight:700; letter-spacing:.02em; text-transform:uppercase;
       box-shadow:0 10px 24px rgba(16,185,129,.12), inset 0 0 0 1px rgba(16,185,129,.08);
     }
 
     .link-pill{
-      display:inline-flex; align-items:center;
-      height:var(--h); padding:0 14px; border-radius:12px;
-      background:var(--link-bg); color:var(--link-fg); text-decoration:none;
-      font-weight:700; border:1px solid var(--link-br);
+      display:inline-flex; align-items:center; height:var(--h); padding:0 14px; border-radius:12px;
+      background:var(--link-bg); color:var(--link-fg); text-decoration:none; font-weight:700; border:1px solid var(--link-br);
       max-width:48vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
       box-shadow:0 8px 18px rgba(30,58,138,.08);
       transition:background .15s ease, transform .05s ease, border-color .15s ease;
@@ -68,9 +76,9 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
     .token-input::placeholder{color:var(--ph)}
     .copy-ic{
       position:absolute; right:6px; top:50%; transform:translateY(-50%);
-      display:inline-flex; align-items:center; justify-content:center;
-      width:32px; height:32px; border-radius:9px; border:0; background:transparent; cursor:pointer;
-      color:#6b7280; transition:background .15s ease, color .15s ease, opacity .15s ease;
+      display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px;
+      border-radius:9px; border:0; background:transparent; cursor:pointer; color:#6b7280;
+      transition:background .15s ease, color .15s ease, opacity .15s ease;
     }
     .copy-ic:hover{ background:#f3f4f6; color:#374151 }
     .copy-ic[disabled]{ opacity:.45; cursor:not-allowed }
@@ -98,6 +106,12 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
   <header class="app-header">
     <div class="brand">
       <img src="{{.Base}}/docs/logo.png" alt="logo" onerror="this.style.display='none'">
+      {{if .ServiceName}}
+      <div class="proj-badge" title="Project">
+        <span class="proj-name">{{.ServiceName}}</span>
+        <span class="proj-sub">API</span>
+      </div>
+      {{end}}
     </div>
 
     <div class="controls">
@@ -149,10 +163,8 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
   <script src="{{.Base}}/docs/bootstrap.js" defer></script>
   <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
   <script>
-    const STATIC_BASE   = '{{.Base}}';
-    const PROJECT_PREF  = '{{.DefaultProj}}';
-    const FIXED_SCHEME  = '{{.FixedScheme}}';
-    const SPEC_URL      = STATIC_BASE + '/docs/openapi.yaml';
+    const STATIC_BASE  = '{{.Base}}';
+    const SPEC_URL     = STATIC_BASE + '/docs/openapi.yaml';
 
     const K='swagger_access_token', K_OVR='swagger_user_override';
     function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg||'Saved'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1300); }
@@ -161,24 +173,21 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
     async function copyToken(){ const v=(document.getElementById('authToken')?.value||'').trim(); if(!v){ toast('Nothing to copy'); return; } try{ if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(v); } else { const ta=document.createElement('textarea'); ta.value=v; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } toast('Copied'); }catch(_){ toast('Copy failed'); } }
     function syncCopyBtn(){ const el=document.getElementById('authToken'); const btn=document.getElementById('copyTokenBtn'); if(btn){ btn.disabled = !(el && el.value.trim().length); } }
 
-    function readScheme(){ const s=(FIXED_SCHEME||'').toLowerCase(); if(s==='http'||s==='https') return s; return (location.protocol||'http:').replace(':',''); }
-    function effectivePrefix(){ return readScheme()==='https' ? (PROJECT_PREF || '') : ''; }
+    function readScheme(){ return (location.protocol || 'http:').replace(':',''); }
 
     function buildAbsoluteUrl(pathOrUrl){
-      const scheme = readScheme();
       let u; try { u = new URL(pathOrUrl, window.location.origin); } catch(_) { return pathOrUrl; }
       let path = u.pathname + u.search + u.hash;
-      const pref = effectivePrefix();
-      if (pref && pref !== '/' && path.startsWith('/') && !path.startsWith(pref + '/') && path !== pref){
-        path = pref + path;
+      const base = STATIC_BASE;
+      if (base && base !== '/' && path.startsWith('/') && !path.startsWith(base + '/') && path !== base){
+        path = base + path;
       }
-      return scheme + '://' + window.location.host + path;
+      return readScheme() + '://' + window.location.host + path;
     }
 
     function paintHeader(){
       const scheme = readScheme();
-      const pref   = effectivePrefix();
-      const base   = scheme + '://' + window.location.host + (pref||'');
+      const base   = scheme + '://' + window.location.host + (STATIC_BASE || '');
 
       const chip = document.getElementById('schemeChip');
       if (chip) chip.textContent = scheme.toUpperCase();
@@ -206,19 +215,22 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
       paintHeader();
     });
 
-    window.ui = SwaggerUIBundle({
-      url: SPEC_URL,
-      dom_id:'#swagger-ui',
-      presets:[SwaggerUIBundle.presets.apis],
-      persistAuthorization:true,
-      requestInterceptor:(req)=>{
-        const isSpec = /\/docs\/openapi\.yaml(?:\?|$)/.test(req.url||'');
-        if (!isSpec) req.url = buildAbsoluteUrl(req.url || '/');
-        const token = localStorage.getItem(K) || '';
-        if (token){ req.headers['Authorization'] = token; }
-        return req;
-      }
-    });
+   window.ui = SwaggerUIBundle({
+    url: SPEC_URL,
+    dom_id:'#swagger-ui',
+    presets:[SwaggerUIBundle.presets.apis],
+    persistAuthorization:true,
+    defaultModelsExpandDepth: -1,
+    defaultModelExpandDepth: 0,
+    docExpansion: 'none',
+    requestInterceptor:(req)=>{
+      const isSpec = /\/docs\/openapi\.yaml(?:\?|$)/.test(req.url||'');
+      if (!isSpec) req.url = buildAbsoluteUrl(req.url || '/');
+      const token = localStorage.getItem(K) || '';
+      if (token){ req.headers['Authorization'] = token; }
+      return req;
+    }
+  });
   </script>
 </body>
 </html>`))

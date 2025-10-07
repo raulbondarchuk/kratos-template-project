@@ -3,7 +3,6 @@ package swagger
 import (
 	"io/fs"
 	stdhttp "net/http"
-	"strings"
 
 	openapifs "service/docs"
 
@@ -118,31 +117,18 @@ func AttachEmbeddedSwaggerUIWithConfig(s *kratoshttp.Server, cfg Config) {
 		regFS(s, cfg.Base, "/docs/openapi/", protected)
 	}
 
-	// handler.go (fragment of UI)
+	// handler.go (fragnemt UI)
 	reg(s, cfg.Base, "/docs/ui", authRequired(&cfg, func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		setOnlyContentType(w, "text/html; charset=utf-8")
 		setNoCache(w)
 		w.WriteHeader(stdhttp.StatusOK)
 
-		// if FixedScheme is not set, try to get it from the proxy
-		scheme := cfg.FixedScheme
-		if scheme == "" {
-			if xf := strings.TrimSpace(r.Header.Get("X-Forwarded-Proto")); xf != "" {
-				xf = strings.ToLower(xf)
-				if xf == "http" || xf == "https" {
-					scheme = xf
-				}
-			}
-		}
-
 		_ = uiTpl.Execute(w, struct {
 			Base        string
-			DefaultProj string
-			FixedScheme string
+			ServiceName string
 		}{
 			Base:        baseForReq(r, &cfg),
-			DefaultProj: cfg.ProjectPrefix,
-			FixedScheme: scheme, // "http" | "https" | ""
+			ServiceName: cfg.ServiceName,
 		})
 	}))
 }

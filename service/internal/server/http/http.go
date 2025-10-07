@@ -59,7 +59,7 @@ func NewHTTPServer(
 		DocsFS:        openapifs.FS,
 		CookieName:    "swagger_default",
 		ProjectPrefix: "/" + app.GetName(),
-		FixedScheme:   "http",
+		ServiceName:   app.GetName(),
 	})
 
 	// 2) https
@@ -68,7 +68,7 @@ func NewHTTPServer(
 		DocsFS:        openapifs.FS,
 		CookieName:    "swagger_" + app.GetName(),
 		ProjectPrefix: "/" + app.GetName(),
-		FixedScheme:   "https",
+		ServiceName:   app.GetName(),
 	})
 
 	sys.LoadSystemEndpoints(srv)
