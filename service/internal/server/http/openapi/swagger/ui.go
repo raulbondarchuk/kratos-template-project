@@ -7,7 +7,7 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>{{if .ServiceName}}{{.ServiceName}} — {{end}}API Docs</title>
+  <title>{{if .ServiceName}}{{.ServiceName}} - {{end}}API Docs</title>
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css"/>
   <style>
     :root{
@@ -22,7 +22,7 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
 
       --link-bg:#f1f5ff; --link-br:#dbe4ff; --link-fg:#1e3a8a; --link-bg-h:#e6edff;
 
-      --proj-bg:#f8fafc;   --proj-br:#e2e8f0;  --proj-fg:#0f172a; --proj-sub:#64748b;
+      --proj-bg:#f8fafc; --proj-br:#e2e8f0; --proj-fg:#0f172a; --proj-sub:#64748b;
     }
     html,body{margin:0}
     .app-header{
@@ -100,6 +100,14 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
     .toast.show{opacity:1; transform:translateY(0)}
     .content{padding-top:6px}
     form.logout{margin:0}
+
+    .swagger-ui .info .title small,
+    .swagger-ui .info .version,
+    .swagger-ui .info .version-stamp,
+    .swagger-ui .info .version-wrapper,
+    .swagger-ui .info .base-url,
+    .swagger-ui .info .download-url-wrapper,
+    .swagger-ui .info .download-url { display:none !important; }
   </style>
 </head>
 <body>
@@ -169,12 +177,11 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
     const K='swagger_access_token', K_OVR='swagger_user_override';
     function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg||'Saved'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1300); }
     function saveToken(){ const el=document.getElementById('authToken'); const v=(el?.value||'').trim(); if(v){ localStorage.setItem(K,v); localStorage.setItem(K_OVR,'1'); toast('Token saved'); } else { localStorage.removeItem(K); localStorage.setItem(K_OVR,'1'); toast('Token cleared'); } syncCopyBtn(); }
-    function clearToken(){ const el=document.getElementById('authToken'); if(el) el.value=''; localStorage.removeItem(K); localStorage.setItem(K_OVR,'1'); toast('Token cleared'); syncCopyBtn(); }
+    function clearToken(){ const el=document.getElementById('authToken'); if(el) el.value=''; localStorage.removeItem(K); localStorage.setItem(K_OVR,'1'); toast('Token cleared'); } 
     async function copyToken(){ const v=(document.getElementById('authToken')?.value||'').trim(); if(!v){ toast('Nothing to copy'); return; } try{ if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(v); } else { const ta=document.createElement('textarea'); ta.value=v; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } toast('Copied'); }catch(_){ toast('Copy failed'); } }
     function syncCopyBtn(){ const el=document.getElementById('authToken'); const btn=document.getElementById('copyTokenBtn'); if(btn){ btn.disabled = !(el && el.value.trim().length); } }
 
     function readScheme(){ return (location.protocol || 'http:').replace(':',''); }
-
     function buildAbsoluteUrl(pathOrUrl){
       let u; try { u = new URL(pathOrUrl, window.location.origin); } catch(_) { return pathOrUrl; }
       let path = u.pathname + u.search + u.hash;
@@ -184,14 +191,11 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
       }
       return readScheme() + '://' + window.location.host + path;
     }
-
     function paintHeader(){
       const scheme = readScheme();
       const base   = scheme + '://' + window.location.host + (STATIC_BASE || '');
-
       const chip = document.getElementById('schemeChip');
       if (chip) chip.textContent = scheme.toUpperCase();
-
       const link = document.getElementById('baseLink');
       const txt  = document.getElementById('baseText');
       if (txt)  txt.textContent = base;
@@ -204,7 +208,6 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
         };
       }
     }
-
     document.addEventListener('DOMContentLoaded', ()=>{
       const input = document.getElementById('authToken');
       if(input){
@@ -215,22 +218,35 @@ var uiTpl = template.Must(template.New("ui").Parse(`<!doctype html>
       paintHeader();
     });
 
-   window.ui = SwaggerUIBundle({
-    url: SPEC_URL,
-    dom_id:'#swagger-ui',
-    presets:[SwaggerUIBundle.presets.apis],
-    persistAuthorization:true,
-    defaultModelsExpandDepth: -1,
-    defaultModelExpandDepth: 0,
-    docExpansion: 'none',
-    requestInterceptor:(req)=>{
-      const isSpec = /\/docs\/openapi\.yaml(?:\?|$)/.test(req.url||'');
-      if (!isSpec) req.url = buildAbsoluteUrl(req.url || '/');
-      const token = localStorage.getItem(K) || '';
-      if (token){ req.headers['Authorization'] = token; }
-      return req;
-    }
-  });
+    // Open only tag groups by default; operations remain collapsed
+    window.ui = SwaggerUIBundle({
+      url: SPEC_URL,
+      dom_id:'#swagger-ui',
+      presets:[SwaggerUIBundle.presets.apis],
+      persistAuthorization:true,
+      defaultModelsExpandDepth: -1,
+      defaultModelExpandDepth: 0,
+      docExpansion: 'list',
+      requestInterceptor:(req)=>{
+        const isSpec = /\/docs\/openapi\.yaml(?:\?|$)/.test(req.url||'');
+        if (!isSpec) req.url = buildAbsoluteUrl(req.url || '/');
+        const token = localStorage.getItem(K) || '';
+        if (token){ req.headers['Authorization'] = token; }
+        return req;
+      }
+    });
+
+    // Hide base-url and download YAML link
+    (function hideBadgesAndSpecLink(){
+      const sel = '.swagger-ui .info .base-url, .swagger-ui .info .download-url-wrapper, .swagger-ui .info .download-url, .swagger-ui .info .title small, .swagger-ui .info .version, .swagger-ui .info .version-stamp, .swagger-ui .info .version-wrapper';
+      const kill = () => document.querySelectorAll(sel).forEach(el => el.remove());
+      kill();
+      setTimeout(kill, 120);
+      const root = document.querySelector('.swagger-ui');
+      if (root && 'MutationObserver' in window){
+        new MutationObserver(()=>kill()).observe(root, {childList:true, subtree:true});
+      }
+    })();
   </script>
 </body>
 </html>`))
