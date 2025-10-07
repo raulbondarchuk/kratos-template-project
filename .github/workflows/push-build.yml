@@ -3,6 +3,16 @@ name: Build & Push
 on:
   push:
     branches: [ "main", "master" ]
+    paths:
+      - 'service/**'
+      - '!service/**/*.md'
+      - '!service/**/*.mdx'
+      - '!service/**/*.mod'
+      - '!service/**/*.sum'
+      - '!service/**/*.yaml'
+      - '!service/**/*.gitignore'
+      - '!service/**/Makefile'
+      - '.github/workflows/**'
 
 env:
   GO_VERSION: "1.25.0"
@@ -14,43 +24,51 @@ defaults:
   run:
     working-directory: ./service
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout (manual)
-        working-directory: .
-        env:
-          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.sha }}
-        run: |
-          set -e
-          git clone "https://x-access-token:${GIT_TOKEN}@github.com/${REPO}.git" .
-          git fetch --no-tags origin "${SHA}"
-          git checkout --progress --force "${SHA}"
-          git submodule update --init --recursive
-          git fetch --tags --force origin
-          git config --global --add safe.directory "$PWD"
+    permissions:
+      contents: read
 
-      - name: Install Go (manual)
-        run: |
-          curl -sSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz
-          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tgz
-          echo "/usr/local/go/bin" >> "$GITHUB_PATH"
-          echo "$HOME/go/bin" >> "$GITHUB_PATH"
-          go version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ref: ${{ github.sha }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Cache Go build cache (GOCACHE) and modules (GOMODCACHE)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ hashFiles('service/**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ env.GO_VERSION }}-
 
       - name: Install yq
         run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
       - name: Derive app name and version
         id: meta
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
           NAME=$(yq -r '.app.name // "service"' "${CONFIG_FILE}" || echo service)
           CFG_VER=$(yq -r '.app.version // ""' "${CONFIG_FILE}" || true)
           GIT_VER=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -65,10 +83,14 @@ jobs:
           echo "name=$NAME"   >> "$GITHUB_OUTPUT"
           echo "version=$TAG" >> "$GITHUB_OUTPUT"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
-          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
 
       - name: Build Linux binary
-        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "${BIN_FILE}" ./cmd/service
+        env:
+          CGO_ENABLED: "0"
+        run: |
+          GOOS=linux GOARCH=amd64 \
+          go build -trimpath -buildvcs=false -ldflags="-s -w" \
+            -o "${BIN_FILE}" ./cmd/service
 
       - name: Ensure config folder
         run: mkdir -p configs
@@ -79,25 +101,37 @@ jobs:
         shell: bash
         run: |
           : > .env
-          if [ -n "$ENV_FILE" ]; then printf '%s\n' "$ENV_FILE" > .env; fi
+          if [ -n "${ENV_FILE:-}" ]; then printf '%s\n' "$ENV_FILE" > .env; fi
 
-      - name: Check build context
+      - name: Sanity check
         run: |
+          test -f "${BIN_FILE}" || { echo "Binary ${BIN_FILE} not found"; exit 1; }
+          test -f Dockerfile   || { echo "Dockerfile not found"; exit 1; }
           ls -la
-          test -f "${BIN_FILE}" || (echo "Binary ${BIN_FILE} not found"; exit 1)
-          test -f Dockerfile   || (echo "Dockerfile not found"; exit 1)
 
-      # - name: Docker login (private registry)
-      #   run: |
-      #     echo "${{ secrets.REGISTRY_PASS }}" | docker login "${REGISTRY}" -u "${{ secrets.REGISTRY_LOGIN }}" --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build image
-        run: docker build --build-arg BIN_FILE="${BIN_FILE}" -t "${IMAGE}" .
+      - name: Docker login (private registry)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_LOGIN }}
+          password: ${{ secrets.REGISTRY_PASS }}
 
-      # - name: Push image
-      #   run: docker push "${IMAGE}"
+      # - name: Build & Push image (with cache)
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: ./service
+      #     file: ./service/Dockerfile
+      #     build-args: |
+      #       BIN_FILE=${{ env.BIN_FILE }}
+      #     tags: ${{ steps.meta.outputs.image }}
+      #     push: true
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       - name: Summary
         run: |
-          echo "Pushed image: ${IMAGE}"
-          echo "::notice title=Image::${IMAGE}"
+          echo "Pushed image: ${{ steps.meta.outputs.image }}"
+          echo "::notice title=Image::${{ steps.meta.outputs.image }}"
