@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/example/v1/errors.proto",
+    "title": "api/example/v1/example.proto",
     "version": "version not set"
   },
   "tags": [
@@ -16,15 +16,15 @@
     "application/json"
   ],
   "paths": {
-    "/v1/example": {
+    "/v1/example/mock": {
       "get": {
-        "summary": "* Lista todas las plantillas.\r\n\r\n**Descripción**\r\nDevuelve el catálogo completo de plantillas definidas.\r\n\r\n**Parámetros**\r\n_(sin parámetros)_\r\n\r\n**Respuestas**\r\n- `200 OK`: `examples` + `meta.code = OK`\r\n- `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n**Ejemplos**\r\n`GET /example`",
-        "operationId": "Examplev1Service_ListExamples",
+        "summary": "Mock endpoint (no ops selected)",
+        "operationId": "Examplev1Service_Mock",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1ListExamplesResponse"
+              "$ref": "#/definitions/v1MockResponse"
             }
           },
           "default": {
@@ -34,69 +34,6 @@
             }
           }
         },
-        "tags": [
-          "Examplev1Service"
-        ]
-      },
-      "delete": {
-        "summary": "* Elimina una plantilla por ID.\r\n\r\n**Descripción**\r\nBorra la plantilla indicada por `id`.\r\n\r\n**Parámetros (query)**\r\n- `id` (**obligatorio**): ID interno\r\n\r\n**Respuestas**\r\n- `200 OK`: `meta.code = OK`\r\n- `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n**Ejemplos**\r\n`DELETE /example?id=123`",
-        "operationId": "Examplev1Service_DeleteExampleById",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeleteExampleByIdResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "description": "ID interno",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "Examplev1Service"
-        ]
-      },
-      "post": {
-        "summary": "* Crea o actualiza una plantilla (upsert).\r\n\r\n**Descripción**\r\nSi `id` es `0` o no se envía → crea; si `id` \u003e 0 → actualiza.\r\n\r\n**Parámetros (body JSON)**\r\n- `id` (opcional, 0=create)\r\n- `name` (**obligatorio**)\r\n\r\n**Respuestas**\r\n- `200 OK`: `example` resultante + `meta.code = OK`\r\n- `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n**Ejemplos**\r\n`POST /example`\r\nBody: `{ \"name\":\"Example 1\" }`",
-        "operationId": "Examplev1Service_UpsertExample",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpsertExampleResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "* Cuerpo para crear/actualizar una plantilla.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1UpsertExampleRequest"
-            }
-          }
-        ],
         "tags": [
           "Examplev1Service"
         ]
@@ -132,142 +69,14 @@
         }
       }
     },
-    "v1DeleteExampleByIdResponse": {
+    "v1MockResponse": {
       "type": "object",
       "properties": {
-        "meta": {
-          "$ref": "#/definitions/v1MetaResponse",
-          "title": "Estado de la operación"
-        }
-      },
-      "description": "* Respuesta de eliminación."
-    },
-    "v1Example": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "type": {
-          "$ref": "#/definitions/v1TypeExample"
-        },
-        "name": {
-          "type": "string",
-          "title": "ej. Example 1 / Example 2"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "description": "* Ejemplo de alerta/aviso."
-    },
-    "v1ListExamplesResponse": {
-      "type": "object",
-      "properties": {
-        "examples": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Example"
-          },
-          "title": "Colección de ejemplos"
-        },
-        "meta": {
-          "$ref": "#/definitions/v1MetaResponse",
-          "title": "Estado de la operación"
-        }
-      },
-      "description": "* Respuesta con la lista de plantillas."
-    },
-    "v1MetaResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "$ref": "#/definitions/v1ResponseCode",
-          "title": "RESPONSE_CODE_OK or other codes"
-        },
         "message": {
           "type": "string",
-          "title": "message description (e.g. \"ok\", \"ip blocked\", \"data base error\", \"user not found\" etc.)"
-        }
-      },
-      "description": "Your meta-object: only code and message."
-    },
-    "v1ResponseCode": {
-      "type": "string",
-      "enum": [
-        "RESPONSE_CODE_UNSPECIFIED",
-        "RESPONSE_CODE_OK",
-        "RESPONSE_CODE_BAD_REQUEST",
-        "RESPONSE_CODE_UNAUTHORIZED",
-        "RESPONSE_CODE_FORBIDDEN",
-        "RESPONSE_CODE_NOT_FOUND",
-        "RESPONSE_CODE_METHOD_NOT_ALLOWED",
-        "RESPONSE_CODE_INTERNAL_SERVER_ERROR",
-        "RESPONSE_CODE_NOT_IMPLEMENTED",
-        "RESPONSE_CODE_SERVICE_UNAVAILABLE"
-      ],
-      "default": "RESPONSE_CODE_UNSPECIFIED",
-      "description": "Minimum set of codes. Zero is mandatory in proto3.\n\n - RESPONSE_CODE_OK: success\n - RESPONSE_CODE_BAD_REQUEST: bad request\n - RESPONSE_CODE_UNAUTHORIZED: unauthorized\n - RESPONSE_CODE_FORBIDDEN: forbidden\n - RESPONSE_CODE_NOT_FOUND: not found\n - RESPONSE_CODE_METHOD_NOT_ALLOWED: method not allowed\n - RESPONSE_CODE_INTERNAL_SERVER_ERROR: server error\n - RESPONSE_CODE_NOT_IMPLEMENTED: not implemented\n - RESPONSE_CODE_SERVICE_UNAVAILABLE: service unavailable"
-    },
-    "v1TypeExample": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string",
-          "title": "Type1/Type2"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+          "title": "e.g. \"\"pong\"\""
         }
       }
-    },
-    "v1UpsertExampleRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64",
-          "title": "0 → crear"
-        },
-        "name": {
-          "type": "string",
-          "title": "ej. Example 1 / Example 2"
-        }
-      },
-      "description": "* Cuerpo para crear/actualizar una plantilla.",
-      "required": [
-        "name"
-      ]
-    },
-    "v1UpsertExampleResponse": {
-      "type": "object",
-      "properties": {
-        "example": {
-          "$ref": "#/definitions/v1Example",
-          "title": "Ejemplo creado/actualizado"
-        },
-        "meta": {
-          "$ref": "#/definitions/v1MetaResponse",
-          "title": "Estado de la operación"
-        }
-      },
-      "description": "* Resultado del upsert."
     }
   }
 }

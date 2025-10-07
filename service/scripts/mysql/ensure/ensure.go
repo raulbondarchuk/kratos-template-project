@@ -26,10 +26,11 @@ func EnsureSchema(DB *gorm.DB, name string) error {
 		return fmt.Errorf("failed to get database connection: %v", err)
 	}
 
-	// Execute CREATE DATABASE
-	_, err = sqlDB.Exec(sqlScript)
+	// Check if database exists
+	var dbName string
+	err = sqlDB.QueryRow(sqlScript).Scan(&dbName)
 	if err != nil {
-		return fmt.Errorf("failed to execute ensure schema script: %v", err)
+		panic(fmt.Sprintf("Database '%s' does not exist", name))
 	}
 
 	return nil

@@ -4,134 +4,28 @@
 openapi: 3.0.3
 info:
     title: Examplev1Service API
-    description: '* API para gestión de plantillas (alertas/avisos).'
+    description: 'Examplev1Service: generated with ops=[]'
     version: 0.0.1
 paths:
-    /v1/example:
+    /v1/example/mock:
         get:
             tags:
                 - Examplev1Service
-            description: "* Lista todas las plantillas.\r\n\r\n **Descripción**\r\n Devuelve el catálogo completo de plantillas definidas.\r\n\r\n **Parámetros**\r\n _(sin parámetros)_\r\n\r\n **Respuestas**\r\n - `200 OK`: `examples` + `meta.code = OK`\r\n - `200` con error lógico: `meta.code != OK` y `meta.message`\r\n\r\n **Ejemplos**\r\n `GET /example`"
-            operationId: Examplev1Service_ListExamples
+            description: Mock endpoint (no ops selected)
+            operationId: Examplev1Service_Mock
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.example.v1.ListExamplesResponse'
-        post:
-            tags:
-                - Examplev1Service
-            description: "* Crea o actualiza una plantilla (upsert).\r\n\r\n **Descripción**\r\n Si `id` es `0` o no se envía → crea; si `id` > 0 → actualiza.\r\n\r\n **Parámetros (body JSON)**\r\n - `id` (opcional, 0=create)\r\n - `name` (**obligatorio**)\r\n\r\n **Respuestas**\r\n - `200 OK`: `example` resultante + `meta.code = OK`\r\n - `200` con error lógico: validación, duplicidad de `name`, etc.\r\n\r\n **Ejemplos**\r\n `POST /example`\r\n Body: `{ \"name\":\"Example 1\" }`"
-            operationId: Examplev1Service_UpsertExample
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.example.v1.UpsertExampleRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.example.v1.UpsertExampleResponse'
-        delete:
-            tags:
-                - Examplev1Service
-            description: "* Elimina una plantilla por ID.\r\n\r\n **Descripción**\r\n Borra la plantilla indicada por `id`.\r\n\r\n **Parámetros (query)**\r\n - `id` (**obligatorio**): ID interno\r\n\r\n **Respuestas**\r\n - `200 OK`: `meta.code = OK`\r\n - `200` con error lógico: `meta.code != OK` (p. ej., ID inexistente)\r\n\r\n **Ejemplos**\r\n `DELETE /example?id=123`"
-            operationId: Examplev1Service_DeleteExampleById
-            parameters:
-                - name: id
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.example.v1.DeleteExampleByIdResponse'
+                                $ref: '#/components/schemas/api.example.v1.MockResponse'
 components:
     schemas:
-        api.example.v1.DeleteExampleByIdResponse:
+        api.example.v1.MockResponse:
             type: object
             properties:
-                meta:
-                    $ref: '#/components/schemas/api.example.v1.MetaResponse'
-            description: '* Respuesta de eliminación.'
-        api.example.v1.Example:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: uint32
-                type:
-                    $ref: '#/components/schemas/api.example.v1.TypeExample'
-                name:
-                    type: string
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-            description: '* Ejemplo de alerta/aviso.'
-        api.example.v1.ListExamplesResponse:
-            type: object
-            properties:
-                examples:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.example.v1.Example'
-                meta:
-                    $ref: '#/components/schemas/api.example.v1.MetaResponse'
-            description: '* Respuesta con la lista de plantillas.'
-        api.example.v1.MetaResponse:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    format: enum
                 message:
                     type: string
-            description: 'Your meta-object: only code and message.'
-        api.example.v1.TypeExample:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: uint32
-                name:
-                    type: string
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-        api.example.v1.UpsertExampleRequest:
-            required:
-                - name
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: uint32
-                name:
-                    type: string
-            description: '* Cuerpo para crear/actualizar una plantilla.'
-        api.example.v1.UpsertExampleResponse:
-            type: object
-            properties:
-                example:
-                    $ref: '#/components/schemas/api.example.v1.Example'
-                meta:
-                    $ref: '#/components/schemas/api.example.v1.MetaResponse'
-            description: '* Resultado del upsert.'
 tags:
     - name: Examplev1Service
