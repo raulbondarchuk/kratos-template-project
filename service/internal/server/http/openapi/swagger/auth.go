@@ -6,34 +6,35 @@ import (
 	"fmt"
 	stdhttp "net/http"
 	"service/internal/server/middleware/auth/auth/paseto"
+	"service/pkg/utils"
 	"strings"
 	"time"
 
 	kratoshttp "github.com/go-kratos/kratos/v2/transport/http"
 )
 
-func isAuthed(r *stdhttp.Request) bool {
-	c, err := r.Cookie(cookieName)
+func isAuthed(r *stdhttp.Request, cfg *Config) bool {
+	c, err := r.Cookie(cfg.CookieName)
 	return err == nil && strings.TrimSpace(c.Value) != ""
 }
 
-func setSessionCookie(w stdhttp.ResponseWriter, value string) {
+func setSessionCookieForReq(w stdhttp.ResponseWriter, r *stdhttp.Request, cfg *Config, value string) {
 	stdhttp.SetCookie(w, &stdhttp.Cookie{
-		Name:     cookieName,
-		Value:    value, // the token
-		Path:     cookiePath,
+		Name:     cfg.CookieName,
+		Value:    value,
+		Path:     cookiePathForReq(r, cfg),
 		HttpOnly: true,
 		SameSite: stdhttp.SameSiteLaxMode,
 		MaxAge:   3600,
-		// Secure: true, // enable for HTTPS
+		// Secure: true,
 	})
 }
 
-func clearSessionCookie(w stdhttp.ResponseWriter) {
+func clearSessionCookieForReq(w stdhttp.ResponseWriter, r *stdhttp.Request, cfg *Config) {
 	stdhttp.SetCookie(w, &stdhttp.Cookie{
-		Name:     cookieName,
+		Name:     cfg.CookieName,
 		Value:    "",
-		Path:     cookiePath,
+		Path:     cookiePathForReq(r, cfg),
 		HttpOnly: true,
 		SameSite: stdhttp.SameSiteLaxMode,
 		MaxAge:   -1,
@@ -41,26 +42,24 @@ func clearSessionCookie(w stdhttp.ResponseWriter) {
 	})
 }
 
-func authRequired(h stdhttp.HandlerFunc) stdhttp.HandlerFunc {
+func authRequired(cfg *Config, h stdhttp.HandlerFunc) stdhttp.HandlerFunc {
 	return func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-		if !isAuthed(r) {
-			serveLoginPage(w, r, "")
+		if !isAuthed(r, cfg) {
+			serveLoginPage(w, r, "", cfg)
 			return
 		}
 		h(w, r)
 	}
 }
 
-// authenticateWithAPI do a request to loginURL, extract the token from Authorization,
-// validate the roles and return the token + success flag.
-func authenticateWithAPI(username, password string) (string, bool) {
+func authenticateWithAPI(username, password string, cfg *Config) (string, bool) {
 	payload := map[string]string{"username": username, "password": password}
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return "", false
 	}
 
-	req, err := stdhttp.NewRequest(stdhttp.MethodPost, loginURL, bytes.NewBuffer(jsonData))
+	req, err := stdhttp.NewRequest(stdhttp.MethodPost, cfg.LoginURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", false
 	}
@@ -77,29 +76,24 @@ func authenticateWithAPI(username, password string) (string, bool) {
 		return "", false
 	}
 
-	// 1) get the token from Authorization
 	raw := strings.TrimSpace(resp.Header.Get("Authorization"))
 	token := extractBearerToken(raw)
 	if token == "" {
 		return "", false
 	}
 
-	// 2) validate the roles, which are stored in the token
-	rolesStr, err := paseto.VerifyAccessTokenRoles(token) // expect only the token, not the whole header
+	rolesStr, err := paseto.VerifyAccessTokenRoles(token)
 	if err != nil {
 		return "", false
 	}
-	roles := parseRoles(rolesStr) // normalize to []string
+	roles := parseRoles(rolesStr)
 
-	// 3) require at least one role
-	if !hasAnyRole(roles, requiredRoles) {
+	if !hasAnyRole(roles, cfg.RequiredRoles) {
 		return "", false
 	}
-
 	return token, true
 }
 
-// Trim "Bearer " if it exists
 func extractBearerToken(h string) string {
 	h = strings.TrimSpace(h)
 	if h == "" {
@@ -111,7 +105,6 @@ func extractBearerToken(h string) string {
 	return h
 }
 
-// Parse roles like "admin, user" / "admin user" / "admin;user"
 func parseRoles(s string) []string {
 	if s == "" {
 		return nil
@@ -129,7 +122,6 @@ func parseRoles(s string) []string {
 	return out
 }
 
-// at least one of the requiredRoles is present
 func hasAnyRole(userRoles, required []string) bool {
 	set := make(map[string]struct{}, len(userRoles))
 	for _, r := range userRoles {
@@ -143,9 +135,9 @@ func hasAnyRole(userRoles, required []string) bool {
 	return false
 }
 
-func attachBootstrap(s *kratoshttp.Server) {
-	s.HandleFunc("/swagger/bootstrap.js", authRequired(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-		c, _ := r.Cookie(cookieName)
+func attachBootstrap(s *kratoshttp.Server, cfg *Config) {
+	h := authRequired(cfg, func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
+		c, _ := r.Cookie(cfg.CookieName)
 		token := ""
 		if c != nil {
 			token = strings.TrimSpace(c.Value)
@@ -155,10 +147,6 @@ func attachBootstrap(s *kratoshttp.Server) {
 		setNoCache(w)
 		w.WriteHeader(stdhttp.StatusOK)
 
-		// t — token from HttpOnly-cookie (session). Work with localStorage keys:
-		// K        = token, which is used by Swagger UI
-		// K_LAST   = last "seeded" token from the server (for recognizing new authorization)
-		// K_OVR    = flag, that the user manually changed the token
 		js := fmt.Sprintf(`(function(){
   try{
     var t=%q;
@@ -172,25 +160,36 @@ func attachBootstrap(s *kratoshttp.Server) {
 
     if (t) {
       if (t !== last) {
-        // New authorization → rewrite localStorage with a fresh token
         localStorage.setItem(K, t);
         localStorage.setItem(K_LAST, t);
-        localStorage.removeItem(K_OVR); // reset the flag, because this is a new session
+        localStorage.removeItem(K_OVR);
         s = t;
       } else if (!s) {
-        // Old session, but localStorage is empty → seed it
         localStorage.setItem(K, t);
         s = t;
       }
-      // If t === last and there is an override — do nothing (respect the user's value)
     }
 
-    // Set the current value from localStorage to the input
-    var i=document.getElementById('authToken'); 
+    var i=document.getElementById('authToken');
     if(i){ i.value = localStorage.getItem(K) || s || ""; }
   }catch(e){}
 })();`, token)
 
 		_, _ = w.Write([]byte(js))
-	}))
+	})
+
+	reg(s, cfg.Base, "/docs/bootstrap.js", h)
+}
+
+func isInternalDocsUser(username string) bool {
+	wantUser := utils.EnvFirst("SW_LOGIN")
+	if wantUser == "" {
+		wantUser = "docs"
+	}
+	return username == wantUser
+}
+
+func verifyInternalDocsPassword(got string) bool {
+	want := utils.EnvFirst("SW_PASS")
+	return got == want
 }

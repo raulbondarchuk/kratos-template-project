@@ -2,6 +2,7 @@
 package server_http
 
 import (
+	openapifs "service/docs"
 	"service/internal/conf/v1"
 	"service/internal/server/http/middleware/multipart"
 	"service/internal/server/http/openapi/swagger"
@@ -20,6 +21,7 @@ type HTTPRegister func(*http.Server)
 
 func NewHTTPServer(
 	c *conf.Server,
+	app *conf.App,
 	registrers []HTTPRegister,
 	authGroups []endpoint.ServiceGroup,
 	logger log.Logger,
@@ -50,7 +52,25 @@ func NewHTTPServer(
 	}
 
 	// Documentation and system endpoints
-	swagger.AttachEmbeddedSwaggerUI(srv)
+
+	// 1) http
+	swagger.AttachEmbeddedSwaggerUIWithConfig(srv, swagger.Config{
+		Base:          "",
+		DocsFS:        openapifs.FS,
+		CookieName:    "swagger_default",
+		ProjectPrefix: "/" + app.GetName(),
+		FixedScheme:   "http",
+	})
+
+	// 2) https
+	swagger.AttachEmbeddedSwaggerUIWithConfig(srv, swagger.Config{
+		Base:          "/" + app.GetName(),
+		DocsFS:        openapifs.FS,
+		CookieName:    "swagger_" + app.GetName(),
+		ProjectPrefix: "/" + app.GetName(),
+		FixedScheme:   "https",
+	})
+
 	sys.LoadSystemEndpoints(srv)
 
 	return srv

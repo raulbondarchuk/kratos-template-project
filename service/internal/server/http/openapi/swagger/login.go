@@ -5,11 +5,17 @@ import (
 	stdhttp "net/http"
 )
 
-func serveLoginPage(w stdhttp.ResponseWriter, _ *stdhttp.Request, errMsg string) {
+func serveLoginPage(w stdhttp.ResponseWriter, r *stdhttp.Request, errMsg string, cfg *Config) {
 	setOnlyContentType(w, "text/html; charset=utf-8")
 	setNoCache(w)
 	w.WriteHeader(stdhttp.StatusOK)
-	_ = loginTpl.Execute(w, struct{ Error string }{Error: errMsg})
+	_ = loginTpl.Execute(w, struct {
+		Error string
+		Base  string
+	}{
+		Error: errMsg,
+		Base:  baseForReq(r, cfg), // dynamic Base
+	})
 }
 
 var loginTpl = template.Must(template.New("login").Parse(`<!doctype html>
@@ -49,20 +55,11 @@ var loginTpl = template.Must(template.New("login").Parse(`<!doctype html>
     .toggle-eye[data-state="shown"]  .eye-core{opacity:1;transform:scale(1)}
     .toggle-eye[data-state="shown"]  .eye-slash{opacity:0;transform:scale(.94)}
 
-    /* Button + Loader */
-    .btn{
-      position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;
-      border:0;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;
-      color:#fff;background:var(--green);margin-top:8px;transition:background .2s,transform .1s,opacity .2s; min-height:44px;
-    }
+    .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;color:#fff;background:var(--green);margin-top:8px;transition:background .2s,transform .1s,opacity .2s; min-height:44px;}
     .btn:hover{background:var(--green-h)}
     .btn:active{transform:scale(.98)}
     .btn[disabled]{opacity:.7;cursor:not-allowed}
-    .btn .spinner{
-      width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;
-      animation:spin .9s linear infinite;opacity:0;transform:scale(.8);
-      transition:opacity .15s ease; margin-right:6px;
-    }
+    .btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .9s linear infinite;opacity:0;transform:scale(.8);transition:opacity .15s ease;margin-right:6px;}
     .btn.loading .spinner{opacity:1}
     @keyframes spin{to{transform:rotate(360deg)}}
   </style>
@@ -70,13 +67,13 @@ var loginTpl = template.Must(template.New("login").Parse(`<!doctype html>
 <body>
   <div class="card">
     <div class="logo">
-      <img src="/swagger/logo.png" alt="logo" onerror="this.style.display='none'">
+      <img src="{{.Base}}/docs/logo.png" alt="logo" onerror="this.style.display='none'">
     </div>
     <div class="title">Autenticación requerida</div>
     <div class="subtitle">Introduce tus credenciales para acceder a la documentación técnica del servicio.</div>
     <div class="err">{{.Error}}</div>
 
-    <form id="loginForm" method="post" action="/swagger/login">
+    <form id="loginForm" method="post" action="{{.Base}}/docs/login">
       <div>
         <label>Usuario</label>
         <div class="input-wrap">
@@ -95,18 +92,10 @@ var loginTpl = template.Must(template.New("login").Parse(`<!doctype html>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 10h12v8a2 2 0 01-2 2H8a2 2 0 01-2-2v-8z"/>
           </svg>
           <input id="passwordInput" type="password" name="password" autocomplete="current-password" required />
-          <button
-            type="button"
-            id="toggleBtn"
-            class="toggle-eye"
-            data-state="hidden"
-            aria-label="Show password"
-            aria-pressed="false"
-            onclick="togglePassword()">
+          <button type="button" id="toggleBtn" class="toggle-eye" data-state="hidden" aria-label="Show password" aria-pressed="false" onclick="togglePassword()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <g class="eye-core">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"/>
                 <circle cx="12" cy="12" r="3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </g>
               <path class="eye-slash" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/>
@@ -115,7 +104,6 @@ var loginTpl = template.Must(template.New("login").Parse(`<!doctype html>
         </div>
       </div>
 
-      <!-- Button + Loader -->
       <button id="loginBtn" class="btn" type="submit" aria-live="polite">
         <span class="spinner" aria-hidden="true"></span>
         <span class="btn-label">Acceder</span>
@@ -124,7 +112,6 @@ var loginTpl = template.Must(template.New("login").Parse(`<!doctype html>
   </div>
 
   <script>
-    // toggle password visibility
     function togglePassword(){
       const input = document.getElementById('passwordInput');
       const btn   = document.getElementById('toggleBtn');
@@ -142,22 +129,16 @@ var loginTpl = template.Must(template.New("login").Parse(`<!doctype html>
       }
     }
 
-    // block the button and show the loader during submission
     (function(){
       const form = document.getElementById('loginForm');
       const btn  = document.getElementById('loginBtn');
       if(!form || !btn) return;
-
       form.addEventListener('submit', function(){
-        // protect against double submission
         if (btn.disabled) return;
-
         btn.disabled = true;
         btn.classList.add('loading');
         const label = btn.querySelector('.btn-label');
         if (label) label.textContent = 'Accediendo…';
-
-        // freeze the fields, so the user cannot change them during submission
         form.querySelectorAll('input').forEach(function(i){ i.setAttribute('readonly','true'); });
       });
     })();

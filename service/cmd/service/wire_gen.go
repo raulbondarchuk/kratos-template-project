@@ -29,7 +29,7 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 	server := server_grpc.NewGRPCServer(serverConf, v, logger)
 	v2 := ProvideHTTPRegistrers(allRegistrers)
 	v3 := feature.ProvideAuthGroups()
-	httpServer := server_http.NewHTTPServer(serverConf, v2, v3, logger)
+	httpServer := server_http.NewHTTPServer(serverConf, app, v2, v3, logger)
 	brokerBroker := broker.NewBroker(logger)
 	kratosApp := newApp(logger, app, server, httpServer, brokerBroker, dataConf)
 	return kratosApp, func() {
