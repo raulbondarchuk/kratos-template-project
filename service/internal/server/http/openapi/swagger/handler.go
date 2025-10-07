@@ -118,13 +118,13 @@ func AttachEmbeddedSwaggerUIWithConfig(s *kratoshttp.Server, cfg Config) {
 		regFS(s, cfg.Base, "/docs/openapi/", protected)
 	}
 
-	// handler.go (фрагмент UI)
+	// handler.go (fragment of UI)
 	reg(s, cfg.Base, "/docs/ui", authRequired(&cfg, func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		setOnlyContentType(w, "text/html; charset=utf-8")
 		setNoCache(w)
 		w.WriteHeader(stdhttp.StatusOK)
 
-		// если FixedScheme не задан, попробуем взять из прокси
+		// if FixedScheme is not set, try to get it from the proxy
 		scheme := cfg.FixedScheme
 		if scheme == "" {
 			if xf := strings.TrimSpace(r.Header.Get("X-Forwarded-Proto")); xf != "" {
