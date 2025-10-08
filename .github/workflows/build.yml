@@ -1,0 +1,31 @@
+name: Build & Push
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - 'service/**'
+      - '.github/workflows/**'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  call-org-build:
+    uses: liftelimasd/.github/.github/workflows/build-push.yml@main
+    with:
+      registry:     "registry.liftel.es:5000"
+      go_version:   "1.25.0"
+      working_dir:  "./service"
+      context:      "service"
+      config_file:  "configs/config.yaml"
+
+      expose_ports: "8000 9000"
+      go_build_target: "./cmd/service"
+      copy_env_into_image: true
+      runtime_image: "gcr.io/distroless/static:nonroot"
+      entrypoint_args: "-conf /configs"
+      build_image:  false  # ← set false to skip build (will be reflected in Summary)
+      cache_scope:  "org-go"
+    secrets: inherit

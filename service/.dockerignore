@@ -1,0 +1,13 @@
+# general
+.git
+.gitignore
+.github
+.DS_Store
+
+# cache/local builds
+.gocache
+.gomodcache
+bin
+build
+dist
+*.out
