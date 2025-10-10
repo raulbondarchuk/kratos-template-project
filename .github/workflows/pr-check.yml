@@ -7,7 +7,7 @@ on:
     paths:
       - 'service/**'
       - '.github/workflows/**'
-
+      
 permissions:
   contents: read
 
@@ -17,5 +17,4 @@ jobs:
     with:
       go_version:  "1.25.0"
       working_dir: "./service"
-      run_tests:   false # true - pass tests (if you want to pass tests)
-      build_smoke: false # true - build and run smoke tests (if you want to build and run smoke tests (for pass))
+      run_tests:   false  # true = run smoke build + tests; false = fast skip
