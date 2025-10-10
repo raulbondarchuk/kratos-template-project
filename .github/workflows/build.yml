@@ -26,6 +26,6 @@ jobs:
       copy_env_into_image: true
       runtime_image: "gcr.io/distroless/static:nonroot"
       entrypoint_args: "-conf /configs"
-      build_image:  false  # ← set false to skip build (will be reflected in Summary)
+      build_image:  false # set false to skip build (will be reflected in Summary)
       cache_scope:  "org-go"
     secrets: inherit
