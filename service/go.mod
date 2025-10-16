@@ -7,6 +7,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/go-kratos/kratos/contrib/log/logrus/v2 v2.0.0-20250904133408-3e3318a4588b
 	github.com/go-kratos/kratos/v2 v2.8.4
+	github.com/go-resty/resty/v2 v2.16.5
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.6.0
 	github.com/jinzhu/copier v0.4.0

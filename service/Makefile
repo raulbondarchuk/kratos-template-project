@@ -7,7 +7,6 @@ SHELL := powershell.exe
 
 # --- Project layout ---
 APP_NAME := service
-APP_NAME_TO_BUILD := kratos-template
 CMD_DIR  := cmd/$(APP_NAME)
 BIN_DIR  := bin
 
@@ -61,10 +60,6 @@ wire:
 wire-check:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/wire-check.ps1"
 
-# Build
-build:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_PS)/build-linux.ps1" -AppName '$(APP_NAME_TO_BUILD)' -CmdDir '$(CMD_DIR)' -BinDir '$(BIN_DIR)'
-
 # Kratos run
 run:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/run.ps1" -Mode kratos
@@ -72,10 +67,6 @@ run:
 # Go run
 gorun:
 	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/run.ps1" -Mode go -CmdDir "$(CMD_DIR)" -ConfigPath "$(CONFIG_PATH)"
-
-# Clean
-clean clear cls:
-	@powershell -NoProfile -ExecutionPolicy Bypass -File "$(PATH_SCRIPTS_MAKE)/clean.ps1" -BinDir "$(BIN_DIR)"
 
 # ==============================================================================
 # Docs =========================================================================

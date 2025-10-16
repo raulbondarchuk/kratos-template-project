@@ -23,7 +23,7 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, webhooksConf *conf.Webhooks, logger log.Logger) (*kratos.App, func(), error) {
 	allRegistrers := BuildAllRegistrars()
 	v := ProvideGRPCRegistrers(allRegistrers)
 	server := server_grpc.NewGRPCServer(serverConf, v, logger)

@@ -1,71 +1,127 @@
+// ============================================================================
+// internal.conf.v1 — Bootstrap configuration schema
+// ============================================================================
+
 syntax = "proto3";
+
 package internal.conf.v1;
 
 import "google/protobuf/duration.proto";
 
 option go_package = "service/internal/conf/v1;conf";
 
-// Bootstrap Es la configuración principal de la aplicación
+// ============================================================================
+// 1) Bootstrap — main configuration node of the application
+// ============================================================================
+
 message Bootstrap {
-  Server server = 1;
-  Data data = 2;
-  App app = 3;
+  Server server = 1; // server configuration (HTTP/GRPC)
+  Data data = 2; // data storage, brokers and etc.
+  App app = 3; // application metadata
+  Webhooks webhooks = 4; // webhooks configuration
 }
 
-// App Es la configuración de la aplicación
+// ============================================================================
+// 2) App — application metadata/modes
+// ============================================================================
+
 message App {
-  string mode = 1;
-  string name = 2;
-  string version = 3;
+  string mode = 1; // mode of operation (dev/prod/etc.)
+  string name = 2; // application name
+  string version = 3; // application version
 }
 
-// Server Es la configuración del servidor
+// ============================================================================
+// 3) Server — HTTP and GRPC configuration
+// ============================================================================
+
 message Server {
-  // HTTP Es la configuración del servidor HTTP
+  // --------------------------------------------------------------------------
+  // 3.1) HTTP — HTTP server
+  // --------------------------------------------------------------------------
   message HTTP {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration timeout = 3;
-  }
-  // GRPC Es la configuración del servidor GRPC
-  message GRPC {
-    string network = 1;
-    string addr = 2;
-    google.protobuf.Duration timeout = 3;
+    string network = 1; // for example: "tcp"
+    string addr = 2; // address: ":8080"
+    google.protobuf.Duration timeout = 3; // request timeout
   }
 
-  // Aqui se define el servidor HTTP y GRPC
+  // --------------------------------------------------------------------------
+  // 3.2) GRPC — gRPC server
+  // --------------------------------------------------------------------------
+  message GRPC {
+    string network = 1; // for example: "tcp"
+    string addr = 2; // address: ":9090"
+    google.protobuf.Duration timeout = 3; // request timeout
+  }
+
+  // --------------------------------------------------------------------------
+  // 3.x) Instances of servers
+  // --------------------------------------------------------------------------
   HTTP http = 1;
   GRPC grpc = 2;
 }
 
-// Data Es la configuración de la base de datos y Redis&MQTT
+// ============================================================================
+// 4) Data — database and brokers (Redis/MQTT)
+// ============================================================================
+
 message Data {
-  // Database Es la configuración de la base de datos
+  // --------------------------------------------------------------------------
+  // 4.1) Database — database initialization management
+  // --------------------------------------------------------------------------
   message Database {
-    bool active = 1;
-    bool ensure_schema = 2;
-    bool migrations = 3;
-    bool seed = 4;
-  }
-  // Redis Es la configuración del servidor Redis
-  // message Redis {
-  //   string network = 1;
-  //   string addr = 2;
-  //   google.protobuf.Duration read_timeout = 3;
-  //   google.protobuf.Duration write_timeout = 4;
-  // }
-  // MQTT Es la configuración del servidor MQTT
-  message MQTT {
-    bool active = 1;
-    string source = 2;
-    string client_id = 3;
-    google.protobuf.Duration max_reconnect_interval = 4;
-    repeated string topics = 5;
+    bool active = 1; // is database active
+    bool migrations = 2; // apply migrations
+    bool seed = 3; // fill with initial data
   }
 
-  // Aqui se define la base de datos y Redis&MQTT
+  // --------------------------------------------------------------------------
+  // 4.x) Components of Data
+  // --------------------------------------------------------------------------
   Database database = 1;
-  // Redis redis = 2;
-  MQTT mqtt = 3;
+  MQTT mqtt = 2;
+}
+
+// ============================================================================
+// 5) MQTT — MQTT client/subscriptions configuration
+// ============================================================================
+
+message MQTT {
+  bool active = 1; // is MQTT active
+  string source = 2; // URI/source
+  string client_id = 3; // client identifier
+  google.protobuf.Duration max_reconnect_interval = 4; // maximum reconnect interval
+  repeated string topics = 5; // topics for subscription
+  Publish publish = 6; // publication settings
+}
+
+// -----------------------------------------------------------------------------
+// 5.1) Publish — pre-configured topics for sending
+// -----------------------------------------------------------------------------
+
+message Publish {
+  string topic1 = 1;
+  string topic2 = 2;
+}
+
+// ============================================================================
+// 6) Webhooks — webhooks configuration
+// ============================================================================
+
+message Webhooks {
+  Webhook webhook = 1;
+}
+
+message Webhook {
+  string url = 1; // base URL of the webhook
+  google.protobuf.Duration timeout = 2; // timeout of the webhook
+  Routes routes = 3; // routes
+
+  // --------------------------------------------------------------------------
+  // 6.1) List of routes (example)
+  // --------------------------------------------------------------------------
+  message Routes {
+    string route1 = 1;
+    string route2 = 2;
+  }
 }

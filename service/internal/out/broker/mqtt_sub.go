@@ -5,10 +5,23 @@ import (
 
 	mymqtt "service/pkg/mqtt"
 	"service/pkg/utils"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
+type Broker struct {
+	log *log.Helper
+}
+
+// NewBroker creates a new Broker instance with the given Usecase and logger
+func NewBroker(logger log.Logger) *Broker {
+	return &Broker{
+		log: log.NewHelper(logger),
+	}
+}
+
 // StartMQTT starts the MQTT broker
-func (b *Broker) StartMQTT(data *conf.Data) {
+func (b *Broker) Start(data *conf.Data) {
 
 	if data.Mqtt == nil {
 		b.log.Info("[MQTT] [SKIPPED] Broker is not configured, skipping...")

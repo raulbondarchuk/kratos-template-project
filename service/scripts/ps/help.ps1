@@ -19,11 +19,10 @@ Flujo de comandos (RECOMENDADO)
   1.2)   make deps    - refrescar buf.lock si hace falta, se puede omitir y utilizar make gen
   1.3)   make gen     - generar codigo protobuf (plantilla: $BufGen) (deps + gen)
   1.4)   make wire    - generar inyeccion (wire) en $CmdDir
-  2.0)   make build   - compilar binario ($Bin)
-  3.0)   make run     - ejecutar con kratos (o 'make gorun')
+  2.0)   make run     - ejecutar con kratos (o 'make gorun')
 
 Workflow de modulos (RECOMENDADO)
-   make module name="foo" [ops="get,upsert,delete"]
+  make module name="foo" [ops="get,upsert,delete"]
     - Crea modulo completo (proto, feature, repo, biz, service, wire). Si ya existe, crea una nueva version.
     - Si NO se pasan ops → SIN endpoints por defecto; en el .proto se añade un mock GET /vN/foo/mock   // TODO: Mock de endpoint
   make module-delete name="foo" - eliminar modulo foo (todas versiones)
@@ -46,19 +45,12 @@ Ejemplos (ops)
 OPS (endpoints por defecto)
   - OPS es un parametro opcional que se puede pasar a make module, make module-proto, make module-feature, make module-service, make module-repo, make module-biz, make module-wire
   
-  1) get (alias: find, list, read)
-      - Genera RPC Find* en .proto y archivos: s_find.go (service) y r_list.go (repo)
-
-  2) upsert (alias: create, update)
-      - Genera RPC Upsert* en .proto y archivos: s_upsert.go (service) y r_upsert.go (repo)
-
-  3) delete (alias: del, remove)
-      - Genera RPC Delete*ById en .proto y archivos: s_delete_by_id.go (service) y r_delete_by_id.go (repo)
-
+  1) get (alias: find, list, read) - Genera RPC Find* en .proto y archivos: s_find.go (service) y r_list.go (repo)
+  2) upsert (alias: create, update) - Genera RPC Upsert* en .proto y archivos: s_upsert.go (service) y r_upsert.go (repo)
+  3) delete (alias: del, remove) - Genera RPC Delete*ById en .proto y archivos: s_delete_by_id.go (service) y r_delete_by_id.go (repo)
   4) Si ops esta vacio:
       - No se generan RPCs de negocio (GET/UPSERT/DELETE).
       - En .proto se crea un unico endpoint de mock: GET /vN/<base>/mock (// TODO: Mock de endpoint) para registrar rutas HTTP.
-
   5) Cualquier token desconocido en ops se ignora; si todos son desconocidos, se trata como vacio y se genera el mock.
 
 Commit + version automatica
@@ -72,10 +64,8 @@ Comandos principales
   make deps     - actualizar buf.lock si buf.yaml cambio
   make gen      - buf generate
   make wire     - ejecutar wire en $CmdDir
-  make build    - compilar -> $Bin
   make run      - kratos run (hot reload)
   make gorun    - go run ./$CmdDir -conf ./configs
-  make clean    - limpiar bin/, wire_gen.go, *.pb.go, swagger/openapi
   make docs     - regenerar solo documentacion (docs/, docs/openapi)
   make tmodule  - generar tests unitarios para un modulo
 
