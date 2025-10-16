@@ -58,7 +58,7 @@ func newLogger(mode string) klog.Logger {
 func newApp(logger klog.Logger, app *conf.App, gs *grpc.Server, hs *http.Server, b *broker.Broker, data *conf.Data) *kratos.App {
 	// safe start broker
 	if b != nil && data != nil {
-		go b.StartMQTT(data)
+		go b.Start(data)
 	}
 
 	md := map[string]string{"env": envOr("APP_ENV", "dev"), "go": runtime.Version()}
@@ -113,7 +113,7 @@ func main() {
 
 	logger := newLogger(bc.App.GetMode())
 
-	app, cleanup, err := wireApp(bc.App, bc.Server, bc.Data, logger)
+	app, cleanup, err := wireApp(bc.App, bc.Server, bc.Data, bc.Webhooks, logger)
 	if err != nil {
 		log.Fatalf("bootstrap: %v", err)
 	}

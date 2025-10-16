@@ -1,7 +1,7 @@
 app:
   mode: dev
   name: kratos-template
-  version: v2
+  version: v3
 
 server:
   http:
@@ -13,7 +13,6 @@ server:
 data:
   database:
     active: false
-    ensure_schema: false
     migrations: false
     seed: false
 # redis:
@@ -30,3 +29,15 @@ data:
       - "receiver/lta/#"
       - "receiver/ltc/#"
       - "receiver/scr/#"
+    publish:
+      topic1: "topic1/test"
+      topic2: "topic2/test"
+
+webhooks:
+  webhook:
+    url: http://localhost:3000
+    timeout: 5s
+    routes:
+      route1: /v1/route1
+      route2: /v2/route2
+

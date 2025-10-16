@@ -27,9 +27,12 @@ func RoleMiddleware(requiredRoles []string) middleware.Middleware {
 			}
 
 			// HTTP: read Authorization
-			token := tr.RequestHeader().Get("Authorization")
+			token, err := GetAccessToken(ctx)
+			if err != nil {
+				return nil, http_errors.Unauthorized(ReasonAuthz, err.Error(), nil)
+			}
 			if token == "" {
-				return nil, http_errors.Unauthorized(ReasonAuthz, "missing authorization header", nil)
+				return nil, http_errors.Unauthorized(ReasonAuthz, ErrMissingAuthorizationHeader.Error(), nil)
 			}
 
 			// verify token
@@ -55,6 +58,8 @@ func RoleMiddleware(requiredRoles []string) middleware.Middleware {
 			// put roles/claims into ctx if needed
 			ctx = context.WithValue(ctx, ctxKeyRoles, userRoles)
 			ctx = context.WithValue(ctx, ctxKeyClaims, claims)
+			ctx = context.WithValue(ctx, ctxKeyCompanyID, claims.CompanyID)
+			ctx = context.WithValue(ctx, ctxKeyCliUser, claims.CliUser)
 
 			return next(ctx, req)
 		}

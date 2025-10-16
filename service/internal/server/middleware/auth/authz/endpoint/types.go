@@ -4,7 +4,11 @@ import (
 	"context"
 	"reflect"
 	"runtime"
+	"service/internal/server/middleware/auth/auth/paseto"
 	"strings"
+
+	"github.com/go-kratos/kratos/v2/transport"
+	"google.golang.org/grpc/metadata"
 )
 
 // ----- service descriptions -----
@@ -33,9 +37,23 @@ func NewServiceMethod(service interface{}, method interface{}, roles ...string) 
 type ctxKey string
 
 const (
-	ctxKeyRoles  ctxKey = "roles"
-	ctxKeyClaims ctxKey = "claims"
+	ctxKeyRoles       ctxKey = "roles"
+	ctxKeyClaims      ctxKey = "claims"
+	ctxKeyAccessToken ctxKey = "access_token"
+
+	ctxKeyCompanyID ctxKey = "company_id"
+	ctxKeyCliUser   ctxKey = "cliuser"
 )
+
+// TokenFromContext returns raw token stored by middleware (without "Bearer ").
+func AccessTokenFromContext(ctx context.Context) string {
+	if v := ctx.Value(ctxKeyAccessToken); v != nil {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
 
 // RolesFromContext returns roles previously stored by middleware.
 func RolesFromContext(ctx context.Context) []string {
@@ -45,6 +63,40 @@ func RolesFromContext(ctx context.Context) []string {
 		}
 	}
 	return nil
+}
+
+// ClaimsFromContext returns claims previously stored by middleware.
+func ClaimsFromContext(ctx context.Context) *paseto.Claims {
+	if v := ctx.Value(ctxKeyClaims); v != nil {
+		if claims, ok := v.(*paseto.Claims); ok {
+			return claims
+		}
+	}
+	return nil
+}
+
+func CompanyIDFromContext(ctx context.Context) uint {
+	if v := ctx.Value(ctxKeyCompanyID); v != nil {
+		if id, ok := v.(uint); ok && id != 0 {
+			return id
+		}
+	}
+	if c := ClaimsFromContext(ctx); c != nil && c.CompanyID != 0 {
+		return c.CompanyID
+	}
+	return 0
+}
+
+func CliUserFromContext(ctx context.Context) string {
+	if v := ctx.Value(ctxKeyCliUser); v != nil {
+		if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
+			return s
+		}
+	}
+	if c := ClaimsFromContext(ctx); c != nil && strings.TrimSpace(c.CliUser) != "" {
+		return c.CliUser
+	}
+	return ""
 }
 
 // ----- role checks -----
@@ -100,4 +152,23 @@ func GetMethodName(method interface{}) string {
 	parts := strings.Split(full, ".")
 	name := parts[len(parts)-1]
 	return strings.TrimSuffix(name, "-fm")
+}
+
+func GetAccessToken(ctx context.Context) (string, error) {
+	// Try Kratos transport first (HTTP)
+	if tr, ok := transport.FromServerContext(ctx); ok && tr != nil {
+		h := tr.RequestHeader().Get("Authorization")
+		if tok := paseto.SkipBearer(h); tok != "" {
+			return tok, nil
+		}
+	}
+	// Try gRPC metadata
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if vals := md.Get("authorization"); len(vals) > 0 {
+			if tok := paseto.SkipBearer(vals[0]); tok != "" {
+				return tok, nil
+			}
+		}
+	}
+	return "", ErrMissingAuthorizationHeader
 }

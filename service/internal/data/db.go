@@ -46,12 +46,9 @@ func NewData(config *conf.Data, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 
-	if config.Database.EnsureSchema {
-		if err := adapter.EnsureSchema(baseDB); err != nil {
-			return nil, nil, err
-		}
-	} else {
-		h.Infof("[DATABASE] [SKIPPED] Ensure schema is disabled")
+	// Always ensure schema
+	if err := adapter.EnsureSchema(baseDB); err != nil {
+		return nil, nil, err
 	}
 
 	// 3) DSN with schema → main connection

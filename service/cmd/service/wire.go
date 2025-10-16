@@ -8,21 +8,24 @@ import (
 	// "service/internal/data"
 	"service/internal/feature"
 	"service/internal/out/broker"
+
+	// "service/internal/out/webhooks"
 	"service/internal/server"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-
 )
 
 // wireApp init kratos application.
-func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, webhooksConf *conf.Webhooks, logger log.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(
 		// infra
 		server.ProviderSet,
 		// data.ProviderSet,
+		// webhooks.ProviderSet,
 		broker.ProviderSet,
+
 		feature.ProviderAuthSet, // auth groups
 
 		// modules
@@ -35,4 +38,3 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, logger
 		newApp,
 	))
 }
-
