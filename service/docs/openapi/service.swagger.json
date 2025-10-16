@@ -1,16 +1,45 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "internal/conf/v1/conf.proto",
+    "title": "api/example/v1/example.proto",
     "version": "version not set"
   },
+  "tags": [
+    {
+      "name": "Examplev1Service"
+    }
+  ],
   "consumes": [
     "application/json"
   ],
   "produces": [
     "application/json"
   ],
-  "paths": {},
+  "paths": {
+    "/v1/example/mock": {
+      "get": {
+        "summary": "Mock endpoint (no ops selected)",
+        "operationId": "Examplev1Service_Mock",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MockResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Examplev1Service"
+        ]
+      }
+    }
+  },
   "definitions": {
     "protobufAny": {
       "type": "object",
@@ -37,6 +66,15 @@
             "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "v1MockResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "title": "e.g. \"\"pong\"\""
         }
       }
     }

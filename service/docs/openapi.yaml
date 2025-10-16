@@ -3,8 +3,29 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: Examplev1Service API
+    description: 'Examplev1Service: generated with ops=[]'
     version: 0.0.1
-paths: {}
+paths:
+    /v1/example/mock:
+        get:
+            tags:
+                - Examplev1Service
+            description: Mock endpoint (no ops selected)
+            operationId: Examplev1Service_Mock
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.example.v1.MockResponse'
 components:
-    schemas: {}
+    schemas:
+        api.example.v1.MockResponse:
+            type: object
+            properties:
+                message:
+                    type: string
+tags:
+    - name: Examplev1Service

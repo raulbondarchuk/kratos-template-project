@@ -10,7 +10,12 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"service/internal/conf/v1"
+	"service/internal/data"
 	"service/internal/feature"
+	"service/internal/feature/example/v1"
+	"service/internal/feature/example/v1/biz"
+	"service/internal/feature/example/v1/repo"
+	"service/internal/feature/example/v1/service"
 	"service/internal/out/broker"
 	"service/internal/server/grpc"
 	"service/internal/server/http"
@@ -24,14 +29,25 @@ import (
 
 // wireApp init kratos application.
 func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, webhooksConf *conf.Webhooks, logger log.Logger) (*kratos.App, func(), error) {
-	allRegistrers := BuildAllRegistrars()
+	dataData, cleanup, err := data.NewData(dataConf, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	exampleRepo := example_repo.NewExampleRepo(dataData, logger)
+	exampleUsecase := example_biz.NewExampleUsecase(exampleRepo, logger)
+	transaction := data.NewTransaction(dataData)
+	exampleService := example_service.NewExampleService(exampleUsecase, transaction)
+	httpRegister := example.NewExampleHTTPRegistrer(exampleService)
+	grpcRegister := example.NewExampleGRPCRegistrer(exampleService)
+	allRegistrers := BuildAllRegistrars(httpRegister, grpcRegister)
 	v := ProvideGRPCRegistrers(allRegistrers)
 	server := server_grpc.NewGRPCServer(serverConf, v, logger)
 	v2 := ProvideHTTPRegistrers(allRegistrers)
-	v3 := feature.ProvideAuthGroups()
+	v3 := feature.ProvideAuthGroups(exampleService)
 	httpServer := server_http.NewHTTPServer(serverConf, app, v2, v3, logger)
 	brokerBroker := broker.NewBroker(logger)
 	kratosApp := newApp(logger, app, server, httpServer, brokerBroker, dataConf)
 	return kratosApp, func() {
+		cleanup()
 	}, nil
 }
