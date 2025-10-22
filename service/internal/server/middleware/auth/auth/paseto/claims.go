@@ -1,6 +1,10 @@
 package paseto
 
-import "time"
+import (
+	"errors"
+	"strings"
+	"time"
+)
 
 // Claims
 type Claims struct {
@@ -15,16 +19,20 @@ type Claims struct {
 	Iat       int64  `json:"iat"`
 }
 
-func (c *Claims) valid() bool { return time.Now().Unix() < c.Exp }
-
-// legacy-helper structure (only inside the package)
-type LegacyClaims struct {
-	Username      string    `json:"username"`
-	CompanyID     int       `json:"companyId"`
-	CompanyName   string    `json:"companyName"`
-	Roles         string    `json:"roles"`
-	OwnerUsername string    `json:"ownerUsername"`
-	Cliuser       *string   `json:"cliuser,omitempty"`
-	IssuedAt      time.Time `json:"iat"`
-	ExpiresAt     time.Time `json:"exp"`
+func (c *Claims) valid() bool {
+	return time.Now().Unix() < c.Exp
 }
+
+func SkipBearer(token string) string {
+	token = strings.TrimSpace(token)
+	if strings.HasPrefix(strings.ToLower(token), "bearer ") {
+		return strings.TrimSpace(token[7:])
+	}
+	return token
+}
+
+var (
+	ErrInvalidSignature = errors.New("invalid signature")
+	ErrNotAnAccessToken = errors.New("not an access token")
+	ErrTokenExpired     = errors.New("token expired")
+)

@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"service/pkg/logger"
@@ -22,10 +23,7 @@ func CreateMiddleware(groups []ServiceGroup) middleware.Middleware {
 			if name == "" {
 				continue
 			}
-			logger.Debug("Registering roles for method", map[string]interface{}{
-				"method": name,
-				"roles":  m.RequiredRoles,
-			})
+			logger.Debug(fmt.Sprintf("Registering roles for method %s", name), map[string]interface{}{"roles": m.RequiredRoles})
 			methodRoles[name] = m.RequiredRoles
 		}
 	}

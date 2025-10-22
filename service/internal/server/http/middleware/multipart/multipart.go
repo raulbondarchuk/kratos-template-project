@@ -80,7 +80,7 @@ func Middleware(maxMemory int64) middleware.Middleware {
 }
 
 func isMultipartRequest(r *http.Request) bool {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPost && r.Method != http.MethodPatch {
 		return false
 	}
 	ct := strings.ToLower(r.Header.Get("Content-Type"))

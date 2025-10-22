@@ -58,8 +58,6 @@ func RoleMiddleware(requiredRoles []string) middleware.Middleware {
 			// put roles/claims into ctx if needed
 			ctx = context.WithValue(ctx, ctxKeyRoles, userRoles)
 			ctx = context.WithValue(ctx, ctxKeyClaims, claims)
-			ctx = context.WithValue(ctx, ctxKeyCompanyID, claims.CompanyID)
-			ctx = context.WithValue(ctx, ctxKeyCliUser, claims.CliUser)
 
 			return next(ctx, req)
 		}

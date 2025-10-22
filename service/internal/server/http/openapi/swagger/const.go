@@ -4,7 +4,7 @@ package swagger
 import "io/fs"
 
 const (
-	defaultLoginURL = "http://10.70.20.90:8134/v1/login"
+	defaultLoginURL = "http://10.70.20.95:8134/v1/login"
 )
 
 var (

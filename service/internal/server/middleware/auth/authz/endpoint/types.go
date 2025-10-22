@@ -40,9 +40,6 @@ const (
 	ctxKeyRoles       ctxKey = "roles"
 	ctxKeyClaims      ctxKey = "claims"
 	ctxKeyAccessToken ctxKey = "access_token"
-
-	ctxKeyCompanyID ctxKey = "company_id"
-	ctxKeyCliUser   ctxKey = "cliuser"
 )
 
 // TokenFromContext returns raw token stored by middleware (without "Bearer ").
@@ -73,30 +70,6 @@ func ClaimsFromContext(ctx context.Context) *paseto.Claims {
 		}
 	}
 	return nil
-}
-
-func CompanyIDFromContext(ctx context.Context) uint {
-	if v := ctx.Value(ctxKeyCompanyID); v != nil {
-		if id, ok := v.(uint); ok && id != 0 {
-			return id
-		}
-	}
-	if c := ClaimsFromContext(ctx); c != nil && c.CompanyID != 0 {
-		return c.CompanyID
-	}
-	return 0
-}
-
-func CliUserFromContext(ctx context.Context) string {
-	if v := ctx.Value(ctxKeyCliUser); v != nil {
-		if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
-			return s
-		}
-	}
-	if c := ClaimsFromContext(ctx); c != nil && strings.TrimSpace(c.CliUser) != "" {
-		return c.CliUser
-	}
-	return ""
 }
 
 // ----- role checks -----

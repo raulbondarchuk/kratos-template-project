@@ -113,7 +113,7 @@ func main() {
 
 	logger := newLogger(bc.App.GetMode())
 
-	app, cleanup, err := wireApp(bc.App, bc.Server, bc.Data, bc.Webhooks, logger)
+	app, cleanup, err := wireApp(&bc, logger)
 	if err != nil {
 		log.Fatalf("bootstrap: %v", err)
 	}

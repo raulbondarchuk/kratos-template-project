@@ -20,8 +20,14 @@ import (
 )
 
 // wireApp init kratos application.
-func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, webhooksConf *conf.Webhooks, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(
+		// extractors from Bootstrap
+		ProvideAppFromBootstrap,
+		ProvideServerFromBootstrap,
+		ProvideDataFromBootstrap,
+		// ProvideWebhooksFromBootstrap,
+
 		// infra
 		server.ProviderSet,
 		data.ProviderSet,
@@ -41,5 +47,3 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, webhoo
 		newApp,
 	))
 }
-
-

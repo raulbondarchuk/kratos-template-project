@@ -28,8 +28,11 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, webhooksConf *conf.Webhooks, logger log.Logger) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData(dataConf, logger)
+func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(), error) {
+	app := ProvideAppFromBootstrap(bootstrap)
+	server := ProvideServerFromBootstrap(bootstrap)
+	confData := ProvideDataFromBootstrap(bootstrap)
+	dataData, cleanup, err := data.NewData(confData, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -41,12 +44,12 @@ func wireApp(app *conf.App, serverConf *conf.Server, dataConf *conf.Data, webhoo
 	grpcRegister := example.NewExampleGRPCRegistrer(exampleService)
 	allRegistrers := BuildAllRegistrars(httpRegister, grpcRegister)
 	v := ProvideGRPCRegistrers(allRegistrers)
-	server := server_grpc.NewGRPCServer(serverConf, v, logger)
+	grpcServer := server_grpc.NewGRPCServer(server, app, v, logger)
 	v2 := ProvideHTTPRegistrers(allRegistrers)
 	v3 := feature.ProvideAuthGroups(exampleService)
-	httpServer := server_http.NewHTTPServer(serverConf, app, v2, v3, logger)
+	httpServer := server_http.NewHTTPServer(server, app, v2, v3, logger)
 	brokerBroker := broker.NewBroker(logger)
-	kratosApp := newApp(logger, app, server, httpServer, brokerBroker, dataConf)
+	kratosApp := newApp(logger, app, grpcServer, httpServer, brokerBroker, confData)
 	return kratosApp, func() {
 		cleanup()
 	}, nil

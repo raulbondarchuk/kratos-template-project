@@ -61,7 +61,7 @@ func GetAccessTokenFromHeader(ctx context.Context) string {
 func GetRefreshTokenFromHeader(ctx context.Context) string {
 	if tr, ok := transport.FromServerContext(ctx); ok {
 		if htr, ok := tr.(*khttp.Transport); ok && htr.Request() != nil {
-			return htr.Request().Header.Get("Authorization")
+			return htr.Request().Header.Get("Refresh")
 		}
 	}
 	return ""
